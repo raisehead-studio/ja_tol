@@ -15,6 +15,7 @@ jobs:
           node-version: 18
       - name: Create .env
         run: |
+          cd ./client
           touch .env
           echo REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }} >> .env
       - run: npm install --prefix ./client
@@ -37,3 +38,12 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           source: "./service"
           target: "/var/www/"
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/service
+            pm2 stop ecosystem.config.js
+            pm2 start ecosystem.config.js
