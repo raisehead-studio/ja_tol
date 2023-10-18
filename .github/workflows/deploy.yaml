@@ -24,5 +24,5 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "./client/, ./service"
+          source: "./client, ./service"
           target: "/var/www/"
