@@ -58,8 +58,8 @@ PowerStop.belongsTo(Assignments, { foreignKey: "aid" });
 Assignments.hasMany(PowerStop, { foreignKey: "aid" });
 FactoryOtherForm.belongsTo(Factorys, { foreignKey: "fid" });
 Factorys.hasMany(FactoryOtherForm, { foreignKey: "fid" });
-ToBillInvoice.belongsTo(ToBill, { foreignKey: "tid" });
-ToBill.hasMany(ToBillInvoice, { foreignKey: "tid" });
+ToBillInvoice.belongsTo(ToBill, { foreignKey: "tbid" });
+ToBill.hasMany(ToBillInvoice, { foreignKey: "tbid" });
 
 seq
   // .sync({ force: true })

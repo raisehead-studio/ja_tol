@@ -11,6 +11,8 @@ router.get("/get_assignment_detail/:woid", controllers.get_assignment_detail);
 
 router.post("/create_assignment", controllers.create_assignment);
 
+router.put("/update_assignment", controllers.update_assignment);
+
 router.post("/create_manpower_schedule", controllers.create_manpower_schedule);
 
 router.post("/create_power_stop", controllers.create_power_stop);
@@ -22,7 +24,11 @@ router.get(
 
 router.post("/create_acceptance_check", controllers.create_acceptance_check);
 
-router.get("/get_factory_detail/:woid", controllers.get_work_orders_list);
+router.put("/update_acceptance_check", controllers.update_acceptance_check);
+
+router.get("/get_factory_detail/:woid", controllers.get_factory_detail);
+
+router.put("/update_factory", controllers.update_factory);
 
 router.post("/create_factory", controllers.create_factory);
 
@@ -31,7 +37,9 @@ router.post(
   controllers.create_factory_other_form
 );
 
-router.get("/get_tobill_detail/:woid", controllers.get_work_orders_list);
+router.put("/update_tobill", controllers.update_tobill);
+
+router.get("/get_tobill_detail/:woid", controllers.get_tobill_detail);
 
 router.post("/create_tobill", controllers.create_tobill);
 

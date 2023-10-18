@@ -9,10 +9,8 @@ router.get("/", controller.get_service_list);
 
 router.get("/:csid", controller.get_service_detail);
 
-router.post("/update_service", controller.update_service);
+router.put("/update_service", controller.update_service);
 
 router.post("/create_service_content", controller.create_service_content);
-
-// router.post("/update_service", authController.create_user);
 
 export default router;

@@ -8,18 +8,9 @@ const ElePlace = seq.define("ele_place", {
     allowNull: false,
     primaryKey: true,
   },
-  name: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  address: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  owner: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
+  name: Sequelize.STRING,
+  address: Sequelize.STRING,
+  owner: Sequelize.STRING,
   cid: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,

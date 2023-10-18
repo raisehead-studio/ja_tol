@@ -11,7 +11,7 @@ router.post("/create_ele_place", controller.create_ele_place);
 
 router.get("/:cid", controller.get_customers_detail);
 
-// router.post("/update_customers_detail", authController.create_user);
+router.put("/update_customers", controller.update_customer_detail);
 
 router.post("/create_customers_contact", controller.create_customer_contact);
 
