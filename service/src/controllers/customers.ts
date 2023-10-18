@@ -26,6 +26,8 @@ export const create_customer = (
   const customer_number = req.body.customer_number;
   const ele_number = req.body.ele_number;
 
+  console.log(req.body);
+
   Customer.findOne({
     where: {
       [Op.or]: {

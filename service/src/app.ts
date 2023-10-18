@@ -1,12 +1,13 @@
 import express from "express";
 import bodyParser from "body-parser";
 import * as dotenv from "dotenv";
+import cors from "cors";
+
 import { sequelize as seq } from "./utils/db";
 import authRouter from "./routes/auth";
 import customerRouter from "./routes/customers";
 import serviceRouter from "./routes/service";
 import WorkOrderRouter from "./routes/work_orders";
-
 import Customer from "./models/customer";
 import CustomerContact from "./models/customer_contact";
 import ElePlace from "./models/ele_place";
@@ -24,10 +25,15 @@ import ToBillInvoice from "./models/tobill_invoce";
 
 const app = express();
 const port = 5500;
+const cors_option = {
+  origin: "*",
+  optionsSuccessStatus: 204,
+};
 dotenv.config();
 
-// app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+app.use(cors(cors_option));
+app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded());
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/customers", customerRouter);
