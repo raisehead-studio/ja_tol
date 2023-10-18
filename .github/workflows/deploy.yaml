@@ -24,7 +24,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "./client/build/"
+          source: "./client/build/*"
           target: "/var/www/html/"
   deploy-backend:
     runs-on: ubuntu-latest
@@ -34,5 +34,5 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "service/*"
+          source: "./service/*"
           target: "/var/www/service/"
