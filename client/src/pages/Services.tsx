@@ -12,17 +12,15 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { getCustomers } from "../api/customers";
+import { getServices } from "../api/services";
 
 import { CustomersResponseType } from "../types/customers";
 
-import CustomersModal from "../components/CustomersModal";
-import CreateCustomerModal from "../components/CreateCustomerModal";
+import CreateService from "../components/CreateServiceModal";
 
-const Customers = () => {
+const Services = () => {
   const [data, setData] = useState([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<string>("");
-  const [openCreateCustomerModal, setOpenCreateCustomerModal] =
+  const [openCreateServiceModal, setOpenCreateServiceModal] =
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -32,24 +30,8 @@ const Customers = () => {
     const handleGetCustomers = async () => {
       try {
         setLoading(true);
-        const customers = await getCustomers();
-        setData(customers);
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
-      }
-    };
-
-    handleGetCustomers();
-  }, [openCreateCustomerModal]);
-
-  useEffect(() => {
-    const handleGetCustomers = async () => {
-      try {
-        const customers = await getCustomers();
-        setLoading(true);
-        setData(customers);
+        const services = await getServices();
+        setData(services);
         setLoading(false);
       } catch (error) {
         console.log(error);
@@ -60,21 +42,37 @@ const Customers = () => {
     handleGetCustomers();
   }, []);
 
-  const handleCloseModal = () => {
-    setSelectedCustomer("");
-    return;
-  };
+  // useEffect(() => {
+  //   const handleGetCustomers = async () => {
+  //     try {
+  //       const customers = await getCustomers();
+  //       setLoading(true);
+  //       setData(customers);
+  //       setLoading(false);
+  //     } catch (error) {
+  //       console.log(error);
+  //       setLoading(false);
+  //     }
+  //   };
 
-  const handleOpenModal = (cid: string) => {
-    setSelectedCustomer(cid);
-  };
+  //   handleGetCustomers();
+  // }, []);
+
+  // const handleCloseModal = () => {
+  //   setSelectedCustomer("");
+  //   return;
+  // };
+
+  // const handleOpenModal = (cid: string) => {
+  //   setOpenCreateServiceModal(cid);
+  // };
 
   const handleOpenCreateCustomerModal = () => {
-    setOpenCreateCustomerModal(true);
+    setOpenCreateServiceModal(true);
   };
 
   const handleCloseCreateCustomerModal = () => {
-    setOpenCreateCustomerModal(false);
+    setOpenCreateServiceModal(false);
     return;
   };
 
@@ -91,10 +89,10 @@ const Customers = () => {
           display: "flex",
           justifyContent: "space-between",
         }}>
-        <Typography variant="h5">客戶資料列表</Typography>
+        <Typography variant="h5">客服資料列表</Typography>
         <Box>
           <Button onClick={handleOpenCreateCustomerModal}>
-            <Typography variant="button">新增客戶</Typography>
+            <Typography variant="button">新增客服資料</Typography>
           </Button>
         </Box>
       </Box>
@@ -134,9 +132,7 @@ const Customers = () => {
                   <TableCell align="left">{customer.name}</TableCell>
                   <TableCell align="left">{customer.short_name}</TableCell>
                   <TableCell align="left">
-                    <Button onClick={() => handleOpenModal(customer.cid)}>
-                      檢視
-                    </Button>
+                    <Button onClick={() => {}}>檢視</Button>
                   </TableCell>
                   <TableCell align="left">
                     <Button
@@ -152,17 +148,12 @@ const Customers = () => {
           </Table>
         </TableContainer>
       )}
-      <CustomersModal
-        cid={selectedCustomer}
-        open={selectedCustomer !== ""}
-        handleClose={handleCloseModal}
-      />
-      <CreateCustomerModal
-        open={openCreateCustomerModal}
+      <CreateService
+        open={openCreateServiceModal}
         handleClose={handleCloseCreateCustomerModal}
       />
     </Box>
   );
 };
 
-export default Customers;
+export default Services;

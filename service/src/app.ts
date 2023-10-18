@@ -32,7 +32,7 @@ const cors_option = {
 dotenv.config();
 
 app.use(cors(cors_option));
-// app.use(bodyParser.json());
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
 app.use("/api/v1/auth", authRouter);

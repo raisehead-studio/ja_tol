@@ -17,6 +17,7 @@ import { Routes, Route, NavLink } from "react-router-dom";
 import Customers from "./pages/Customers";
 import EditCustomers from "./pages/EditCustomers";
 import Home from "./pages/Home";
+import Services from "./pages/Services";
 
 const pages = [
   {
@@ -183,7 +184,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/customers/:cid" element={<EditCustomers />} />
-        <Route path="/services" element={<div>services</div>} />
+        <Route path="/services" element={<Services />} />
         <Route path="/services/:cid" element={<div>services</div>} />
         <Route path="/works" element={<div>works</div>} />
         <Route path="/works/:cid" element={<div>works</div>} />

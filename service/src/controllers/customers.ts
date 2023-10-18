@@ -26,8 +26,6 @@ export const create_customer = (
   const customer_number = req.body.customer_number;
   const ele_number = req.body.ele_number;
 
-  console.log(req.body);
-
   Customer.findOne({
     where: {
       [Op.or]: {
@@ -45,8 +43,8 @@ export const create_customer = (
         ele_number: ele_number,
       })
         .then((result) => {
-          res.status(201).json({
-            status: 201,
+          res.status(200).json({
+            status: 200,
             message: "customer created!",
             cid: result.dataValues.cid,
           });
@@ -75,8 +73,8 @@ export const get_customers_list = (
     attributes: ["cid", "short_name", "customer_number", "name"],
   })
     .then((result) => {
-      return res.status(201).json({
-        status: 201,
+      return res.status(200).json({
+        status: 200,
         data: result,
       });
     })
@@ -199,8 +197,8 @@ export const create_ele_place = (
         cid: cid,
       })
         .then((result) => {
-          res.status(201).json({
-            status: 201,
+          res.status(200).json({
+            status: 200,
             message: "ele place created!",
             cid: result.dataValues.epid,
           });
@@ -251,8 +249,8 @@ export const create_customer_contact = (
     email: email,
   })
     .then((result) => {
-      res.status(201).json({
-        status: 201,
+      res.status(200).json({
+        status: 200,
         message: "customer contact created!",
         cid: result.dataValues.ccid,
       });

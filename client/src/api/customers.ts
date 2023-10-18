@@ -15,4 +15,5 @@ export const createCustomer = async (data: CustomerRequestDataType) => {
     body: data,
   });
 };
+
 export const updateCustomer = async (id: string, customer: any) => {};

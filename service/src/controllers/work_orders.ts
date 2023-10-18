@@ -49,7 +49,7 @@ export const create_work_order = (req: Request, res: Response) => {
       assignment_date,
     })
       .then(() => {
-        res.status(201).json({
+        res.status(200).json({
           message: "Work order created successfully",
           status: 200,
         });
@@ -77,14 +77,16 @@ export const get_work_orders_list = (
 ) => {
   try {
     WorkOrder.findAll({
-      include: {
-        model: Customer,
-        attributes: ["customer_number", "short_name"],
-      },
+      include: [
+        {
+          model: Customer,
+          attributes: ["customer_number", "short_name"],
+        },
+      ],
     })
       .then((work_orders) => {
         res.status(200).json({
-          message: "Fetched work order lists successfully.",
+          status: 200,
           data: work_orders.map((worker_order) => {
             return {
               id: worker_order.dataValues.woid,
@@ -96,6 +98,9 @@ export const get_work_orders_list = (
                 worker_order.dataValues.customer.dataValues.customer_number,
               customer_name:
                 worker_order.dataValues.customer.dataValues.short_name,
+              notify_date: new Date(),
+              update_member: "admin",
+              status: [""],
             };
           }),
         });
@@ -390,7 +395,7 @@ export const create_assignment = (
       tracking_finished_date,
     })
       .then(() => {
-        return res.status(201).json({
+        return res.status(200).json({
           message: "Assignment created successfully",
           status: 200,
         });
@@ -435,7 +440,7 @@ export const create_manpower_schedule = (
       actual_date,
     })
       .then(() => {
-        return res.status(201).json({
+        return res.status(200).json({
           message: "Manpower schedule created successfully",
           status: 200,
         });
@@ -470,7 +475,7 @@ export const create_power_stop = (
       finished_date,
     })
       .then(() => {
-        return res.status(201).json({
+        return res.status(200).json({
           message: "Power stop created successfully",
           status: 200,
         });
@@ -701,7 +706,7 @@ export const create_acceptance_check = (req: Request, res: Response) => {
       wt_report_number,
     })
       .then(() => {
-        return res.status(201).json({
+        return res.status(200).json({
           message: "Acceptance check created successfully",
           status: 200,
         });
@@ -902,7 +907,7 @@ export const create_factory = (req: Request, res: Response) => {
       finished_date,
     })
       .then(() => {
-        return res.status(201).json({
+        return res.status(200).json({
           message: "Factory created successfully",
           status: 200,
         });
@@ -944,7 +949,7 @@ export const create_factory_other_form = (req: Request, res: Response) => {
       other_form,
     })
       .then(() => {
-        return res.status(201).json({
+        return res.status(200).json({
           message: "Factory other form created successfully",
           status: 200,
         });
@@ -1151,7 +1156,7 @@ export const create_tobill = (req: Request, res: Response) => {
       finished_date,
     })
       .then(() => {
-        return res.status(201).json({
+        return res.status(200).json({
           message: "To bill created successfully",
           status: 200,
         });
@@ -1201,7 +1206,7 @@ export const create_tobill_invoice = (req: Request, res: Response) => {
       invoice_number,
     })
       .then(() => {
-        return res.status(201).json({
+        return res.status(200).json({
           message: "To bill invoice created successfully",
           status: 200,
         });

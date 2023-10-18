@@ -42,9 +42,9 @@ export const create_service = (
         content,
         csid: service.dataValues.csid,
       }).then(() => {
-        return res.status(201).json({
+        return res.status(200).json({
           message: "Customer service created",
-          status: 201,
+          status: 200,
         });
       });
     })
@@ -155,9 +155,9 @@ export const create_service_content = (
     content,
   })
     .then(() => {
-      return res.status(201).json({
+      return res.status(200).json({
         message: "Customer service content created",
-        status: 201,
+        status: 200,
       });
     })
     .catch((err) => {

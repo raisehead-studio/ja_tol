@@ -1,4 +1,4 @@
-export type ServiceRequestDataType = {
+export type ServiceResponseDataType = {
   create_member: string;
   customer_number: string;
   id: string;
@@ -9,4 +9,15 @@ export type ServiceRequestDataType = {
   type: string;
   update_date: string;
   update_member: string;
+};
+
+export type ServiceRequestDataType = {
+  cid: string;
+  title: string;
+  status: string;
+  type: string;
+  notify_date: string;
+  update_member: string;
+  create_member: string;
+  content: string;
 };

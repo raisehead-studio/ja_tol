@@ -10,9 +10,21 @@ import { getCustomer } from "../api/customers";
 import { CustomerResponseType } from "../types/customers";
 import { TextField } from "@mui/material";
 
+import CreateService from "../components/CreateServiceModal";
+
 const EditCustomers = () => {
   let { cid } = useParams();
   const [data, setData] = useState<CustomerResponseType | null>(null);
+  const [openCreateService, setOpenCreateService] = useState<boolean>(false);
+
+  const handleOpenCreateService = () => {
+    setOpenCreateService(true);
+  };
+
+  const handleCloseCreateService = () => {
+    setOpenCreateService(false);
+  };
+
   const navigate = useNavigate();
   useEffect(() => {
     const handleGetCustomers = async (id: string) => {
@@ -244,13 +256,18 @@ const EditCustomers = () => {
         </Box>
       ))}
       <Box>
-        <Button>新增客服紀錄</Button>
+        <Button onClick={handleOpenCreateService}>新增客服紀錄</Button>
       </Box>
       <Divider />
       <Box>
         <Button onClick={() => navigate(-1)}>回到上一頁</Button>
         <Button>儲存</Button>
       </Box>
+      <CreateService
+        selectedCid={cid}
+        open={openCreateService}
+        handleClose={handleCloseCreateService}
+      />
     </Box>
   );
 };

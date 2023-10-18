@@ -31,7 +31,7 @@ export const create_user = (
         })
           .then((result) => {
             res
-              .status(201)
+              .status(200)
               .json({ message: "User created!", uid: result.dataValues.uid });
           })
           .catch((err) => {
