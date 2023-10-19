@@ -11,13 +11,15 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
 import { Routes, Route, NavLink } from "react-router-dom";
 
 import Customers from "./pages/Customers";
 import EditCustomers from "./pages/EditCustomers";
 import Home from "./pages/Home";
 import Services from "./pages/Services";
+import Works from "./pages/Works";
+
+import logo from "../src/assets/images/logo.png";
 
 const pages = [
   {
@@ -37,7 +39,7 @@ const pages = [
     url: "/works",
   },
 ];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = ["個人資料", "登出"];
 
 function App() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -64,26 +66,24 @@ function App() {
   return (
     <div>
       <AppBar position="static">
-        <Container maxWidth="xl">
+        <Container
+          maxWidth={false}
+          sx={{
+            py: "1rem",
+          }}>
           <Toolbar disableGutters>
-            <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
-            <Typography
-              variant="h6"
-              noWrap
-              component="a"
-              href="#app-bar-with-responsive-menu"
+            <Box
               sx={{
-                mr: 2,
-                display: { xs: "none", md: "flex" },
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
+                width: "180px",
               }}>
-              LOGO
-            </Typography>
-
+              <img
+                style={{
+                  width: "100%",
+                }}
+                src={logo}
+                alt="logo"
+              />
+            </Box>
             <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
               <IconButton
                 size="large"
@@ -118,24 +118,7 @@ function App() {
                 ))}
               </Menu>
             </Box>
-            <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-            <Typography
-              variant="h5"
-              noWrap
-              component="a"
-              href="#app-bar-with-responsive-menu"
-              sx={{
-                mr: 2,
-                display: { xs: "flex", md: "none" },
-                flexGrow: 1,
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}>
-              LOGO
-            </Typography>
+
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
               {pages.map((page) => (
                 <Button
@@ -186,7 +169,7 @@ function App() {
         <Route path="/customers/:cid" element={<EditCustomers />} />
         <Route path="/services" element={<Services />} />
         <Route path="/services/:cid" element={<div>services</div>} />
-        <Route path="/works" element={<div>works</div>} />
+        <Route path="/works" element={<Works />} />
         <Route path="/works/:cid" element={<div>works</div>} />
       </Routes>
     </div>

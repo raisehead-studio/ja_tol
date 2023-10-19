@@ -12,40 +12,25 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { getServices } from "../api/services";
-import { ServiceResponseDataType } from "../types/services";
+import { getWorks } from "../api/works";
 
-import CreateService from "../components/CreateServiceModal";
+import { WorkResponseDataType } from "../types/works";
 
-const Services = () => {
+import CreateWork from "../components/CreateWorkModal";
+
+const Works = () => {
   const [data, setData] = useState([]);
-  const [openCreateServiceModal, setOpenCreateServiceModal] =
+  const [openCreateWorkModal, setOpenCreateWorkModal] =
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleGetCustomers = async () => {
-      try {
-        setLoading(true);
-        const services = await getServices();
-        setData(services);
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
-      }
-    };
-
-    handleGetCustomers();
-  }, []);
-
   // useEffect(() => {
-  //   const handleGetCustomers = async () => {
+  //   const handleGetWorks = async () => {
   //     try {
-  //       const customers = await getCustomers();
   //       setLoading(true);
+  //       const customers = await getWorks();
   //       setData(customers);
   //       setLoading(false);
   //     } catch (error) {
@@ -54,8 +39,24 @@ const Services = () => {
   //     }
   //   };
 
-  //   handleGetCustomers();
-  // }, []);
+  //   handleGetWorks();
+  // }, [openCreateWorkModal]);
+
+  useEffect(() => {
+    const handleGetWorks = async () => {
+      try {
+        setLoading(true);
+        const customers = await getWorks();
+        setData(customers);
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+        setLoading(false);
+      }
+    };
+
+    handleGetWorks();
+  }, []);
 
   // const handleCloseModal = () => {
   //   setSelectedCustomer("");
@@ -63,15 +64,15 @@ const Services = () => {
   // };
 
   // const handleOpenModal = (cid: string) => {
-  //   setOpenCreateServiceModal(cid);
+  //   setSelectedCustomer(cid);
   // };
 
-  const handleOpenCreateCustomerModal = () => {
-    setOpenCreateServiceModal(true);
+  const handleOpenCreateWorkModal = () => {
+    setOpenCreateWorkModal(true);
   };
 
-  const handleCloseCreateCustomerModal = () => {
-    setOpenCreateServiceModal(false);
+  const handleCloseCreateWorkModal = () => {
+    setOpenCreateWorkModal(false);
     return;
   };
 
@@ -88,10 +89,10 @@ const Services = () => {
           display: "flex",
           justifyContent: "space-between",
         }}>
-        <Typography variant="h5">客服資料列表</Typography>
+        <Typography variant="h5">工作單詳細資料列表</Typography>
         <Box>
-          <Button onClick={handleOpenCreateCustomerModal}>
-            <Typography variant="button">新增客服資料</Typography>
+          <Button onClick={handleOpenCreateWorkModal}>
+            <Typography variant="button">新增工作單</Typography>
           </Button>
         </Box>
       </Box>
@@ -115,11 +116,17 @@ const Services = () => {
               <TableRow>
                 <TableCell align="left">客戶編號</TableCell>
                 <TableCell align="left">客戶名稱</TableCell>
-                <TableCell align="left">建立日期</TableCell>
-                <TableCell align="left">客戶服務狀態</TableCell>
-                <TableCell align="left">客戶紀錄類別</TableCell>
-                <TableCell align="left">客戶紀錄類標題</TableCell>
-                <TableCell align="left">追蹤日期</TableCell>
+                <TableCell align="left">工單編號</TableCell>
+                <TableCell align="left">工程名稱</TableCell>
+                <TableCell align="left">派工材料準備</TableCell>
+                <TableCell align="left">派工施工日期</TableCell>
+                <TableCell align="left">派工人力安排</TableCell>
+                <TableCell align="left">入廠資料準備</TableCell>
+                <TableCell align="left">驗收</TableCell>
+                <TableCell align="left">驗收報告書</TableCell>
+                <TableCell align="left">請款</TableCell>
+                <TableCell align="left">工作單狀態</TableCell>
+                <TableCell align="left">提醒日期</TableCell>
                 <TableCell align="left">上次編輯者</TableCell>
                 <TableCell align="left">上次編輯日期</TableCell>
                 <TableCell align="left"></TableCell>
@@ -127,28 +134,34 @@ const Services = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((service: ServiceResponseDataType) => (
+              {data.map((work: WorkResponseDataType) => (
                 <TableRow
-                  key={service.id}
+                  key={work.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                   <TableCell component="th" scope="row">
-                    {service.customer_number}
+                    {work.customer_number}
                   </TableCell>
-                  <TableCell align="left">{service.short_name}</TableCell>
-                  <TableCell align="left">{service.notify_date}</TableCell>
-                  <TableCell align="left">{service.status}</TableCell>
-                  <TableCell align="left">{service.type}</TableCell>
-                  <TableCell align="left">{service.title}</TableCell>
-                  <TableCell align="left">{service.notify_date}</TableCell>
-                  <TableCell align="left">{service.update_date}</TableCell>
-                  <TableCell align="left">{service.update_member}</TableCell>
+                  <TableCell align="left">{work.customer_name}</TableCell>
+                  <TableCell align="left">{work.order_number}</TableCell>
+                  <TableCell align="left">{work.work_order_name}</TableCell>
+                  <TableCell align="left">--</TableCell>
+                  <TableCell align="left">--</TableCell>
+                  <TableCell align="left">--</TableCell>
+                  <TableCell align="left">--</TableCell>
+                  <TableCell align="left">--</TableCell>
+                  <TableCell align="left">--</TableCell>
+                  <TableCell align="left">--</TableCell>
+                  <TableCell align="left">--</TableCell>
+                  <TableCell align="left">{work.notify_date}</TableCell>
+                  <TableCell align="left">{work.update_date}</TableCell>
+                  <TableCell align="left">{work.update_member}</TableCell>
                   <TableCell align="left">
                     <Button onClick={() => {}}>檢視</Button>
                   </TableCell>
                   <TableCell align="left">
                     <Button
                       onClick={() => {
-                        navigate(`/customers/${service.id}`);
+                        navigate(`/customers/${work.id}`);
                       }}>
                       編輯
                     </Button>
@@ -159,12 +172,12 @@ const Services = () => {
           </Table>
         </TableContainer>
       )}
-      <CreateService
-        open={openCreateServiceModal}
-        handleClose={handleCloseCreateCustomerModal}
+      <CreateWork
+        open={openCreateWorkModal}
+        handleClose={handleCloseCreateWorkModal}
       />
     </Box>
   );
 };
 
-export default Services;
+export default Works;
