@@ -64,6 +64,7 @@ export const get_service_list = (req: Request, res: Response) => {
       "update_member",
       "create_member",
       "updatedAt",
+      "createdAt",
     ],
     include: {
       model: Customer,
@@ -78,12 +79,13 @@ export const get_service_list = (req: Request, res: Response) => {
           title: item.dataValues.title,
           status: item.dataValues.status,
           type: item.dataValues.type,
-          notify_date: item.dataValues.notify_date,
+          notify_date: new Date(item.dataValues.notify_date).getTime(),
           update_member: item.dataValues.update_member,
           create_member: item.dataValues.create_member,
-          update_date: item.dataValues.updatedAt,
+          update_date: new Date(item.dataValues.updatedAt).getTime(),
           customer_number: item.dataValues.customer.dataValues.customer_number,
           short_name: item.dataValues.customer.dataValues.short_name,
+          create_date: new Date(item.dataValues.createdAt).getTime(),
         };
       }),
     });
@@ -106,11 +108,18 @@ export const get_service_detail = (
       "notify_date",
       "update_member",
       "create_member",
+      "updatedAt",
     ],
-    include: {
-      model: CustomerServiceContent,
-      attributes: ["cscid", "content"],
-    },
+    include: [
+      {
+        model: CustomerServiceContent,
+        attributes: ["cscid", "content", "createdAt"],
+      },
+      {
+        model: Customer,
+        attributes: ["customer_number", "short_name"],
+      },
+    ],
   })
     .then((result) => {
       if (!result)
@@ -119,17 +128,22 @@ export const get_service_detail = (
           error: "something went wrong when getting service detail.",
         });
       let data: any = {};
+
+      data.short_name = result.dataValues.customer.short_name;
+      data.customer_number = result.dataValues.customer.customer_number;
       data.title = result.dataValues.title;
       data.status = result.dataValues.status;
       data.type = result.dataValues.type;
-      data.notify_date = result.dataValues.notify_date;
+      data.notify_date = new Date(result.dataValues.notify_date).getTime();
       data.update_member = result.dataValues.update_member;
       data.create_member = result.dataValues.create_member;
+      data.create_date = new Date(result.dataValues.updatedAt).getTime();
       data.customer_service_contents =
         result.dataValues.customer_service_contents.map((item: any) => {
           return {
             id: item.dataValues.cscid,
             content: item.dataValues.content,
+            create_date: new Date(item.dataValues.createdAt).getTime(),
           };
         });
 
