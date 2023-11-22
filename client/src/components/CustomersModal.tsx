@@ -87,6 +87,9 @@ const ViewCustomers = ({
                   InputLabelProps={{ shrink: true }}
                   fullWidth
                   sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
                     fieldset: {
                       borderColor: "rgba(0,0,0,0) !important",
                     },
@@ -101,6 +104,9 @@ const ViewCustomers = ({
                   InputLabelProps={{ shrink: true }}
                   fullWidth
                   sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
                     fieldset: {
                       borderColor: "rgba(0,0,0,0) !important",
                     },
@@ -126,6 +132,9 @@ const ViewCustomers = ({
                   InputLabelProps={{ shrink: true }}
                   fullWidth
                   sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
                     fieldset: {
                       borderColor: "rgba(0,0,0,0) !important",
                     },
@@ -144,6 +153,9 @@ const ViewCustomers = ({
                   InputLabelProps={{ shrink: true }}
                   fullWidth
                   sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
                     fieldset: {
                       borderColor: "rgba(0,0,0,0) !important",
                     },
@@ -177,6 +189,9 @@ const ViewCustomers = ({
                   InputLabelProps={{ shrink: true }}
                   fullWidth
                   sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
                     fieldset: {
                       borderColor: "rgba(0,0,0,0) !important",
                     },
@@ -195,6 +210,9 @@ const ViewCustomers = ({
                   InputLabelProps={{ shrink: true }}
                   fullWidth
                   sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
                     fieldset: {
                       borderColor: "rgba(0,0,0,0) !important",
                     },
@@ -215,6 +233,9 @@ const ViewCustomers = ({
                   InputLabelProps={{ shrink: true }}
                   fullWidth
                   sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
                     fieldset: {
                       borderColor: "rgba(0,0,0,0) !important",
                     },
@@ -249,6 +270,9 @@ const ViewCustomers = ({
                     InputLabelProps={{ shrink: true }}
                     fullWidth
                     sx={{
+                      ".MuiInputLabel-root": {
+                        color: "rgba(0,0,0,9)",
+                      },
                       fieldset: {
                         borderColor: "rgba(0,0,0,0) !important",
                       },
@@ -267,6 +291,9 @@ const ViewCustomers = ({
                     InputLabelProps={{ shrink: true }}
                     fullWidth
                     sx={{
+                      ".MuiInputLabel-root": {
+                        color: "rgba(0,0,0,9)",
+                      },
                       fieldset: {
                         borderColor: "rgba(0,0,0,0) !important",
                       },
@@ -291,6 +318,9 @@ const ViewCustomers = ({
                     InputLabelProps={{ shrink: true }}
                     fullWidth
                     sx={{
+                      ".MuiInputLabel-root": {
+                        color: "rgba(0,0,0,9)",
+                      },
                       fieldset: {
                         borderColor: "rgba(0,0,0,0) !important",
                       },
@@ -309,6 +339,9 @@ const ViewCustomers = ({
                     InputLabelProps={{ shrink: true }}
                     fullWidth
                     sx={{
+                      ".MuiInputLabel-root": {
+                        color: "rgba(0,0,0,9)",
+                      },
                       fieldset: {
                         borderColor: "rgba(0,0,0,0) !important",
                       },
@@ -329,6 +362,9 @@ const ViewCustomers = ({
                     InputLabelProps={{ shrink: true }}
                     fullWidth
                     sx={{
+                      ".MuiInputLabel-root": {
+                        color: "rgba(0,0,0,9)",
+                      },
                       fieldset: {
                         borderColor: "rgba(0,0,0,0) !important",
                       },
@@ -356,6 +392,9 @@ const ViewCustomers = ({
               InputLabelProps={{ shrink: true }}
               fullWidth
               sx={{
+                ".MuiInputLabel-root": {
+                  color: "rgba(0,0,0,9)",
+                },
                 fieldset: {
                   borderColor: "rgba(0,0,0,0) !important",
                 },
@@ -374,6 +413,9 @@ const ViewCustomers = ({
               InputLabelProps={{ shrink: true }}
               fullWidth
               sx={{
+                ".MuiInputLabel-root": {
+                  color: "rgba(0,0,0,9)",
+                },
                 fieldset: {
                   borderColor: "rgba(0,0,0,0) !important",
                 },
@@ -392,6 +434,9 @@ const ViewCustomers = ({
               InputLabelProps={{ shrink: true }}
               fullWidth
               sx={{
+                ".MuiInputLabel-root": {
+                  color: "rgba(0,0,0,9)",
+                },
                 fieldset: {
                   borderColor: "rgba(0,0,0,0) !important",
                 },
@@ -410,6 +455,9 @@ const ViewCustomers = ({
               InputLabelProps={{ shrink: true }}
               fullWidth
               sx={{
+                ".MuiInputLabel-root": {
+                  color: "rgba(0,0,0,9)",
+                },
                 fieldset: {
                   borderColor: "rgba(0,0,0,0) !important",
                 },

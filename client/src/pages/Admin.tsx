@@ -15,70 +15,30 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
-import dayjs from "dayjs";
 
-import { getServices } from "../api/services";
-import { ServiceResponseDataType } from "../types/services";
+import { CustomersResponseType } from "../types/customers";
 
-import CreateService from "../components/CreateServiceModal";
+import CreateMember from "../components/CreateMember";
+import EditMemberModal from "../components/EditMemberModal";
 
-const Services = () => {
+const Admin = () => {
   const [data, setData] = useState([]);
-  const [openCreateServiceModal, setOpenCreateServiceModal] =
+  const [selectedCustomer, setSelectedCustomer] = useState<string>("");
+  const [openCreateMemberModal, setOpenCreateMemberModal] =
+    useState<boolean>(false);
+  const [openEditMemberModal, setOpenEditMemberModal] =
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleGetCustomers = async () => {
-      try {
-        setLoading(true);
-        const services = await getServices();
-        setData(services);
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
-      }
-    };
+  const handleOpenCreateMember = () => setOpenCreateMemberModal(true);
 
-    handleGetCustomers();
-  }, []);
+  const handleCloseCreateMember = () => setOpenCreateMemberModal(false);
 
-  // useEffect(() => {
-  //   const handleGetCustomers = async () => {
-  //     try {
-  //       const customers = await getCustomers();
-  //       setLoading(true);
-  //       setData(customers);
-  //       setLoading(false);
-  //     } catch (error) {
-  //       console.log(error);
-  //       setLoading(false);
-  //     }
-  //   };
+  const handleOpenEditMember = () => setOpenEditMemberModal(true);
 
-  //   handleGetCustomers();
-  // }, []);
-
-  // const handleCloseModal = () => {
-  //   setSelectedCustomer("");
-  //   return;
-  // };
-
-  // const handleOpenModal = (cid: string) => {
-  //   setOpenCreateServiceModal(cid);
-  // };
-
-  const handleOpenCreateCustomerModal = () => {
-    setOpenCreateServiceModal(true);
-  };
-
-  const handleCloseCreateCustomerModal = () => {
-    setOpenCreateServiceModal(false);
-    return;
-  };
+  const handleCloseEditMember = () => setOpenEditMemberModal(false);
 
   return (
     <Box
@@ -93,14 +53,14 @@ const Services = () => {
           display: "flex",
           justifyContent: "space-between",
         }}>
-        <Typography variant="h5">客服資料列表</Typography>
+        <Typography variant="h5">人員列表</Typography>
         <Box>
-          <Button onClick={handleOpenCreateCustomerModal}>
-            <Typography variant="button">新增客服資料</Typography>
+          <Button onClick={handleOpenCreateMember}>
+            <Typography variant="button">新增人員</Typography>
           </Button>
         </Box>
       </Box>
-      {loading ? (
+      {false ? (
         <Box
           sx={{
             display: "flex",
@@ -134,22 +94,17 @@ const Services = () => {
                   sx={{
                     width: "5%",
                   }}></TableCell>
-                <TableCell align="left">客戶編號</TableCell>
-                <TableCell align="left">客戶名稱</TableCell>
-                <TableCell align="left">建立日期</TableCell>
-                <TableCell align="left">客戶服務狀態</TableCell>
-                <TableCell align="left">客戶紀錄類別</TableCell>
-                <TableCell align="left">客戶紀錄類標題</TableCell>
-                <TableCell align="left">追蹤日期</TableCell>
-                <TableCell align="left">上次編輯者</TableCell>
-                <TableCell align="left">上次編輯日期</TableCell>
+                <TableCell align="left">人員部門</TableCell>
+                <TableCell align="left">人員帳號</TableCell>
+                <TableCell align="left">人員密碼</TableCell>
+                <TableCell align="left">人員權限</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((service: ServiceResponseDataType) => (
+              {data.map((customer: CustomersResponseType) => (
                 <TableRow
-                  key={service.id}
                   hover
+                  key={customer.cid}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                   <TableCell align="left">
                     <Tooltip title="檢視">
@@ -164,7 +119,7 @@ const Services = () => {
                     <Tooltip title="編輯">
                       <IconButton
                         onClick={() => {
-                          navigate(`/services/${service.id}`);
+                          navigate(`/customers/${customer.cid}`);
                         }}
                         size="small">
                         <EditIcon />
@@ -172,34 +127,26 @@ const Services = () => {
                     </Tooltip>
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {service.customer_number}
+                    {customer.customer_number}
                   </TableCell>
-                  <TableCell align="left">{service.short_name}</TableCell>
-                  <TableCell align="left">
-                    {dayjs(service.update_date).format("YYYY/MM/DD")}
-                  </TableCell>
-                  <TableCell align="left">{service.status}</TableCell>
-                  <TableCell align="left">{service.type}</TableCell>
-                  <TableCell align="left">{service.title}</TableCell>
-                  <TableCell align="left">
-                    {dayjs(service.notify_date).format("YYYY/MM/DD")}
-                  </TableCell>
-                  <TableCell align="left">{service.update_member}</TableCell>
-                  <TableCell align="left">
-                    {dayjs(service.update_date).format("YYYY/MM/DD")}
-                  </TableCell>
+                  <TableCell align="left">{customer.name}</TableCell>
+                  <TableCell align="left">{customer.short_name}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       )}
-      <CreateService
-        open={openCreateServiceModal}
-        handleClose={handleCloseCreateCustomerModal}
+      <CreateMember
+        open={openCreateMemberModal}
+        handleClose={handleCloseCreateMember}
+      />
+      <EditMemberModal
+        open={openEditMemberModal}
+        handleClose={handleCloseEditMember}
       />
     </Box>
   );
 };
 
-export default Services;
+export default Admin;

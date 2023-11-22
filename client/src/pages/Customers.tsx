@@ -11,6 +11,10 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
+import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 
 import { getCustomers } from "../api/customers";
 
@@ -109,43 +113,65 @@ const Customers = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+        <TableContainer
+          component={Paper}
+          sx={{ maxHeight: "calc(100vh - 84.5px - 2rem - 32px - 37px)" }}>
+          <Table
+            sx={{ minWidth: 650 }}
+            size="small"
+            aria-label="a dense table"
+            stickyHeader>
             <TableHead
               sx={{
                 backgroundColor: "#f5f5f5",
               }}>
               <TableRow>
+                <TableCell
+                  align="left"
+                  sx={{
+                    width: "5%",
+                  }}></TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    width: "5%",
+                  }}></TableCell>
                 <TableCell align="left">客戶編號</TableCell>
                 <TableCell align="left">客戶名稱</TableCell>
                 <TableCell align="left">客戶簡稱</TableCell>
-                <TableCell align="left"></TableCell>
-                <TableCell align="left"></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {data.map((customer: CustomersResponseType) => (
                 <TableRow
+                  hover
                   key={customer.cid}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                  <TableCell align="left">
+                    <Tooltip title="檢視">
+                      <IconButton
+                        onClick={() => handleOpenModal(customer.cid)}
+                        size="small">
+                        <VisibilityIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell align="left">
+                    <Tooltip title="編輯">
+                      <IconButton
+                        onClick={() => {
+                          navigate(`/customers/${customer.cid}`);
+                        }}
+                        size="small">
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
                   <TableCell component="th" scope="row">
                     {customer.customer_number}
                   </TableCell>
                   <TableCell align="left">{customer.name}</TableCell>
                   <TableCell align="left">{customer.short_name}</TableCell>
-                  <TableCell align="left">
-                    <Button onClick={() => handleOpenModal(customer.cid)}>
-                      檢視
-                    </Button>
-                  </TableCell>
-                  <TableCell align="left">
-                    <Button
-                      onClick={() => {
-                        navigate(`/customers/${customer.cid}`);
-                      }}>
-                      編輯
-                    </Button>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

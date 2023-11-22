@@ -4,6 +4,10 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
+import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 
 import { getCustomer } from "../api/customers";
 

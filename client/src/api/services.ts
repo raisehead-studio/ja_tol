@@ -12,3 +12,17 @@ export const createServices = async (data: ServiceRequestDataType) => {
     body: data,
   });
 };
+
+export const getServiceDetail = async (id: string) => {
+  return request(`/api/v1/service/${id}`).then((res) => res.data);
+};
+
+export const handleUpdateServiceDetail = async (data: any) => {
+  return request("/api/v1/service/update_service", {
+    method: "PUT",
+    body: data,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};

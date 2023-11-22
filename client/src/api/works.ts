@@ -12,3 +12,29 @@ export const createWork = async (data: WorkRequestDataType) => {
     body: data,
   });
 };
+
+export const getWorksDetail = async (id: string) => {};
+
+export const getWorksDetailAssignment = async (id: string) => {
+  return request(`/api/v1/work_orders/get_assignment_detail/${id}`).then(
+    (res) => res.data
+  );
+};
+
+export const getWorksDetailAcceptanceCheck = async (id: string) => {
+  return request(`/api/v1/work_orders/get_acceptance_check_detail/${id}`).then(
+    (res) => res.data
+  );
+};
+
+export const getWorksDetailFactory = async (id: string) => {
+  return request(`/api/v1/work_orders/get_factory_detail/${id}`).then(
+    (res) => res.data
+  );
+};
+
+export const getWorksDetailTobill = async (id: string) => {
+  return request(`/api/v1/work_orders/get_tobill_detail/${id}`).then(
+    (res) => res.data
+  );
+};

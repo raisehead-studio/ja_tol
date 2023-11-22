@@ -11,13 +11,17 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { Routes, Route, NavLink } from "react-router-dom";
+import { Routes, Route, NavLink, useMatch } from "react-router-dom";
 
 import Customers from "./pages/Customers";
 import EditCustomers from "./pages/EditCustomers";
+import EditWorks from "./pages/EditWorks";
+import EditServices from "./pages/EditServices";
 import Home from "./pages/Home";
 import Services from "./pages/Services";
 import Works from "./pages/Works";
+import Login from "./pages/Login";
+import Admin from "./pages/Admin";
 
 import logo from "../src/assets/images/logo.png";
 
@@ -38,10 +42,15 @@ const pages = [
     name: "工單管理",
     url: "/works",
   },
+  {
+    name: "人員管理",
+    url: "/admins",
+  },
 ];
 const settings = ["個人資料", "登出"];
 
 function App() {
+  const no_auth = useMatch("/login");
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );
@@ -63,18 +72,24 @@ function App() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
   return (
     <div>
-      <AppBar position="static">
+      <AppBar
+        position="static"
+        sx={{
+          display: no_auth ? "none" : "block",
+        }}>
         <Container
           maxWidth={false}
           sx={{
-            py: "1rem",
+            py: "0.5rem",
           }}>
           <Toolbar disableGutters>
             <Box
               sx={{
-                width: "180px",
+                width: "120px",
+                pr: "1rem",
               }}>
               <img
                 style={{
@@ -119,14 +134,28 @@ function App() {
               </Menu>
             </Box>
 
-            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+            <Box
+              sx={{
+                flexGrow: 1,
+                display: { xs: "none", md: "flex" },
+                ".active": {
+                  opacity: 1,
+                  fontWeight: 700,
+                  transform: "scale(1.1)",
+                },
+              }}>
               {pages.map((page) => (
                 <Button
                   component={NavLink}
                   to={page.url}
                   key={page.name}
                   onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: "white", display: "block" }}>
+                  sx={{
+                    my: 2,
+                    color: "white",
+                    display: "block",
+                    opacity: 0.5,
+                  }}>
                   {page.name}
                 </Button>
               ))}
@@ -164,13 +193,15 @@ function App() {
         </Container>
       </AppBar>
       <Routes>
+        <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
+        <Route path="/admins" element={<Admin />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/customers/:cid" element={<EditCustomers />} />
         <Route path="/services" element={<Services />} />
-        <Route path="/services/:cid" element={<div>services</div>} />
+        <Route path="/services/:csid" element={<EditServices />} />
         <Route path="/works" element={<Works />} />
-        <Route path="/works/:cid" element={<div>works</div>} />
+        <Route path="/works/:woid" element={<EditWorks />} />
       </Routes>
     </div>
   );

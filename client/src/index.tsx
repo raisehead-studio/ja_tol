@@ -4,6 +4,26 @@ import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      light: "#757ce8",
+      main: "#3f50b5",
+      dark: "#002884",
+      contrastText: "#fff",
+    },
+    secondary: {
+      light: "#ff7961",
+      main: "#f44336",
+      dark: "#ba000d",
+      contrastText: "#000",
+    },
+  },
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -11,9 +31,13 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </LocalizationProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );
 

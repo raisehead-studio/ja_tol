@@ -11,6 +11,10 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
+import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 
 import { getWorks } from "../api/works";
 
@@ -107,13 +111,29 @@ const Works = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+        <TableContainer
+          component={Paper}
+          sx={{ maxHeight: "calc(100vh - 84.5px - 2rem - 32px - 37px)" }}>
+          <Table
+            sx={{ minWidth: 650 }}
+            size="small"
+            aria-label="a dense table"
+            stickyHeader>
             <TableHead
-              sx={{
-                backgroundColor: "#f5f5f5",
-              }}>
+              sx={(s) => ({
+                backgroundColor: s.palette.primary.main,
+                tr: {
+                  backgroundColor: "inherit !important",
+
+                  th: {
+                    backgroundColor: "inherit !important",
+                    color: "white",
+                  },
+                },
+              })}>
               <TableRow>
+                <TableCell align="left"></TableCell>
+                <TableCell align="left"></TableCell>
                 <TableCell align="left">客戶編號</TableCell>
                 <TableCell align="left">客戶名稱</TableCell>
                 <TableCell align="left">工單編號</TableCell>
@@ -129,15 +149,34 @@ const Works = () => {
                 <TableCell align="left">提醒日期</TableCell>
                 <TableCell align="left">上次編輯者</TableCell>
                 <TableCell align="left">上次編輯日期</TableCell>
-                <TableCell align="left"></TableCell>
-                <TableCell align="left"></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {data.map((work: WorkResponseDataType) => (
                 <TableRow
                   key={work.id}
+                  hover
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                  <TableCell align="left">
+                    <Tooltip title="檢視">
+                      <IconButton
+                        // onClick={() => handleOpenModal(customer.cid)}
+                        size="small">
+                        <VisibilityIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell align="left">
+                    <Tooltip title="編輯">
+                      <IconButton
+                        onClick={() => {
+                          navigate(`/works/${work.id}`);
+                        }}
+                        size="small">
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
                   <TableCell component="th" scope="row">
                     {work.customer_number}
                   </TableCell>
@@ -155,17 +194,6 @@ const Works = () => {
                   <TableCell align="left">{work.notify_date}</TableCell>
                   <TableCell align="left">{work.update_date}</TableCell>
                   <TableCell align="left">{work.update_member}</TableCell>
-                  <TableCell align="left">
-                    <Button onClick={() => {}}>檢視</Button>
-                  </TableCell>
-                  <TableCell align="left">
-                    <Button
-                      onClick={() => {
-                        navigate(`/customers/${work.id}`);
-                      }}>
-                      編輯
-                    </Button>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

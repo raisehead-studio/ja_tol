@@ -21,3 +21,20 @@ export type ServiceRequestDataType = {
   create_member: string;
   content: string;
 };
+
+export type ServiceDetailResponseDataType = {
+  short_name?: string;
+  customer_number?: string;
+  title: string;
+  status: string;
+  type: string;
+  notify_date: Date;
+  update_member: string;
+  create_member: string;
+  create_date?: Date;
+  customer_service_contents: {
+    id?: string;
+    content: string;
+    create_date?: Date;
+  }[];
+};
