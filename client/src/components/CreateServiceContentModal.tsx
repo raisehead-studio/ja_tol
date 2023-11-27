@@ -6,6 +6,8 @@ import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 
+import { createServiceContent } from "../api/services";
+
 const CreateServiceContent = ({
   csid,
   open,
@@ -16,6 +18,31 @@ const CreateServiceContent = ({
   handleClose: () => void;
 }) => {
   const [data, setData] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleCreateServiceContent = async () => {
+    if (!csid || !data) return;
+    let payload = {
+      content: data,
+      csid,
+    };
+    try {
+      setLoading(true);
+      const service_content = await createServiceContent(payload);
+      if (service_content.status === 200) {
+        setData("");
+        setLoading(false);
+        handleClose();
+      } else {
+        console.log(service_content);
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+
+      console.log(error);
+    }
+  };
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -64,7 +91,7 @@ const CreateServiceContent = ({
           <Button
             disabled={!csid || !data}
             variant="contained"
-            onClick={() => {}}>
+            onClick={handleCreateServiceContent}>
             建立
           </Button>
         </Box>

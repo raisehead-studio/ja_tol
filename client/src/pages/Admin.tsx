@@ -16,13 +16,15 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 
-import { CustomersResponseType } from "../types/customers";
+import { UsersType } from "../types/users";
+
+import { getUsers } from "../api/users";
 
 import CreateMember from "../components/CreateMember";
-import EditMemberModal from "../components/EditMemberModal";
+import EditMemberModal from "./EditMember";
 
 const Admin = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<UsersType[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
   const [openCreateMemberModal, setOpenCreateMemberModal] =
     useState<boolean>(false);
@@ -36,9 +38,22 @@ const Admin = () => {
 
   const handleCloseCreateMember = () => setOpenCreateMemberModal(false);
 
-  const handleOpenEditMember = () => setOpenEditMemberModal(true);
-
-  const handleCloseEditMember = () => setOpenEditMemberModal(false);
+  useEffect(() => {
+    const handleGetUsers = async () => {
+      try {
+        setLoading(true);
+        const users = await getUsers();
+        setData(users);
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+        setLoading(false);
+      }
+    };
+    if (!openCreateMemberModal) {
+      handleGetUsers();
+    }
+  }, [openCreateMemberModal]);
 
   return (
     <Box
@@ -94,45 +109,65 @@ const Admin = () => {
                   sx={{
                     width: "5%",
                   }}></TableCell>
-                <TableCell align="left">人員部門</TableCell>
                 <TableCell align="left">人員帳號</TableCell>
                 <TableCell align="left">人員密碼</TableCell>
+                <TableCell align="left">人員名稱</TableCell>
                 <TableCell align="left">人員權限</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((customer: CustomersResponseType) => (
-                <TableRow
-                  hover
-                  key={customer.cid}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
-                  <TableCell align="left">
-                    <Tooltip title="檢視">
-                      <IconButton
-                        // onClick={() => handleOpenModal(customer.cid)}
-                        size="small">
-                        <VisibilityIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell align="left">
-                    <Tooltip title="編輯">
-                      <IconButton
-                        onClick={() => {
-                          navigate(`/customers/${customer.cid}`);
-                        }}
-                        size="small">
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {customer.customer_number}
-                  </TableCell>
-                  <TableCell align="left">{customer.name}</TableCell>
-                  <TableCell align="left">{customer.short_name}</TableCell>
-                </TableRow>
-              ))}
+              {data.map((user: UsersType) => {
+                let display_role;
+                switch (user.role) {
+                  case "admin":
+                    display_role = "管理員";
+                    break;
+                  case "operator":
+                    display_role = "行政人員";
+                    break;
+                  case "engineer":
+                    display_role = "工程師";
+                    break;
+                  default:
+                    display_role = "無角色";
+                    break;
+                }
+                return (
+                  <TableRow
+                    hover
+                    key={user.uid}
+                    sx={{
+                      "&:last-child td, &:last-child th": { border: 0 },
+                    }}>
+                    <TableCell align="left">
+                      <Tooltip title="檢視">
+                        <IconButton
+                          // onClick={() => handleOpenModal(customer.cid)}
+                          size="small">
+                          <VisibilityIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell align="left">
+                      <Tooltip title="編輯">
+                        <IconButton
+                          onClick={() => {
+                            navigate(`/admins/${user.uid}`);
+                          }}
+                          size="small">
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {user.account}
+                    </TableCell>
+                    <TableCell align="left">{user.password}</TableCell>
+                    <TableCell align="left">{user.name}</TableCell>
+                    <TableCell align="left">{display_role}</TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
@@ -140,10 +175,6 @@ const Admin = () => {
       <CreateMember
         open={openCreateMemberModal}
         handleClose={handleCloseCreateMember}
-      />
-      <EditMemberModal
-        open={openEditMemberModal}
-        handleClose={handleCloseEditMember}
       />
     </Box>
   );

@@ -4,8 +4,10 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
+import MenuItem from "@mui/material/MenuItem";
+import TextField from "@mui/material/TextField";
 
-import { MenuItem, TextField } from "@mui/material";
+import { createUser } from "../api/users";
 
 const CreateCustomer = ({
   open,
@@ -19,7 +21,20 @@ const CreateCustomer = ({
   const [pw, setPw] = useState<string>("");
   const [role, setRole] = useState<string>("");
 
-  const handleCreateCustomer = async () => {};
+  const handleCreateCustomer = async () => {
+    const data = {
+      name: memberName,
+      account: account,
+      password: pw,
+      role: role,
+    };
+    try {
+      await createUser(data);
+      handleClose();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Modal open={open} onClose={handleClose}>

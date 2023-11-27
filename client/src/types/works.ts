@@ -21,6 +21,16 @@ export type WorkRequestDataType = {
   inquiry_member: string;
   responsible_member: string;
   po: string;
+  acceptance_check_date: string | Date | number;
+  tobill_date: string | Date | number;
+  factory_date: string | Date | number;
+  assignment_date: string | Date | number;
+};
+
+export type WorkDetailRequestDataType = {
+  woid?: string;
+  type: string;
+  po: string;
   acceptance_check_date: string;
   tobill_date: string;
   factory_date: string;
@@ -38,6 +48,7 @@ export type AssignmentResponseDataType = {
   power_stop_date: string;
   external_contact_is_holiday: boolean;
   external_contact_is_power_stop: boolean;
+  is_assign_manpower: boolean;
   external_contact_request_date: string;
   external_contact_receive_date: string;
   tracking_date: string;
@@ -53,18 +64,218 @@ export type AssignmentResponseDataType = {
   assignment_date: string;
   customer_number: string;
   customer_name: string;
-  manpower_schedule: {
-    id: string;
-    note: string;
-    schedule_date: string;
-    started_time: string;
-    finished_time: string;
-    actual_date: string;
-  }[];
-  power_stop: {
-    id: string;
-    area: string;
-    started_time: string;
-    finished_time: string;
-  }[];
+  manpower_schedule: AssignmentPowerScheduleDataType[];
+  power_stop: AssignmentPowerStopDataType[];
+};
+
+export type AssignmentPowerScheduleDataType = {
+  id?: string;
+  note: string;
+  schedule_date?: string | Date | number;
+  started_time: string | Date | number;
+  finished_time: string | Date | number;
+  actual_date: string | Date | number;
+  aid?: string;
+};
+
+export type AssignmentPowerStopDataType = {
+  id?: string;
+  aid?: string;
+  area: string;
+  started_date: string | Date | number;
+  finished_date: string | Date | number;
+};
+
+export type AssignmentDataType = {
+  woid: string;
+  manufacturing_address: string;
+  manufacturing_status: string;
+  manufacturing_date: Date;
+  power_stop_contact?: string;
+  power_stop_phone1?: string;
+  power_stop_phone2?: string;
+  power_stop_date?: string;
+  external_contact_is_holiday: boolean;
+  external_contact_is_power_stop: boolean;
+  is_assign_manpower: boolean;
+  external_contact_request_date: Date;
+  external_contact_receive_date: Date;
+  tracking_date: Date;
+  tracking_description: string;
+  tracking_is_finished: boolean;
+  tracking_finished_date: Date;
+  work_order_name?: string;
+  work_order_type?: string;
+  po?: string;
+  acceptance_check_date?: string;
+  tobill_date?: string;
+  factory_date?: string;
+  assignment_date?: string;
+  customer_number?: string;
+  customer_name?: string;
+  manpower_schedule: AssignmentPowerScheduleDataType[] | string;
+  power_stop: AssignmentPowerStopDataType[] | string;
+};
+
+export type AssignmentRequestDataType = {
+  woid: string;
+  manufacturing_address: string | undefined;
+  manufacturing_status: string | undefined;
+  manufacturing_date: Date | undefined;
+  // power_stop_contact: string;
+  // power_stop_phone1: string;
+  // power_stop_phone2: string;
+  // power_stop_date: string;
+  external_contact_is_holiday: boolean;
+  external_contact_is_power_stop: boolean;
+  is_assign_manpower: boolean;
+  external_contact_request_date: Date | undefined;
+  external_contact_receive_date: Date | undefined;
+  tracking_date: Date | undefined;
+  tracking_description: string | undefined;
+  tracking_is_finished: boolean;
+  tracking_finished_date: Date | undefined;
+  // work_order_name: string;
+  // work_order_type: string;
+  // po: string;
+  // acceptance_check_date: string;
+  // tobill_date: string;
+  // factory_date: string;
+  // assignment_date: string;
+  // customer_number: string;
+  // customer_name: string;
+  manpower_schedule: AssignmentPowerScheduleDataType[] | string;
+  power_stop: AssignmentPowerStopDataType[] | string;
+};
+
+export type WorkOrderDetailResponseDataType = {
+  cid: string;
+  woid: string;
+  name: string;
+  invoice_number: string;
+  order_number: string;
+  type: string;
+  amount: number;
+  inquiry_member: string;
+  responsible_member: string;
+  po: string;
+  acceptance_check_date: string;
+  tobill_date: string;
+  factory_date: string;
+  assignment_date: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type FactoryDataType = {
+  id: string;
+  description: string;
+  tracking_date: Date;
+  tracking_description: string;
+  tracking_is_finished: boolean;
+  finished_date: Date;
+  factory_other_form: FactoryOtherFormType[];
+};
+
+export type FactoryRequestDataType = {
+  woid: string;
+  description: string | undefined;
+  tracking_date: Date | undefined;
+  tracking_description: string | undefined;
+  tracking_is_finished: boolean | undefined;
+  finished_date: Date | undefined;
+  factory_other_form: string;
+};
+
+export type FactoryOtherFormType = {
+  id?: string;
+  fid?: string;
+  is_class: boolean;
+  is_bunny_shoe: boolean;
+  is_bunny_suit: boolean;
+  is_group_insurance: boolean;
+  is_label_insurance: boolean;
+  other_form: string;
+};
+
+export type AcceptanceCheckDataType = {
+  id: string;
+  description: string;
+  is_photo_before: boolean;
+  is_photo_during: boolean;
+  is_photo_after: boolean;
+  power_switch_date1: Date;
+  power_switch_date2: Date;
+  power_switch_date3: Date;
+  power_switch_date4: Date;
+  defect_agreement: string;
+  report_type: string;
+  ew06_registration: string;
+  fom17_registration_government_date: Date;
+  fom17_registration_ele_date: Date;
+  is_warranty: boolean;
+  tracking_date: Date;
+  tracking_description: string;
+  tracking_is_finished: boolean;
+  finished_date: Date;
+  wt_report_number?: string;
+};
+
+export type AcceptanceCheckRequestDataType = {
+  woid: string;
+  description: string | undefined;
+  is_photo_before: boolean | undefined;
+  is_photo_during: boolean | undefined;
+  is_photo_after: boolean | undefined;
+  power_switch_date1: Date | undefined;
+  power_switch_date2: Date | undefined;
+  power_switch_date3: Date | undefined;
+  power_switch_date4: Date | undefined;
+  defect_agreement: string | undefined;
+  report_type: string | undefined;
+  ew06_registration: string | undefined;
+  fom17_registration_government_date: Date | undefined;
+  fom17_registration_ele_date: Date | undefined;
+  is_warranty: boolean | undefined;
+  tracking_date: Date | undefined;
+  tracking_description: string | undefined;
+  tracking_is_finished: boolean | undefined;
+  finished_date: Date | undefined;
+  wt_report_number: string | undefined;
+};
+
+export type TobillDataType = {
+  id: string;
+  description: string;
+  tracking_date: Date;
+  tracking_description: string;
+  tracking_is_finished: boolean;
+  finished_date: Date;
+  tobill_invoice: TobillInvoiceDataType[];
+};
+
+export type TobillInvoiceDataType = {
+  tbid?: string;
+  id?: string;
+  percentage: string;
+  date: Date | number;
+  amount: number;
+  sent_date: Date | number;
+  note: string;
+  numbers_invoices: number;
+  numbers_reports: number;
+  numbers_general_forms: number;
+  numbers_inqualify_agreements: number;
+  numbers_envelope: number;
+  invoice_number: string;
+};
+
+export type TobillRequestDataType = {
+  woid: string | undefined;
+  description: string | undefined;
+  tracking_date: Date | undefined;
+  tracking_description: string | undefined;
+  tracking_is_finished: boolean | undefined;
+  finished_date: Date | undefined;
+  tobill_invoice: string;
 };

@@ -15,6 +15,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import dayjs from "dayjs";
 
 import { getWorks } from "../api/works";
 
@@ -59,8 +60,10 @@ const Works = () => {
       }
     };
 
-    handleGetWorks();
-  }, []);
+    if (!openCreateWorkModal) {
+      handleGetWorks();
+    }
+  }, [openCreateWorkModal]);
 
   // const handleCloseModal = () => {
   //   setSelectedCustomer("");
@@ -191,9 +194,13 @@ const Works = () => {
                   <TableCell align="left">--</TableCell>
                   <TableCell align="left">--</TableCell>
                   <TableCell align="left">--</TableCell>
-                  <TableCell align="left">{work.notify_date}</TableCell>
-                  <TableCell align="left">{work.update_date}</TableCell>
+                  <TableCell align="left">
+                    {dayjs(work.notify_date).format("YYYY/MM/DD")}
+                  </TableCell>
                   <TableCell align="left">{work.update_member}</TableCell>
+                  <TableCell align="left">
+                    {dayjs(work.update_date).format("YYYY/MM/DD")}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

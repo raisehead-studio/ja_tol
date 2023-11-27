@@ -10,13 +10,20 @@ import Button from "@mui/material/Button";
 
 import login_photo from "../assets/images/login.jpg";
 
+import { login } from "../api/auth";
+
 const Login = () => {
   const navigate = useNavigate();
   const [account, setAccount] = useState<string>("");
   const [pw, setPw] = useState<string>("");
 
   const handleLogin = async () => {
-    navigate("/");
+    const res = await login(account, pw);
+    console.log(res);
+
+    if (res.status === "success") {
+      navigate("/");
+    }
   };
 
   return (
@@ -47,7 +54,7 @@ const Login = () => {
               size="small"
               InputLabelProps={{ shrink: true }}
               fullWidth
-              onChange={(e) => {}}
+              onChange={(e) => setAccount(e.target.value)}
               value={account}
               sx={{ pt: 2 }}
             />
@@ -57,7 +64,7 @@ const Login = () => {
               size="small"
               InputLabelProps={{ shrink: true }}
               fullWidth
-              onChange={(e) => {}}
+              onChange={(e) => setPw(e.target.value)}
               value={pw}
               sx={{ pt: 2 }}
             />

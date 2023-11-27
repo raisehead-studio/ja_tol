@@ -6,6 +6,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import AddIcon from "@mui/icons-material/Add";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import UpdateIcon from "@mui/icons-material/Update";
+import MenuItem from "@mui/material/MenuItem";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 
@@ -32,28 +35,14 @@ const EditCustomers = () => {
         setLoading(false);
       }
     };
-    if (csid) {
+    if (csid && !openModal) {
       handleGetCustomers(csid);
     }
-  }, [csid]);
+  }, [openModal, csid]);
 
   const handleOpenModal = () => setOpenModal(true);
 
   const handleCloseModal = () => setOpenModal(false);
-
-  const handleAddContent = (id: string) => {
-    if (!data) return;
-    let updateDate = {
-      ...data,
-      customer_service_contents: [
-        ...data.customer_service_contents,
-        {
-          content: "",
-        },
-      ],
-    };
-    setData(updateDate);
-  };
 
   const handleUpdateFiled = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -194,7 +183,11 @@ const EditCustomers = () => {
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 onChange={handleUpdateFiled}
-              />
+                select>
+                <MenuItem value="not_started">未處理</MenuItem>
+                <MenuItem value="in_progress">追蹤處理中</MenuItem>
+                <MenuItem value="complete">結案（鎖單）</MenuItem>
+              </TextField>
               <DatePicker
                 format="YYYY/MM/DD"
                 label="建立日期"
@@ -288,24 +281,39 @@ const EditCustomers = () => {
             </Box>
           ))}
           <Box>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={handleOpenModal}>
+            <Button startIcon={<AddIcon />} onClick={handleOpenModal}>
               新增客服紀錄內容
             </Button>
-          </Box>
-          <Box>
-            <Button onClick={() => navigate(-1)}>回到上一頁</Button>
-            <Button onClick={handleUpdate}>儲存</Button>
           </Box>
         </>
       )}
       <CreateServiceContentModal
         csid={csid}
-        open={true}
+        open={openModal}
         handleClose={handleCloseModal}
       />
+      <Box
+        sx={{
+          position: "sticky",
+          bottom: "1rem",
+          right: "1rem",
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: "1rem",
+        }}>
+        <Button
+          startIcon={<ArrowBackIosIcon />}
+          variant="contained"
+          onClick={() => navigate(-1)}>
+          回到上一頁
+        </Button>
+        <Button
+          startIcon={<UpdateIcon />}
+          variant="contained"
+          onClick={handleUpdate}>
+          儲存
+        </Button>
+      </Box>
     </Box>
   );
 };

@@ -26,3 +26,10 @@ export const handleUpdateServiceDetail = async (data: any) => {
     },
   });
 };
+
+export const createServiceContent = async (data: any) => {
+  return request("/api/v1/service/create_service_content", {
+    method: "POST",
+    body: data,
+  });
+};

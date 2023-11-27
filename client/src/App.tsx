@@ -22,6 +22,8 @@ import Services from "./pages/Services";
 import Works from "./pages/Works";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
+import EditAdmin from "./pages/EditMember";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import logo from "../src/assets/images/logo.png";
 
@@ -74,7 +76,13 @@ function App() {
   };
 
   return (
-    <div>
+    <Box
+      sx={{
+        height: "100vh",
+        minHeight: "100vh",
+        overflowY: "visible",
+        position: "relative",
+      }}>
       <AppBar
         position="static"
         sx={{
@@ -194,16 +202,80 @@ function App() {
       </AppBar>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/admins" element={<Admin />} />
-        <Route path="/customers" element={<Customers />} />
-        <Route path="/customers/:cid" element={<EditCustomers />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/services/:csid" element={<EditServices />} />
-        <Route path="/works" element={<Works />} />
-        <Route path="/works/:woid" element={<EditWorks />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admins"
+          element={
+            <ProtectedRoute>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admins/:uid"
+          element={
+            <ProtectedRoute>
+              <EditAdmin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customers"
+          element={
+            <ProtectedRoute>
+              <Customers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customers/:cid"
+          element={
+            <ProtectedRoute>
+              <EditCustomers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/services"
+          element={
+            <ProtectedRoute>
+              <Services />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/services/:csid"
+          element={
+            <ProtectedRoute>
+              <EditServices />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/works"
+          element={
+            <ProtectedRoute>
+              <Works />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/works/:woid"
+          element={
+            <ProtectedRoute>
+              <EditWorks />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-    </div>
+    </Box>
   );
 }
 

@@ -7,7 +7,9 @@ import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import CircularProgress from "@mui/material/CircularProgress";
-// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
+
 import { createServices } from "../api/services";
 import { getCustomers } from "../api/customers";
 
@@ -26,7 +28,7 @@ const CreateService = ({
   const [title, setTitle] = useState<string>("");
   const [status, setStatus] = useState<string>("");
   const [type, setType] = useState<string>("");
-  const [notifyDate, setNotifyDate] = useState<string>("");
+  const [notifyDate, setNotifyDate] = useState<number | "">("");
   const [updateMember] = useState<string>("test_admin");
   const [createMember] = useState<string>("test_admin");
   const [content, setContent] = useState<string>("");
@@ -58,6 +60,11 @@ const CreateService = ({
       setLoading(false);
       console.log(error);
     }
+  };
+
+  const handleUpdateDate = (value: any) => {
+    let updateDate = new Date(value.$d).getTime();
+    setNotifyDate(updateDate);
   };
 
   useEffect(() => {
@@ -170,16 +177,17 @@ const CreateService = ({
                   setTitle(e.target.value);
                 }}
               />
-              <TextField
+              <DatePicker
+                format="YYYY/MM/DD"
                 label="下次提醒時間"
-                name="notifyData"
-                value={notifyDate}
-                size="small"
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                onChange={(e) => {
-                  setNotifyDate(e.target.value);
+                value={dayjs(notifyDate) || ""}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    size: "small",
+                  },
                 }}
+                onChange={(newValue) => handleUpdateDate(newValue)}
               />
             </Box>
             <Box
@@ -222,12 +230,15 @@ const CreateService = ({
                 gap: "1rem",
               }}>
               <TextField
-                label="客服紀錄內容"
+                label="客服紀錄狀態"
                 name="content"
                 value={content}
                 size="small"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
+                type="textarea"
+                multiline={true}
+                rows={4}
                 onChange={(e) => {
                   setContent(e.target.value);
                 }}

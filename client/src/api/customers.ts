@@ -1,5 +1,10 @@
 import request from "./requests";
-import { CustomerRequestDataType } from "../types/customers";
+
+import {
+  CustomerRequestDataType,
+  CustomerContactRequestDataType,
+  UpdateCustomerRequestDataType,
+} from "../types/customers";
 
 export const getCustomers = async () => {
   return request("/api/v1/customers").then((res) => res.data);
@@ -16,4 +21,18 @@ export const createCustomer = async (data: CustomerRequestDataType) => {
   });
 };
 
-export const updateCustomer = async (id: string, customer: any) => {};
+export const updateCustomer = async (data: UpdateCustomerRequestDataType) => {
+  return request("/api/v1/customers/update_customers", {
+    method: "PUT",
+    body: data,
+  });
+};
+
+export const createCustomerContact = async (
+  data: CustomerContactRequestDataType
+) => {
+  return request("/api/v1/customers/create_customers_contact", {
+    method: "POST",
+    body: data,
+  });
+};

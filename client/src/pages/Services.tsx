@@ -19,14 +19,15 @@ import dayjs from "dayjs";
 
 import { getServices } from "../api/services";
 import { ServiceResponseDataType } from "../types/services";
-
 import CreateService from "../components/CreateServiceModal";
+import ViewServiceContent from "../components/ServiceContentModal";
 
 const Services = () => {
   const [data, setData] = useState([]);
   const [openCreateServiceModal, setOpenCreateServiceModal] =
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [selectedService, setSelectedService] = useState<string>("");
 
   const navigate = useNavigate();
 
@@ -43,8 +44,8 @@ const Services = () => {
       }
     };
 
-    handleGetCustomers();
-  }, []);
+    if (!openCreateServiceModal) handleGetCustomers();
+  }, [openCreateServiceModal]);
 
   // useEffect(() => {
   //   const handleGetCustomers = async () => {
@@ -62,14 +63,14 @@ const Services = () => {
   //   handleGetCustomers();
   // }, []);
 
-  // const handleCloseModal = () => {
-  //   setSelectedCustomer("");
-  //   return;
-  // };
+  const handleCloseModal = () => {
+    setSelectedService("");
+    return;
+  };
 
-  // const handleOpenModal = (cid: string) => {
-  //   setOpenCreateServiceModal(cid);
-  // };
+  const handleOpenModal = (csid: string) => {
+    setSelectedService(csid);
+  };
 
   const handleOpenCreateCustomerModal = () => {
     setOpenCreateServiceModal(true);
@@ -120,9 +121,17 @@ const Services = () => {
             aria-label="a dense table"
             stickyHeader>
             <TableHead
-              sx={{
-                backgroundColor: "#f5f5f5",
-              }}>
+              sx={(s) => ({
+                backgroundColor: s.palette.primary.main,
+                tr: {
+                  backgroundColor: "inherit !important",
+
+                  th: {
+                    backgroundColor: "inherit !important",
+                    color: "white",
+                  },
+                },
+              })}>
               <TableRow>
                 <TableCell
                   align="left"
@@ -146,50 +155,70 @@ const Services = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((service: ServiceResponseDataType) => (
-                <TableRow
-                  key={service.id}
-                  hover
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
-                  <TableCell align="left">
-                    <Tooltip title="檢視">
-                      <IconButton
-                        // onClick={() => handleOpenModal(customer.cid)}
-                        size="small">
-                        <VisibilityIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell align="left">
-                    <Tooltip title="編輯">
-                      <IconButton
-                        onClick={() => {
-                          navigate(`/services/${service.id}`);
-                        }}
-                        size="small">
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {service.customer_number}
-                  </TableCell>
-                  <TableCell align="left">{service.short_name}</TableCell>
-                  <TableCell align="left">
-                    {dayjs(service.update_date).format("YYYY/MM/DD")}
-                  </TableCell>
-                  <TableCell align="left">{service.status}</TableCell>
-                  <TableCell align="left">{service.type}</TableCell>
-                  <TableCell align="left">{service.title}</TableCell>
-                  <TableCell align="left">
-                    {dayjs(service.notify_date).format("YYYY/MM/DD")}
-                  </TableCell>
-                  <TableCell align="left">{service.update_member}</TableCell>
-                  <TableCell align="left">
-                    {dayjs(service.update_date).format("YYYY/MM/DD")}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {data.map((service: ServiceResponseDataType) => {
+                let customer_status;
+                switch (service.status) {
+                  case "in_progress":
+                    customer_status = "進行中";
+                    break;
+                  case "done":
+                    customer_status = "已完成";
+                    break;
+                  case "closed":
+                    customer_status = "已結案";
+                    break;
+                  default:
+                    customer_status = "未知";
+                    break;
+                }
+
+                return (
+                  <TableRow
+                    key={service.id}
+                    hover
+                    sx={{
+                      "&:last-child td, &:last-child th": { border: 0 },
+                    }}>
+                    <TableCell align="left">
+                      <Tooltip title="檢視">
+                        <IconButton
+                          onClick={() => handleOpenModal(service.id)}
+                          size="small">
+                          <VisibilityIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell align="left">
+                      <Tooltip title="編輯">
+                        <IconButton
+                          onClick={() => {
+                            navigate(`/services/${service.id}`);
+                          }}
+                          size="small">
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {service.customer_number}
+                    </TableCell>
+                    <TableCell align="left">{service.short_name}</TableCell>
+                    <TableCell align="left">
+                      {dayjs(service.update_date).format("YYYY/MM/DD")}
+                    </TableCell>
+                    <TableCell align="left">{customer_status}</TableCell>
+                    <TableCell align="left">{service.type}</TableCell>
+                    <TableCell align="left">{service.title}</TableCell>
+                    <TableCell align="left">
+                      {dayjs(service.notify_date).format("YYYY/MM/DD")}
+                    </TableCell>
+                    <TableCell align="left">{service.update_member}</TableCell>
+                    <TableCell align="left">
+                      {dayjs(service.update_date).format("YYYY/MM/DD")}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
@@ -197,6 +226,11 @@ const Services = () => {
       <CreateService
         open={openCreateServiceModal}
         handleClose={handleCloseCreateCustomerModal}
+      />
+      <ViewServiceContent
+        open={Boolean(selectedService)}
+        handleClose={handleCloseModal}
+        csid={selectedService}
       />
     </Box>
   );

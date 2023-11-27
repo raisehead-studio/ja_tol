@@ -45,7 +45,7 @@ const Customers = () => {
       }
     };
 
-    handleGetCustomers();
+    if (!openCreateCustomerModal) handleGetCustomers();
   }, [openCreateCustomerModal]);
 
   useEffect(() => {
@@ -122,9 +122,17 @@ const Customers = () => {
             aria-label="a dense table"
             stickyHeader>
             <TableHead
-              sx={{
-                backgroundColor: "#f5f5f5",
-              }}>
+              sx={(s) => ({
+                backgroundColor: s.palette.primary.main,
+                tr: {
+                  backgroundColor: "inherit !important",
+
+                  th: {
+                    backgroundColor: "inherit !important",
+                    color: "white",
+                  },
+                },
+              })}>
               <TableRow>
                 <TableCell
                   align="left"

@@ -5,6 +5,7 @@ import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import CircularProgress from "@mui/material/CircularProgress";
+import dayjs from "dayjs";
 
 import { getCustomer } from "../api/customers";
 
@@ -379,9 +380,6 @@ const ViewCustomers = ({
                 <Divider />
               </Box>
             ))}
-            <Box>
-              <Button disabled>新增聯絡人</Button>
-            </Box>
             <Divider />
             <Typography variant="h5">備註</Typography>
             <TextField
@@ -470,16 +468,25 @@ const ViewCustomers = ({
             />
             <Divider />
             {data?.customer_services.map((service, index) => (
-              <Box>
-                <Button>
-                  客服紀錄-{index + 1}：{service.title} || 提醒日期：
-                  {service.notify_date}
+              <Box key={service.id}>
+                <Box>
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "0.9rem",
+                    }}>
+                    客服紀錄-{index + 1}：
+                  </Typography>
+                </Box>
+                <Button
+                  sx={{
+                    px: "0px",
+                  }}>
+                  {service.title} || 提醒日期：
+                  {dayjs(service.notify_date).format("YYYY/MM/DD")}
                 </Button>
               </Box>
             ))}
-            <Box>
-              <Button disabled>新增客服紀錄</Button>
-            </Box>
             <Divider />
             <Box>
               <Button
