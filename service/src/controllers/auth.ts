@@ -5,50 +5,108 @@ import bcrypt from "bcryptjs";
 
 import User from "../models/user";
 
-export const create_user = (
+export const login = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res
-      .status(422)
-      .json({ message: "Validation failed", errors: errors.array() });
-  }
-  const account = req.body.account;
-  const name = req.body.name;
-  const password = req.body.password;
+  const { account, password } = req.body;
+  try {
+    User.findOne({ where: { account: account } }).then((user) => {
+      if (!user)
+        return res.status(401).json({
+          status: "failed",
+          data: [],
+          message:
+            "Invalid email or password. Please try again with the correct credentials.",
+        });
 
-  User.findOne({ where: { account: account } }).then((user) => {
-    if (!user) {
-      bcrypt.hash(password, 12).then((hashedPw) => {
-        User.create({
-          account: account,
-          password: hashedPw,
-          name: name,
-          role: "admin",
-        })
-          .then((result) => {
-            res
-              .status(200)
-              .json({ message: "User created!", uid: result.dataValues.uid });
-          })
-          .catch((err) => {
-            if (!err.statusCode) {
-              err.statusCode = 500;
-            }
-            next(err);
-          });
+      const isPasswordValid = bcrypt.compare(
+        password,
+        user.dataValues.password
+      );
+      // if not valid, return unathorized response
+      if (!isPasswordValid)
+        return res.status(401).json({
+          status: "failed",
+          data: [],
+          message:
+            "Invalid email or password. Please try again with the correct credentials.",
+        });
+      // return user info except password
+
+      const token = jwt.sign(
+        { id: user.dataValues.id },
+        process.env.JWT_SECRET as string,
+        {
+          algorithm: "HS256",
+          allowInsecureKeySizes: true,
+          expiresIn: "1m",
+        }
+      );
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          uid: user.dataValues.uid,
+          account: user.dataValues.account,
+          name: user.dataValues.name,
+          role: user.dataValues.role,
+          token: token,
+        },
+        message: "You have successfully logged in.",
       });
-    } else {
-      return res.status(422).json({
-        message: "This account was used! Please pick a new account.",
-      });
-    }
-  });
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      data: [],
+      message: "Internal Server Error",
+    });
+  }
 };
 
+// export const verify = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const authHeader = req.headers["cookie"]; // get the session cookie from request header
+
+//     if (!authHeader) return res.sendStatus(401); // if there is no cookie from request header, send an unauthorized response.
+//     const cookie = authHeader.split("=")[1]; // If there is, split the cookie string to get the actual jwt
+
+//     // Verify using jwt to see if token has been tampered with or if it has expired.
+//     // that's like checking the integrity of the cookie
+//     jwt.verify(
+//       cookie,
+//       process.env.JWT_SECRET as string,
+//       async (err, decoded) => {
+//         if (err) {
+//           // if token has been altered or has expired, return an unauthorized error
+//           return res
+//             .status(401)
+//             .json({ message: "This session has expired. Please login" });
+//         }
+
+//         const { uid } = decoded; // get user id from the decoded token
+//         const user = await User.findById(id); // find user by that `id`
+//         const { password, ...data } = user._doc; // return user object without the password
+//         req.user = data; // put the data object into req.user
+//         next();
+//       }
+//     );
+//   } catch (err) {
+//     res.status(500).json({
+//       status: "error",
+//       code: 500,
+//       data: [],
+//       message: "Internal Server Error",
+//     });
+//   }
+// };
 // exports.login = (req, res, next) => {
 //   const email = req.body.email;
 //   const password = req.body.password;

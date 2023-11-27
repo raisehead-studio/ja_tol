@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 
 import { sequelize as seq } from "./utils/db";
+import userRouter from "./routes/users";
 import authRouter from "./routes/auth";
 import customerRouter from "./routes/customers";
 import serviceRouter from "./routes/service";
@@ -35,6 +36,7 @@ app.use(cors(cors_option));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
+app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/customers", customerRouter);
 app.use("/api/v1/service", serviceRouter);

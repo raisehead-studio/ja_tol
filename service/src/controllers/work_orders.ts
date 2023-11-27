@@ -48,10 +48,114 @@ export const create_work_order = (req: Request, res: Response) => {
       factory_date,
       assignment_date,
     })
-      .then(() => {
-        res.status(200).json({
-          message: "Work order created successfully",
-          status: 200,
+      .then(async (result) => {
+        let executions: any = [];
+        let woid = result.dataValues.woid;
+        let description = "";
+        let tracking_date = new Date();
+        let tracking_description = "";
+        let tracking_is_finished = false;
+        let finished_date = new Date();
+        let is_photo_before = false;
+        let is_photo_during = false;
+        let is_photo_after = false;
+        let power_switch_date1 = new Date();
+        let power_switch_date2 = new Date();
+        let power_switch_date3 = new Date();
+        let power_switch_date4 = new Date();
+        let defect_agreement = false;
+        let report_type = "";
+        let ew06_registration = false;
+        let fom17_registration_government_date = new Date();
+        let fom17_registration_ele_date = new Date();
+        let is_warranty = false;
+        let wt_report_number = "";
+        let manufacturing_address = "";
+        let manufacturing_status = "";
+        let manufacturing_date = new Date();
+        let power_stop_contact = "";
+        let power_stop_phone1 = "";
+        let power_stop_phone2 = "";
+        let power_stop_date = new Date();
+        let external_contact_is_holiday = false;
+        let external_contact_is_power_stop = false;
+        let external_contact_request_date = new Date();
+        let external_contact_receive_date = new Date();
+        let tracking_finished_date = new Date();
+
+        executions.push(
+          Factorys.create({
+            woid,
+            description,
+            tracking_date,
+            tracking_description,
+            tracking_is_finished,
+            finished_date,
+          })
+        );
+
+        executions.push(
+          AcceptanceCheck.create({
+            woid,
+            description,
+            is_photo_before,
+            is_photo_during,
+            is_photo_after,
+            power_switch_date1,
+            power_switch_date2,
+            power_switch_date3,
+            power_switch_date4,
+            defect_agreement,
+            report_type,
+            ew06_registration,
+            fom17_registration_government_date,
+            fom17_registration_ele_date,
+            is_warranty,
+            tracking_date,
+            tracking_description,
+            tracking_is_finished,
+            finished_date,
+            wt_report_number,
+          })
+        );
+
+        executions.push(
+          Assignments.create({
+            woid,
+            manufacturing_address,
+            manufacturing_status,
+            manufacturing_date,
+            power_stop_contact,
+            power_stop_phone1,
+            power_stop_phone2,
+            power_stop_date,
+            external_contact_is_holiday,
+            external_contact_is_power_stop,
+            external_contact_request_date,
+            external_contact_receive_date,
+            tracking_date,
+            tracking_description,
+            tracking_is_finished,
+            tracking_finished_date,
+          })
+        );
+
+        executions.push(
+          ToBill.create({
+            woid,
+            description,
+            tracking_date,
+            tracking_description,
+            tracking_is_finished,
+            finished_date,
+          })
+        );
+
+        Promise.all(executions).then(() => {
+          return res.status(200).json({
+            message: "Work order created successfully",
+            status: 200,
+          });
         });
       })
       .catch((errors) => {
@@ -115,6 +219,90 @@ export const get_work_orders_list = (
     return res.status(500).json({
       status: 500,
       message: "something went wrong when getting wok order lists.",
+      error: err,
+    });
+  }
+};
+
+export const get_work_order_detail = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { woid } = req.params;
+  try {
+    WorkOrder.findOne({ where: { woid: woid } })
+      .then((work_order) => {
+        res.status(200).json({
+          status: 200,
+          data: work_order,
+        });
+      })
+      .catch((err) => {
+        if (!err.statusCode) {
+          err.statusCode = 500;
+        }
+        next(err);
+      });
+  } catch (err) {
+    return res.status(500).json({
+      status: 500,
+      message: "something went wrong when getting wok order lists.",
+      error: err,
+    });
+  }
+};
+
+export const update_work_order_detail = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      woid,
+      // name,
+      // invoice_number,
+      // order_number,
+      type,
+      // amount,
+      // inquiry_member,
+      // responsible_member,
+      po,
+      acceptance_check_date,
+      tobill_date,
+      factory_date,
+      assignment_date,
+    } = req.body;
+
+    WorkOrder.findOne({ where: { woid: woid } }).then((work: any) => {
+      try {
+        // work.name = name;
+        // work.invoice_number = invoice_number;
+        // work.order_number = order_number;
+        work.type = type;
+        // work.amount = amount;
+        // work.inquiry_member = inquiry_member;
+        // work.responsible_member = responsible_member;
+        work.po = po;
+        work.acceptance_check_date = acceptance_check_date;
+        work.tobill_date = tobill_date;
+        work.factory_date = factory_date;
+        work.assignment_date = assignment_date;
+        work.save();
+
+        return res.status(200).json({
+          status: 200,
+          message: "Work order updated successfully",
+        });
+      } catch (err) {
+        next(err);
+      }
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: 500,
+      message: "something went wrong when updating assignment.",
       error: err,
     });
   }
@@ -199,6 +387,7 @@ export const get_assignment_detail = (req: Request, res: Response) => {
       data.customer_number =
         work_order.dataValues.customer.dataValues.customer_number;
       data.customer_name = work_order.dataValues.customer.dataValues.short_name;
+      data.is_assign_manpower = assignment?.dataValues.is_assign_manpower;
       data.manpower_schedule = assignment?.dataValues.manpower_schedules.map(
         (manpower_schedule: any) => {
           return {
@@ -216,8 +405,8 @@ export const get_assignment_detail = (req: Request, res: Response) => {
           return {
             id: power_stop.dataValues.psid,
             area: power_stop.dataValues.area,
-            started_time: power_stop.dataValues.started_date,
-            finished_time: power_stop.dataValues.finished_date,
+            started_date: power_stop.dataValues.started_date,
+            finished_date: power_stop.dataValues.finished_date,
           };
         }
       );
@@ -238,17 +427,21 @@ export const get_assignment_detail = (req: Request, res: Response) => {
   }
 };
 
-export const update_assignment = (req: Request, res: Response) => {
+export const update_assignment = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const {
       woid,
       manufacturing_address,
       manufacturing_status,
       manufacturing_date,
-      power_stop_contact,
-      power_stop_phone1,
-      power_stop_phone2,
-      power_stop_date,
+      // power_stop_contact,
+      // power_stop_phone1,
+      // power_stop_phone2,
+      // power_stop_date,
       external_contact_is_holiday,
       external_contact_is_power_stop,
       external_contact_request_date,
@@ -257,13 +450,13 @@ export const update_assignment = (req: Request, res: Response) => {
       tracking_description,
       tracking_is_finished,
       tracking_finished_date,
-      work_order_name,
-      work_order_type,
-      po,
-      acceptance_check_date,
-      tobill_date,
-      factory_date,
-      assignment_date,
+      // work_order_name,
+      // work_order_type,
+      // po,
+      // acceptance_check_date,
+      // tobill_date,
+      // factory_date,
+      // assignment_date,
       manpower_schedule,
       power_stop,
     } = req.body;
@@ -274,10 +467,10 @@ export const update_assignment = (req: Request, res: Response) => {
       assignment.manufacturing_address = manufacturing_address;
       assignment.manufacturing_status = manufacturing_status;
       assignment.manufacturing_date = manufacturing_date;
-      assignment.power_stop_contact = power_stop_contact;
-      assignment.power_stop_phone1 = power_stop_phone1;
-      assignment.power_stop_phone2 = power_stop_phone2;
-      assignment.power_stop_date = power_stop_date;
+      // assignment.power_stop_contact = power_stop_contact;
+      // assignment.power_stop_phone1 = power_stop_phone1;
+      // assignment.power_stop_phone2 = power_stop_phone2;
+      // assignment.power_stop_date = power_stop_date;
       assignment.external_contact_is_holiday = external_contact_is_holiday;
       assignment.external_contact_is_power_stop =
         external_contact_is_power_stop;
@@ -292,32 +485,40 @@ export const update_assignment = (req: Request, res: Response) => {
       WorkOrder.findOne({
         where: { woid: woid },
       }).then((work_order: any) => {
-        work_order.name = work_order_name;
-        work_order.type = work_order_type;
-        work_order.po = po;
-        work_order.acceptance_check_date = acceptance_check_date;
-        work_order.tobill_date = tobill_date;
-        work_order.factory_date = factory_date;
-        work_order.assignment_date = assignment_date;
-        work_order.save();
+        // work_order.name = work_order_name;
+        // work_order.type = work_order_type;
+        // work_order.po = po;
+        // work_order.acceptance_check_date = acceptance_check_date;
+        // work_order.tobill_date = tobill_date;
+        // work_order.factory_date = factory_date;
+        // work_order.assignment_date = assignment_date;
+        // work_order.save();
 
         let executions: any = [];
         JSON.parse(manpower_schedule).forEach((manpower_schedule_item: any) => {
           executions.push(
             ManpowerSchedule.findOne({
               where: { msid: manpower_schedule_item.id },
-            }).then((manpower_schedule: any) => {
-              manpower_schedule.note = manpower_schedule_item.note;
-              manpower_schedule.schedule_date =
-                manpower_schedule_item.schedule_date;
-              manpower_schedule.started_time =
-                manpower_schedule_item.started_time;
-              manpower_schedule.finished_time =
-                manpower_schedule_item.finished_time;
-              manpower_schedule.actual_date =
-                manpower_schedule_item.actual_date;
-              manpower_schedule.save();
             })
+              .then((manpower_schedule: any) => {
+                console.log("manpower_schedule", manpower_schedule);
+
+                manpower_schedule.note = manpower_schedule_item.note;
+                // manpower_schedule.schedule_date =
+                //   manpower_schedule_item.schedule_date;
+                manpower_schedule.started_time = new Date(
+                  manpower_schedule_item.started_time
+                );
+                manpower_schedule.finished_time = new Date(
+                  manpower_schedule_item.finished_time
+                );
+                manpower_schedule.actual_date =
+                  manpower_schedule_item.actual_date;
+                manpower_schedule.save();
+              })
+              .catch((err) => {
+                next(err);
+              })
           );
         });
 
@@ -325,12 +526,16 @@ export const update_assignment = (req: Request, res: Response) => {
           executions.push(
             PowerStop.findOne({
               where: { psid: power_stop_item.id },
-            }).then((power_stop: any) => {
-              power_stop.area = power_stop_item.area;
-              power_stop.started_date = power_stop_item.started_date;
-              power_stop.finished_date = power_stop_item.finished_date;
-              power_stop.save();
             })
+              .then((power_stop: any) => {
+                power_stop.area = power_stop_item.area;
+                power_stop.started_date = power_stop_item.started_date;
+                power_stop.finished_date = power_stop_item.finished_date;
+                power_stop.save();
+              })
+              .catch((err) => {
+                next(err);
+              })
           );
         });
 
@@ -425,18 +630,24 @@ export const create_manpower_schedule = (
     const {
       aid,
       note,
-      schedule_date,
+      // schedule_date,
       started_time,
       finished_time,
       actual_date,
     } = req.body;
 
+    let started_time_t = new Date(started_time).getTime();
+    let finished_time_t = new Date(finished_time).getTime();
+
+    console.log("started_time_t", started_time_t);
+    console.log("finished_time_t", finished_time_t);
+
     ManpowerSchedule.create({
       aid,
       note,
-      schedule_date,
-      started_time,
-      finished_time,
+      // schedule_date,
+      started_time_t,
+      finished_time_t,
       actual_date,
     })
       .then(() => {
@@ -446,6 +657,8 @@ export const create_manpower_schedule = (
         });
       })
       .catch((errors) => {
+        console.log("errors", errors);
+
         return res.status(500).json({
           status: 500,
           message: "something went wrong when creating manpower schedule.",
@@ -519,13 +732,13 @@ export const update_acceptance_check = (req: Request, res: Response) => {
       tracking_is_finished,
       finished_date,
       wt_report_number,
-      work_order_name,
-      work_order_type,
-      po,
-      acceptance_check_date,
-      tobill_date,
-      factory_date,
-      assignment_date,
+      // work_order_name,
+      // work_order_type,
+      // po,
+      // acceptance_check_date,
+      // tobill_date,
+      // factory_date,
+      // assignment_date,
     } = req.body;
 
     AcceptanceCheck.findOne({
@@ -556,14 +769,14 @@ export const update_acceptance_check = (req: Request, res: Response) => {
       WorkOrder.findOne({
         where: { woid: woid },
       }).then((work_order: any) => {
-        work_order.name = work_order_name;
-        work_order.type = work_order_type;
-        work_order.po = po;
-        work_order.acceptance_check_date = acceptance_check_date;
-        work_order.tobill_date = tobill_date;
-        work_order.factory_date = factory_date;
-        work_order.assignment_date = assignment_date;
-        work_order.save();
+        // work_order.name = work_order_name;
+        // work_order.type = work_order_type;
+        // work_order.po = po;
+        // work_order.acceptance_check_date = acceptance_check_date;
+        // work_order.tobill_date = tobill_date;
+        // work_order.factory_date = factory_date;
+        // work_order.assignment_date = assignment_date;
+        // work_order.save();
 
         return res.status(200).json({
           status: 200,
@@ -626,24 +839,24 @@ export const get_acceptance_check_detail = (req: Request, res: Response) => {
       data.tracking_is_finished =
         acceptance_check?.dataValues.tracking_is_finished;
       data.finished_date = acceptance_check?.dataValues.finished_date;
-      data.wt_report_number = acceptance_check?.dataValues.wt_report_number;
-      data.work_order_name =
-        acceptance_check?.dataValues.work_order.dataValues.name;
-      data.work_order_type =
-        acceptance_check?.dataValues.work_order.dataValues.type;
-      data.po = acceptance_check?.dataValues.work_order.dataValues.po;
-      data.acceptance_check_date =
-        acceptance_check?.dataValues.work_order.dataValues.acceptance_check_date;
-      data.tobill_date =
-        acceptance_check?.dataValues.work_order.dataValues.tobill_date;
-      data.factory_date =
-        acceptance_check?.dataValues.work_order.dataValues.factory_date;
-      data.assignment_date =
-        acceptance_check?.dataValues.work_order.dataValues.assignment_date;
-      data.customer_number =
-        acceptance_check?.dataValues.work_order.dataValues.customer.dataValues.customer_number;
-      data.customer_name =
-        acceptance_check?.dataValues.work_order.dataValues.customer.dataValues.short_name;
+      // data.wt_report_number = acceptance_check?.dataValues.wt_report_number;
+      // data.work_order_name =
+      //   acceptance_check?.dataValues.work_order.dataValues.name;
+      // data.work_order_type =
+      //   acceptance_check?.dataValues.work_order.dataValues.type;
+      // data.po = acceptance_check?.dataValues.work_order.dataValues.po;
+      // data.acceptance_check_date =
+      //   acceptance_check?.dataValues.work_order.dataValues.acceptance_check_date;
+      // data.tobill_date =
+      //   acceptance_check?.dataValues.work_order.dataValues.tobill_date;
+      // data.factory_date =
+      //   acceptance_check?.dataValues.work_order.dataValues.factory_date;
+      // data.assignment_date =
+      //   acceptance_check?.dataValues.work_order.dataValues.assignment_date;
+      // data.customer_number =
+      //   acceptance_check?.dataValues.work_order.dataValues.customer.dataValues.customer_number;
+      // data.customer_name =
+      //   acceptance_check?.dataValues.work_order.dataValues.customer.dataValues.short_name;
 
       return res.status(200).json({
         status: 200,
@@ -759,21 +972,21 @@ export const get_factory_detail = (req: Request, res: Response) => {
       data.tracking_description = factory?.dataValues.tracking_description;
       data.tracking_is_finished = factory?.dataValues.tracking_is_finished;
       data.finished_date = factory?.dataValues.finished_date;
-      data.wt_report_number = factory?.dataValues.wt_report_number;
-      data.work_order_name = factory?.dataValues.work_order.dataValues.name;
-      data.work_order_type = factory?.dataValues.work_order.dataValues.type;
-      data.po = factory?.dataValues.work_order.dataValues.po;
-      data.acceptance_check_date =
-        factory?.dataValues.work_order.dataValues.acceptance_check_date;
-      data.tobill_date = factory?.dataValues.work_order.dataValues.tobill_date;
-      data.factory_date =
-        factory?.dataValues.work_order.dataValues.factory_date;
-      data.assignment_date =
-        factory?.dataValues.work_order.dataValues.assignment_date;
-      data.customer_number =
-        factory?.dataValues.work_order.dataValues.customer.dataValues.customer_number;
-      data.customer_name =
-        factory?.dataValues.work_order.dataValues.customer.dataValues.short_name;
+      // data.wt_report_number = factory?.dataValues.wt_report_number;
+      // data.work_order_name = factory?.dataValues.work_order.dataValues.name;
+      // data.work_order_type = factory?.dataValues.work_order.dataValues.type;
+      // data.po = factory?.dataValues.work_order.dataValues.po;
+      // data.acceptance_check_date =
+      //   factory?.dataValues.work_order.dataValues.acceptance_check_date;
+      // data.tobill_date = factory?.dataValues.work_order.dataValues.tobill_date;
+      // data.factory_date =
+      //   factory?.dataValues.work_order.dataValues.factory_date;
+      // data.assignment_date =
+      //   factory?.dataValues.work_order.dataValues.assignment_date;
+      // data.customer_number =
+      //   factory?.dataValues.work_order.dataValues.customer.dataValues.customer_number;
+      // data.customer_name =
+      //   factory?.dataValues.work_order.dataValues.customer.dataValues.short_name;
       data.factory_other_form = factory?.dataValues.factory_other_forms.map(
         (factory_other_form: any) => {
           return {
@@ -813,14 +1026,14 @@ export const update_factory = (req: Request, res: Response) => {
       tracking_description,
       tracking_is_finished,
       finished_date,
-      wt_report_number,
-      work_order_name,
-      work_order_type,
-      po,
-      acceptance_check_date,
-      tobill_date,
-      factory_date,
-      assignment_date,
+      // wt_report_number,
+      // work_order_name,
+      // work_order_type,
+      // po,
+      // acceptance_check_date,
+      // tobill_date,
+      // factory_date,
+      // assignment_date,
       factory_other_form,
     } = req.body;
 
@@ -837,15 +1050,15 @@ export const update_factory = (req: Request, res: Response) => {
       WorkOrder.findOne({
         where: { woid: woid },
       }).then((work_order: any) => {
-        work_order.name = work_order_name;
-        work_order.type = work_order_type;
-        work_order.po = po;
-        work_order.acceptance_check_date = acceptance_check_date;
-        work_order.tobill_date = tobill_date;
-        work_order.factory_date = factory_date;
-        work_order.assignment_date = assignment_date;
-        work_order.wt_report_number = wt_report_number;
-        work_order.save();
+        // work_order.name = work_order_name;
+        // work_order.type = work_order_type;
+        // work_order.po = po;
+        // work_order.acceptance_check_date = acceptance_check_date;
+        // work_order.tobill_date = tobill_date;
+        // work_order.factory_date = factory_date;
+        // work_order.assignment_date = assignment_date;
+        // work_order.wt_report_number = wt_report_number;
+        // work_order.save();
 
         let executions: any = [];
         JSON.parse(factory_other_form).forEach(
@@ -979,14 +1192,14 @@ export const update_tobill = (req: Request, res: Response) => {
       tracking_description,
       tracking_is_finished,
       finished_date,
-      wt_report_number,
-      work_order_name,
-      work_order_type,
-      po,
-      acceptance_check_date,
-      tobill_date,
-      factory_date,
-      assignment_date,
+      // wt_report_number,
+      // work_order_name,
+      // work_order_type,
+      // po,
+      // acceptance_check_date,
+      // tobill_date,
+      // factory_date,
+      // assignment_date,
       tobill_invoice,
     } = req.body;
     ToBill.findOne({
@@ -1002,15 +1215,15 @@ export const update_tobill = (req: Request, res: Response) => {
       WorkOrder.findOne({
         where: { woid: woid },
       }).then((work_order: any) => {
-        work_order.name = work_order_name;
-        work_order.type = work_order_type;
-        work_order.po = po;
-        work_order.acceptance_check_date = acceptance_check_date;
-        work_order.tobill_date = tobill_date;
-        work_order.factory_date = factory_date;
-        work_order.assignment_date = assignment_date;
-        work_order.wt_report_number = wt_report_number;
-        work_order.save();
+        // work_order.name = work_order_name;
+        // work_order.type = work_order_type;
+        // work_order.po = po;
+        // work_order.acceptance_check_date = acceptance_check_date;
+        // work_order.tobill_date = tobill_date;
+        // work_order.factory_date = factory_date;
+        // work_order.assignment_date = assignment_date;
+        // work_order.wt_report_number = wt_report_number;
+        // work_order.save();
 
         let executions: any = [];
         JSON.parse(tobill_invoice).forEach((tobill_invoice_item: any) => {
@@ -1033,6 +1246,8 @@ export const update_tobill = (req: Request, res: Response) => {
                 tobill_invoice_item.numbers_inqualify_agreements;
               tobill_invoice.invoice_number =
                 tobill_invoice_item.invoice_number;
+              tobill_invoice.numbers_envelope =
+                tobill_invoice_item.numbers_envelope;
               tobill_invoice.save();
             })
           );
@@ -1089,20 +1304,21 @@ export const get_tobill_detail = (req: Request, res: Response) => {
       data.tracking_description = tobill?.dataValues.tracking_description;
       data.tracking_is_finished = tobill?.dataValues.tracking_is_finished;
       data.finished_date = tobill?.dataValues.finished_date;
-      data.wt_report_number = tobill?.dataValues.wt_report_number;
-      data.work_order_name = tobill?.dataValues.work_order.dataValues.name;
-      data.work_order_type = tobill?.dataValues.work_order.dataValues.type;
-      data.po = tobill?.dataValues.work_order.dataValues.po;
-      data.acceptance_check_date =
-        tobill?.dataValues.work_order.dataValues.acceptance_check_date;
-      data.tobill_date = tobill?.dataValues.work_order.dataValues.tobill_date;
-      data.factory_date = tobill?.dataValues.work_order.dataValues.factory_date;
-      data.assignment_date =
-        tobill?.dataValues.work_order.dataValues.assignment_date;
-      data.customer_number =
-        tobill?.dataValues.work_order.dataValues.customer.dataValues.customer_number;
-      data.customer_name =
-        tobill?.dataValues.work_order.dataValues.customer.dataValues.short_name;
+
+      // data.wt_report_number = tobill?.dataValues.wt_report_number;
+      // data.work_order_name = tobill?.dataValues.work_order.dataValues.name;
+      // data.work_order_type = tobill?.dataValues.work_order.dataValues.type;
+      // data.po = tobill?.dataValues.work_order.dataValues.po;
+      // data.acceptance_check_date =
+      //   tobill?.dataValues.work_order.dataValues.acceptance_check_date;
+      // data.tobill_date = tobill?.dataValues.work_order.dataValues.tobill_date;
+      // data.factory_date = tobill?.dataValues.work_order.dataValues.factory_date;
+      // data.assignment_date =
+      //   tobill?.dataValues.work_order.dataValues.assignment_date;
+      // data.customer_number =
+      //   tobill?.dataValues.work_order.dataValues.customer.dataValues.customer_number;
+      // data.customer_name =
+      //   tobill?.dataValues.work_order.dataValues.customer.dataValues.short_name;
       data.tobill_invoice = tobill?.dataValues.tobill_invoces.map(
         (tobill_invoice: any) => {
           return {
@@ -1118,6 +1334,7 @@ export const get_tobill_detail = (req: Request, res: Response) => {
               tobill_invoice.dataValues.numbers_general_forms,
             numbers_inqualify_agreements:
               tobill_invoice.dataValues.numbers_inqualify_agreements,
+            numbers_envelope: tobill_invoice.dataValues.numbers_envelope,
             invoice_number: tobill_invoice.dataValues.invoice_number,
           };
         }
@@ -1190,6 +1407,7 @@ export const create_tobill_invoice = (req: Request, res: Response) => {
       numbers_reports,
       numbers_general_forms,
       numbers_inqualify_agreements,
+      numbers_envelope,
       invoice_number,
     } = req.body;
     ToBillInvoice.create({
@@ -1203,6 +1421,7 @@ export const create_tobill_invoice = (req: Request, res: Response) => {
       numbers_reports,
       numbers_general_forms,
       numbers_inqualify_agreements,
+      numbers_envelope,
       invoice_number,
     })
       .then(() => {

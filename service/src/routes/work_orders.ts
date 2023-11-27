@@ -5,6 +5,10 @@ const router = express.Router();
 
 router.get("/", controllers.get_work_orders_list);
 
+router.get("/:woid", controllers.get_work_order_detail);
+
+router.put("/", controllers.update_work_order_detail);
+
 router.post("/create_work_order", controllers.create_work_order);
 
 router.get("/get_assignment_detail/:woid", controllers.get_assignment_detail);
