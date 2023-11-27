@@ -21,14 +21,10 @@ import { UsersType } from "../types/users";
 import { getUsers } from "../api/users";
 
 import CreateMember from "../components/CreateMember";
-import EditMemberModal from "./EditMember";
 
 const Admin = () => {
   const [data, setData] = useState<UsersType[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<string>("");
   const [openCreateMemberModal, setOpenCreateMemberModal] =
-    useState<boolean>(false);
-  const [openEditMemberModal, setOpenEditMemberModal] =
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -75,7 +71,7 @@ const Admin = () => {
           </Button>
         </Box>
       </Box>
-      {false ? (
+      {loading ? (
         <Box
           sx={{
             display: "flex",

@@ -1,13 +1,9 @@
 import { useEffect, useState, ChangeEvent } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import AddIcon from "@mui/icons-material/Add";
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import UpdateIcon from "@mui/icons-material/Update";
 import Modal from "@mui/material/Modal";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
@@ -28,7 +24,6 @@ const ViewServiceContent = ({
   const [data, setData] = useState<ServiceDetailResponseDataType | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const handleGetCustomers = async (id: string) => {
@@ -47,7 +42,7 @@ const ViewServiceContent = ({
     }
   }, [openModal, csid]);
 
-  const handleOpenModal = () => setOpenModal(true);
+  // const handleOpenModal = () => setOpenModal(true);
 
   const handleCloseModal = () => setOpenModal(false);
 
