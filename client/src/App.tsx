@@ -135,7 +135,7 @@ function App() {
         ))}
       </Box>
     );
-  }, [user]);
+  }, [user, pages]);
 
   return (
     <Box
