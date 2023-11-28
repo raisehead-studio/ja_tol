@@ -55,7 +55,6 @@ function App() {
 
   let [menu, setMenu] = useState<any>(null);
   const { user } = useLayoutContext();
-
   const no_auth = useMatch("/login");
 
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
@@ -71,6 +70,7 @@ function App() {
   };
 
   useEffect(() => {
+    console.log(user);
     const pages = [
       {
         name: "追蹤列表",

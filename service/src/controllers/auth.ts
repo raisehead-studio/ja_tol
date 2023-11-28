@@ -20,12 +20,8 @@ export const login = async (
           message: "帳號錯誤，請重新輸入。",
         });
 
-      const isPasswordValid = bcrypt.compareSync(
-        password,
-        user.dataValues.password
-      );
       // if not valid, return unathorized response
-      if (!isPasswordValid)
+      if (password !== user.dataValues.password)
         return res.status(401).json({
           status: "failed",
           message: "密碼錯誤，請重新輸入。",

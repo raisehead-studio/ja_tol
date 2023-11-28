@@ -25,7 +25,7 @@ export const create_user = (
     if (!user) {
       User.create({
         account: account,
-        password: bcrypt.hashSync(password),
+        password: password,
         name: name,
         role: role,
       })
