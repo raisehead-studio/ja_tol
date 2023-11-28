@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -11,7 +11,13 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { Routes, Route, NavLink, useMatch } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  NavLink,
+  useMatch,
+  useNavigate,
+} from "react-router-dom";
 
 import Customers from "./pages/Customers";
 import EditCustomers from "./pages/EditCustomers";
@@ -25,33 +31,58 @@ import Admin from "./pages/Admin";
 import EditAdmin from "./pages/EditMember";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import { useLayoutContext } from "./components/LayoutContext";
+
 import logo from "../src/assets/images/logo.png";
 
-const pages = [
-  {
-    name: "追蹤列表",
-    url: "/",
-  },
-  {
-    name: "客戶管理",
-    url: "/customers",
-  },
-  {
-    name: "客服紀錄",
-    url: "/services",
-  },
-  {
-    name: "工單管理",
-    url: "/works",
-  },
-  {
-    name: "人員管理",
-    url: "/admins",
-  },
-];
-const settings = ["個人資料", "登出"];
-
 function App() {
+  const navigate = useNavigate();
+  const settings = [
+    {
+      name: "個人資料",
+      func: () => {
+        handleCloseUserMenu();
+      },
+    },
+    {
+      name: "登出",
+      func: () => {
+        localStorage.clear();
+        navigate("/login");
+        handleCloseUserMenu();
+      },
+    },
+  ];
+  const pages = [
+    {
+      name: "追蹤列表",
+      url: "/",
+      is_show: "is_tracking_page",
+    },
+    {
+      name: "客戶管理",
+      url: "/customers",
+      is_show: "is_customer_page",
+    },
+    {
+      name: "客服紀錄",
+      url: "/services",
+      is_show: "is_service_page",
+    },
+    {
+      name: "工單管理",
+      url: "/works",
+      is_show: "is_work_page",
+    },
+    {
+      name: "人員管理",
+      url: "/admins",
+      is_show: "is_admin_page",
+    },
+  ];
+  let [menu, setMenu] = useState<any>(null);
+  const { user } = useLayoutContext();
+
   const no_auth = useMatch("/login");
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
@@ -74,6 +105,37 @@ function App() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  useEffect(() => {
+    setMenu(
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: { xs: "none", md: "flex" },
+          ".active": {
+            opacity: 1,
+            fontWeight: 700,
+            transform: "scale(1.1)",
+          },
+        }}>
+        {pages.map((page) => (
+          <Button
+            component={NavLink}
+            to={page.url}
+            key={page.name}
+            onClick={handleCloseNavMenu}
+            sx={{
+              my: 2,
+              color: "white",
+              display: user?.permission[page.is_show] ? "block" : "none",
+              opacity: 0.5,
+            }}>
+            {page.name}
+          </Button>
+        ))}
+      </Box>
+    );
+  }, [user]);
 
   return (
     <Box
@@ -142,37 +204,15 @@ function App() {
               </Menu>
             </Box>
 
-            <Box
-              sx={{
-                flexGrow: 1,
-                display: { xs: "none", md: "flex" },
-                ".active": {
-                  opacity: 1,
-                  fontWeight: 700,
-                  transform: "scale(1.1)",
-                },
-              }}>
-              {pages.map((page) => (
-                <Button
-                  component={NavLink}
-                  to={page.url}
-                  key={page.name}
-                  onClick={handleCloseNavMenu}
-                  sx={{
-                    my: 2,
-                    color: "white",
-                    display: "block",
-                    opacity: 0.5,
-                  }}>
-                  {page.name}
-                </Button>
-              ))}
-            </Box>
+            {menu}
 
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar
+                    alt={user?.name || ""}
+                    src="/static/images/avatar/2.jpg"
+                  />
                 </IconButton>
               </Tooltip>
               <Menu
@@ -191,8 +231,8 @@ function App() {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}>
                 {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography textAlign="center">{setting}</Typography>
+                  <MenuItem key={setting.name} onClick={setting.func}>
+                    <Typography textAlign="center">{setting.name}</Typography>
                   </MenuItem>
                 ))}
               </Menu>

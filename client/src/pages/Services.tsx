@@ -16,9 +16,12 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import dayjs from "dayjs";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import { getServices } from "../api/services";
 import { ServiceResponseDataType } from "../types/services";
+import { useLayoutContext } from "../components/LayoutContext";
+
 import CreateService from "../components/CreateServiceModal";
 import ViewServiceContent from "../components/ServiceContentModal";
 
@@ -28,7 +31,7 @@ const Services = () => {
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedService, setSelectedService] = useState<string>("");
-
+  const { user } = useLayoutContext();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -95,7 +98,10 @@ const Services = () => {
           justifyContent: "space-between",
         }}>
         <Typography variant="h5">客服資料列表</Typography>
-        <Box>
+        <Box
+          sx={{
+            display: user?.permission.is_service_page_insert ? "block" : "none",
+          }}>
           <Button onClick={handleOpenCreateCustomerModal}>
             <Typography variant="button">新增客服資料</Typography>
           </Button>
@@ -133,6 +139,11 @@ const Services = () => {
                 },
               })}>
               <TableRow>
+                <TableCell
+                  align="left"
+                  sx={{
+                    width: "5%",
+                  }}></TableCell>
                 <TableCell
                   align="left"
                   sx={{
@@ -183,7 +194,8 @@ const Services = () => {
                       <Tooltip title="檢視">
                         <IconButton
                           onClick={() => handleOpenModal(service.id)}
-                          size="small">
+                          size="small"
+                          disabled={!user?.permission.is_service_page_read}>
                           <VisibilityIcon />
                         </IconButton>
                       </Tooltip>
@@ -194,8 +206,18 @@ const Services = () => {
                           onClick={() => {
                             navigate(`/services/${service.id}`);
                           }}
-                          size="small">
+                          size="small"
+                          disabled={!user?.permission.is_service_page_update}>
                           <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell align="left">
+                      <Tooltip title="刪除">
+                        <IconButton
+                          disabled={!user?.permission.is_service_page_delete}
+                          size="small">
+                          <DeleteIcon />
                         </IconButton>
                       </Tooltip>
                     </TableCell>

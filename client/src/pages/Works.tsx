@@ -16,10 +16,11 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import dayjs from "dayjs";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import { getWorks } from "../api/works";
-
 import { WorkResponseDataType } from "../types/works";
+import { useLayoutContext } from "../components/LayoutContext";
 
 import CreateWork from "../components/CreateWorkModal";
 
@@ -28,7 +29,7 @@ const Works = () => {
   const [openCreateWorkModal, setOpenCreateWorkModal] =
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-
+  const { user } = useLayoutContext();
   const navigate = useNavigate();
 
   // useEffect(() => {
@@ -97,7 +98,10 @@ const Works = () => {
           justifyContent: "space-between",
         }}>
         <Typography variant="h5">工作單詳細資料列表</Typography>
-        <Box>
+        <Box
+          sx={{
+            display: user?.permission.is_work_page_insert ? "block" : "none",
+          }}>
           <Button onClick={handleOpenCreateWorkModal}>
             <Typography variant="button">新增工作單</Typography>
           </Button>
@@ -137,6 +141,7 @@ const Works = () => {
               <TableRow>
                 <TableCell align="left"></TableCell>
                 <TableCell align="left"></TableCell>
+                <TableCell align="left"></TableCell>
                 <TableCell align="left">客戶編號</TableCell>
                 <TableCell align="left">客戶名稱</TableCell>
                 <TableCell align="left">工單編號</TableCell>
@@ -164,7 +169,8 @@ const Works = () => {
                     <Tooltip title="檢視">
                       <IconButton
                         // onClick={() => handleOpenModal(customer.cid)}
-                        size="small">
+                        size="small"
+                        disabled={!user?.permission.is_work_page_read}>
                         <VisibilityIcon />
                       </IconButton>
                     </Tooltip>
@@ -175,8 +181,18 @@ const Works = () => {
                         onClick={() => {
                           navigate(`/works/${work.id}`);
                         }}
-                        size="small">
+                        size="small"
+                        disabled={!user?.permission.is_work_page_update}>
                         <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell align="left">
+                    <Tooltip title="刪除">
+                      <IconButton
+                        disabled={!user?.permission.is_work_page_delete}
+                        size="small">
+                        <DeleteIcon />
                       </IconButton>
                     </Tooltip>
                   </TableCell>

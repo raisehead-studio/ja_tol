@@ -1,15 +1,16 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children }: any) => {
-  const [auth] = useState(true);
   const navigate = useNavigate();
+  const ac = localStorage.getItem("token");
+  const rt = localStorage.getItem("rf_token");
 
   useEffect(() => {
-    if (!auth) {
+    if (!ac || !rt) {
       navigate("/login");
     }
-  }, [auth, navigate]);
+  }, [ac, rt, navigate]);
 
   return <>{children}</>;
 };

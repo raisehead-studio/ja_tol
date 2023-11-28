@@ -9,3 +9,21 @@ export const login = async (account: string, pw: string) => {
     },
   });
 };
+
+export const retoken = async () => {
+  return request("/api/v1/auth/token", {
+    method: "POST",
+    body: {
+      token: localStorage.getItem("rf_token"),
+    },
+  });
+};
+
+export const status = async () => {
+  return request("/api/v1/auth/status", {
+    method: "GET",
+    Headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+};

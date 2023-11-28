@@ -22,3 +22,10 @@ export const createUser = async (data: UsersType) => {
     body: data,
   });
 };
+
+export const updateUser = async (data: UsersType) => {
+  return request("/api/v1/users", {
+    method: "PUT",
+    body: data,
+  });
+};

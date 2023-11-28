@@ -8,6 +8,8 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
+import Layout from "./components/StatusLayout";
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -33,9 +35,11 @@ root.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <Layout>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </Layout>
       </LocalizationProvider>
     </ThemeProvider>
   </React.StrictMode>

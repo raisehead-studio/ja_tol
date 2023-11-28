@@ -13,11 +13,12 @@ import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 
+import { useLayoutContext } from "../components/LayoutContext";
 import { UsersType } from "../types/users";
-
 import { getUsers } from "../api/users";
 
 import CreateMember from "../components/CreateMember";
@@ -27,8 +28,9 @@ const Admin = () => {
   const [openCreateMemberModal, setOpenCreateMemberModal] =
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-
+  const { user } = useLayoutContext();
   const navigate = useNavigate();
+  let user_data = user;
 
   const handleOpenCreateMember = () => setOpenCreateMemberModal(true);
 
@@ -66,7 +68,13 @@ const Admin = () => {
         }}>
         <Typography variant="h5">人員列表</Typography>
         <Box>
-          <Button onClick={handleOpenCreateMember}>
+          <Button
+            onClick={handleOpenCreateMember}
+            sx={{
+              display: user_data?.permission.is_admin_page_insert
+                ? "block"
+                : "none",
+            }}>
             <Typography variant="button">新增人員</Typography>
           </Button>
         </Box>
@@ -91,9 +99,17 @@ const Admin = () => {
             aria-label="a dense table"
             stickyHeader>
             <TableHead
-              sx={{
-                backgroundColor: "#f5f5f5",
-              }}>
+              sx={(s) => ({
+                backgroundColor: s.palette.primary.main,
+                tr: {
+                  backgroundColor: "inherit !important",
+
+                  th: {
+                    backgroundColor: "inherit !important",
+                    color: "white",
+                  },
+                },
+              })}>
               <TableRow>
                 <TableCell
                   align="left"
@@ -105,8 +121,12 @@ const Admin = () => {
                   sx={{
                     width: "5%",
                   }}></TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    width: "5%",
+                  }}></TableCell>
                 <TableCell align="left">人員帳號</TableCell>
-                <TableCell align="left">人員密碼</TableCell>
                 <TableCell align="left">人員名稱</TableCell>
                 <TableCell align="left">人員權限</TableCell>
               </TableRow>
@@ -139,6 +159,7 @@ const Admin = () => {
                       <Tooltip title="檢視">
                         <IconButton
                           // onClick={() => handleOpenModal(customer.cid)}
+                          disabled={!user_data?.permission.is_admin_page_read}
                           size="small">
                           <VisibilityIcon />
                         </IconButton>
@@ -150,15 +171,25 @@ const Admin = () => {
                           onClick={() => {
                             navigate(`/admins/${user.uid}`);
                           }}
+                          disabled={!user_data?.permission.is_admin_page_update}
                           size="small">
                           <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell align="left">
+                      <Tooltip title="刪除">
+                        <IconButton
+                          disabled={!user_data?.permission.is_admin_page_delete}
+                          size="small">
+                          <DeleteIcon />
                         </IconButton>
                       </Tooltip>
                     </TableCell>
                     <TableCell component="th" scope="row">
                       {user.account}
                     </TableCell>
-                    <TableCell align="left">{user.password}</TableCell>
+
                     <TableCell align="left">{user.name}</TableCell>
                     <TableCell align="left">{display_role}</TableCell>
                   </TableRow>
