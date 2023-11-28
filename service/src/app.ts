@@ -9,6 +9,7 @@ import authRouter from "./routes/auth";
 import customerRouter from "./routes/customers";
 import serviceRouter from "./routes/service";
 import WorkOrderRouter from "./routes/work_orders";
+import TrackingRoute from "./routes/tracking";
 import Customer from "./models/customer";
 import CustomerContact from "./models/customer_contact";
 import ElePlace from "./models/ele_place";
@@ -43,6 +44,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/customers", customerRouter);
 app.use("/api/v1/service", serviceRouter);
 app.use("/api/v1/work_orders", WorkOrderRouter);
+app.use("/api/v1/tracking", TrackingRoute);
 
 CustomerContact.belongsTo(Customer, { foreignKey: "cid" });
 Customer.hasMany(CustomerContact, { foreignKey: "cid" });

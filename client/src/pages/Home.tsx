@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -12,81 +13,53 @@ import CircularProgress from "@mui/material/CircularProgress";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import EditIcon from "@mui/icons-material/Edit";
+import dayjs from "dayjs";
 
-import { getWorks } from "../api/works";
-import { getServices } from "../api/services";
+import { getTrackings } from "../api/tracking";
+import { useLayoutContext } from "../components/LayoutContext";
+import { TrackingDataType } from "../types/tracking";
 
-import { ServiceResponseDataType } from "../types/services";
-
-type DataType = {
-  customer_number: string;
-  name: string;
-  id: string;
-  date: string;
-  title: string;
-  type: string;
-  status: string;
-  last_update_member: string;
-  last_update_date: string;
-};
+import CustomersModal from "../components/ServiceContentModal";
+import WorksModal from "../components/WorksModal";
 
 const Home = () => {
-  const [data, setData] = useState<DataType[]>([]);
+  const [data, setData] = useState<TrackingDataType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [openWorkModal, setOpenWorkModal] = useState<boolean>(false);
+  const [openCustomerModal, setOpenCustomerModal] = useState<boolean>(false);
+  const [woid, setWoid] = useState<string>("");
+  const [cid, setCid] = useState<string>("");
+  const { user } = useLayoutContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    let data: DataType[] = [];
-    const services = async () => {
+    const handleGetTrackings = async () => {
       try {
-        const services = await getServices();
         setLoading(true);
-
-        services.forEach((service: ServiceResponseDataType) => {
-          data.push({
-            customer_number: service.customer_number,
-            name: service.short_name,
-            id: service.id,
-            date: service.notify_date,
-            title: service.title,
-            type: service.type,
-            status: service.status,
-            last_update_member: service.update_member,
-            last_update_date: service.update_date,
-          });
-        });
-      } catch (error) {
-        return [];
-      }
-    };
-
-    const works = async () => {
-      try {
-        const works = await getWorks();
-        setLoading(true);
-
-        works.forEach((work: any) => {
-          data.push({
-            customer_number: work.customer_number,
-            name: work.customer_name,
-            id: work.id,
-            date: work.notify_date,
-            title: work.work_order_name,
-            type: work.type,
-            status: work.status,
-            last_update_member: work.update_member,
-            last_update_date: work.update_date.split("T"),
-          });
-        });
+        const data = await getTrackings();
         setData(data);
         setLoading(false);
       } catch (error) {
-        return [];
+        setLoading(false);
       }
     };
-
-    services();
-    works();
+    handleGetTrackings();
   }, []);
+
+  const handleOpenWorkModal = (id: string) => {
+    setWoid(id);
+    setOpenWorkModal(true);
+  };
+
+  const handleCloseWorkModal = () => setOpenWorkModal(false);
+
+  const handleOpenCustomerModal = (id: string) => {
+    setCid(id);
+    setOpenCustomerModal(true);
+  };
+
+  const handleCloseCustomerModal = () => setOpenCustomerModal(false);
 
   return (
     <Box
@@ -123,10 +96,23 @@ const Home = () => {
             aria-label="a dense table"
             stickyHeader>
             <TableHead
-              sx={{
-                backgroundColor: "#f5f5f5",
-              }}>
+              sx={(s) => ({
+                backgroundColor: s.palette.primary.main,
+                tr: {
+                  backgroundColor: "inherit !important",
+
+                  th: {
+                    backgroundColor: "inherit !important",
+                    color: "white",
+                  },
+                },
+              })}>
               <TableRow>
+                <TableCell
+                  align="left"
+                  sx={{
+                    width: "5%",
+                  }}></TableCell>
                 <TableCell
                   align="left"
                   sx={{
@@ -143,34 +129,71 @@ const Home = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((i: DataType) => (
+              {data.map((i: TrackingDataType) => (
                 <TableRow
                   hover
                   key={i.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                   <TableCell align="left">
                     <Tooltip title="檢視">
-                      <IconButton onClick={() => {}} size="small">
+                      <IconButton
+                        onClick={
+                          i.work_order_number === "客服紀錄"
+                            ? () => handleOpenCustomerModal(i.id)
+                            : () => handleOpenWorkModal(i.id)
+                        }
+                        disabled={!user?.permission.is_tracking_page_read}
+                        size="small">
                         <VisibilityIcon />
                       </IconButton>
                     </Tooltip>
                   </TableCell>
+                  <TableCell align="left">
+                    <Tooltip title="編輯">
+                      <IconButton
+                        onClick={() => {
+                          navigate(
+                            `/${
+                              i.work_order_number === "客服紀錄"
+                                ? "services"
+                                : "works"
+                            }/${i.id}`
+                          );
+                        }}
+                        disabled={!user?.permission.is_tracking_page_update}
+                        size="small">
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
                   <TableCell component="th" scope="row">
-                    {i.date}
+                    {dayjs(i.notify_date).format("YYYY/MM/DD")}
                   </TableCell>
                   <TableCell align="left">{i.customer_number}</TableCell>
-                  <TableCell align="left">{i.name}</TableCell>
-                  <TableCell align="left">{i.status}</TableCell>
-                  <TableCell align="left">{i.type}</TableCell>
-                  <TableCell align="left">{i.title}</TableCell>
-                  <TableCell align="left">{i.last_update_member}</TableCell>
-                  <TableCell align="left">{i.last_update_date}</TableCell>
+                  <TableCell align="left">{i.short_name}</TableCell>
+                  <TableCell align="left">{i.work_order_number}</TableCell>
+                  <TableCell align="left">{i.item}</TableCell>
+                  <TableCell align="left">{i.description}</TableCell>
+                  <TableCell align="left">{i.update_member}</TableCell>
+                  <TableCell align="left">
+                    {dayjs(i.update_date).format("YYYY/MM/DD")}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       )}
+      <CustomersModal
+        open={openCustomerModal}
+        handleClose={handleCloseCustomerModal}
+        csid={cid}
+      />
+      <WorksModal
+        open={openWorkModal}
+        handleClose={handleCloseWorkModal}
+        woid={woid}
+      />
     </Box>
   );
 };

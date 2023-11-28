@@ -70,7 +70,6 @@ function App() {
   };
 
   useEffect(() => {
-    console.log(user);
     const pages = [
       {
         name: "追蹤列表",

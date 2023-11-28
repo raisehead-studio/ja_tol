@@ -23,6 +23,7 @@ import { WorkResponseDataType } from "../types/works";
 import { useLayoutContext } from "../components/LayoutContext";
 
 import CreateWork from "../components/CreateWorkModal";
+import WorksModal from "../components/WorksModal";
 
 const Works = () => {
   const [data, setData] = useState([]);
@@ -31,6 +32,8 @@ const Works = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const { user } = useLayoutContext();
   const navigate = useNavigate();
+  const [selectedWoid, setSelectedWoid] = useState<string>("");
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   // useEffect(() => {
   //   const handleGetWorks = async () => {
@@ -66,14 +69,14 @@ const Works = () => {
     }
   }, [openCreateWorkModal]);
 
-  // const handleCloseModal = () => {
-  //   setSelectedCustomer("");
-  //   return;
-  // };
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
 
-  // const handleOpenModal = (cid: string) => {
-  //   setSelectedCustomer(cid);
-  // };
+  const handleOpenModal = (id: string) => {
+    setSelectedWoid(id);
+    setOpenModal(true);
+  };
 
   const handleOpenCreateWorkModal = () => {
     setOpenCreateWorkModal(true);
@@ -168,7 +171,7 @@ const Works = () => {
                   <TableCell align="left">
                     <Tooltip title="檢視">
                       <IconButton
-                        // onClick={() => handleOpenModal(customer.cid)}
+                        onClick={() => handleOpenModal(work.id)}
                         size="small"
                         disabled={!user?.permission.is_work_page_read}>
                         <VisibilityIcon />
@@ -226,6 +229,11 @@ const Works = () => {
       <CreateWork
         open={openCreateWorkModal}
         handleClose={handleCloseCreateWorkModal}
+      />
+      <WorksModal
+        open={openModal}
+        handleClose={handleCloseModal}
+        woid={selectedWoid}
       />
     </Box>
   );
