@@ -5,7 +5,6 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -53,53 +52,18 @@ function App() {
       },
     },
   ];
-  const pages = [
-    {
-      name: "追蹤列表",
-      url: "/",
-      is_show: "is_tracking_page",
-    },
-    {
-      name: "客戶管理",
-      url: "/customers",
-      is_show: "is_customer_page",
-    },
-    {
-      name: "客服紀錄",
-      url: "/services",
-      is_show: "is_service_page",
-    },
-    {
-      name: "工單管理",
-      url: "/works",
-      is_show: "is_work_page",
-    },
-    {
-      name: "人員管理",
-      url: "/admins",
-      is_show: "is_admin_page",
-    },
-  ];
+
   let [menu, setMenu] = useState<any>(null);
   const { user } = useLayoutContext();
 
   const no_auth = useMatch("/login");
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-    null
-  );
+
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
 
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
   };
 
   const handleCloseUserMenu = () => {
@@ -107,6 +71,33 @@ function App() {
   };
 
   useEffect(() => {
+    const pages = [
+      {
+        name: "追蹤列表",
+        url: "/",
+        is_show: "is_tracking_page",
+      },
+      {
+        name: "客戶管理",
+        url: "/customers",
+        is_show: "is_customer_page",
+      },
+      {
+        name: "客服紀錄",
+        url: "/services",
+        is_show: "is_service_page",
+      },
+      {
+        name: "工單管理",
+        url: "/works",
+        is_show: "is_work_page",
+      },
+      {
+        name: "人員管理",
+        url: "/admins",
+        is_show: "is_admin_page",
+      },
+    ];
     setMenu(
       <Box
         sx={{
@@ -123,7 +114,6 @@ function App() {
             component={NavLink}
             to={page.url}
             key={page.name}
-            onClick={handleCloseNavMenu}
             sx={{
               my: 2,
               color: "white",
@@ -135,7 +125,7 @@ function App() {
         ))}
       </Box>
     );
-  }, [user, pages]);
+  }, [user]);
 
   return (
     <Box
@@ -168,40 +158,6 @@ function App() {
                 src={logo}
                 alt="logo"
               />
-            </Box>
-            <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleOpenNavMenu}
-                color="inherit">
-                <MenuIcon />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorElNav}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
-                open={Boolean(anchorElNav)}
-                onClose={handleCloseNavMenu}
-                sx={{
-                  display: { xs: "block", md: "none" },
-                }}>
-                {pages.map((page) => (
-                  <MenuItem key={page.name} onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">{page.name}</Typography>
-                  </MenuItem>
-                ))}
-              </Menu>
             </Box>
 
             {menu}
