@@ -199,14 +199,19 @@ const CreateService = ({
               <TextField
                 label="客服紀錄類型"
                 name="type"
-                value={type}
+                value={type || ""}
                 size="small"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 onChange={(e) => {
                   setType(e.target.value);
                 }}
-              />
+                select>
+                <MenuItem value="報價需求">報價需求</MenuItem>
+                <MenuItem value="報價需求">合約內檢測報價</MenuItem>
+                <MenuItem value="報價需求">議價</MenuItem>
+                <MenuItem value="報價需求">其他</MenuItem>
+              </TextField>
               <TextField
                 label="客服紀錄狀態"
                 name="status"

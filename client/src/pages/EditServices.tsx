@@ -211,12 +211,18 @@ const EditCustomers = () => {
               }}>
               <TextField
                 label="客服紀錄類型"
-                name="name"
+                name="type"
                 value={data?.type || ""}
                 size="small"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
-              />
+                onChange={handleUpdateFiled}
+                select>
+                <MenuItem value="報價需求">報價需求</MenuItem>
+                <MenuItem value="報價需求">合約內檢測報價</MenuItem>
+                <MenuItem value="報價需求">議價</MenuItem>
+                <MenuItem value="報價需求">其他</MenuItem>
+              </TextField>
               <DatePicker
                 format="YYYY/MM/DD"
                 label="下次提醒時間"
@@ -245,6 +251,7 @@ const EditCustomers = () => {
                 size="small"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
+                onChange={handleUpdateFiled}
               />
             </Box>
           </Box>
