@@ -1,11 +1,12 @@
 import express from "express";
 import * as controller from "../controllers/customers";
+import { verify } from "../middleware/auth";
 
 const router = express.Router();
 
 router.post("/create_customer", controller.create_customer);
 
-router.get("/", controller.get_customers_list);
+router.get("/", verify, controller.get_customers_list);
 
 router.post("/create_ele_place", controller.create_ele_place);
 

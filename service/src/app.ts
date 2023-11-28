@@ -23,6 +23,8 @@ import Factorys from "./models/factorys";
 import FactoryOtherForm from "./models/factory_other_forms";
 import ToBill from "./models/tobill";
 import ToBillInvoice from "./models/tobill_invoce";
+import User from "./models/user";
+import Permissions from "./models/permissions";
 
 const app = express();
 const port = 5500;
@@ -68,6 +70,8 @@ FactoryOtherForm.belongsTo(Factorys, { foreignKey: "fid" });
 Factorys.hasMany(FactoryOtherForm, { foreignKey: "fid" });
 ToBillInvoice.belongsTo(ToBill, { foreignKey: "tbid" });
 ToBill.hasMany(ToBillInvoice, { foreignKey: "tbid" });
+User.hasOne(Permissions, { foreignKey: "uid" });
+Permissions.belongsTo(User, { foreignKey: "uid" });
 
 seq
   // .sync({ force: true })

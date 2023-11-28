@@ -1,25 +1,26 @@
-const jwt = require("jsonwebtoken");
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 
-// module.exports = (req, res, next) => {
-//   const authHeader = req.get("Authorization");
-//   if (!authHeader) {
-//     const error = new Error("Not authenticated.");
-//     error.statusCode = 401;
-//     throw error;
-//   }
-//   const token = authHeader.split(" ")[1];
-//   let decodedToken;
-//   try {
-//     decodedToken = jwt.verify(token, "somesupersecretsecret");
-//   } catch (err) {
-//     err.statusCode = 500;
-//     throw err;
-//   }
-//   if (!decodedToken) {
-//     const error = new Error("Not authenticated.");
-//     error.statusCode = 401;
-//     throw error;
-//   }
-//   req.userId = decodedToken.userId;
-//   next();
-// };
+export const verify = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ errors: "Unauthorized" });
+  }
+
+  try {
+    const decoded_token = jwt.verify(
+      token,
+      process.env.JWT_ACCESS_SECRET as string
+    );
+    console.log(decoded_token);
+    next();
+  } catch (err) {
+    return res.status(403).json({ errors: "Unauthorized" });
+  }
+};

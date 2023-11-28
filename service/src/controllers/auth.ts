@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
 import User from "../models/user";
+import Permissions from "../models/permissions";
 
 export const login = async (
   req: Request,
@@ -16,12 +17,10 @@ export const login = async (
       if (!user)
         return res.status(401).json({
           status: "failed",
-          data: [],
-          message:
-            "Invalid email or password. Please try again with the correct credentials.",
+          message: "帳號錯誤，請重新輸入。",
         });
 
-      const isPasswordValid = bcrypt.compare(
+      const isPasswordValid = bcrypt.compareSync(
         password,
         user.dataValues.password
       );
@@ -29,21 +28,12 @@ export const login = async (
       if (!isPasswordValid)
         return res.status(401).json({
           status: "failed",
-          data: [],
-          message:
-            "Invalid email or password. Please try again with the correct credentials.",
+          message: "密碼錯誤，請重新輸入。",
         });
       // return user info except password
 
-      const token = jwt.sign(
-        { id: user.dataValues.id },
-        process.env.JWT_SECRET as string,
-        {
-          algorithm: "HS256",
-          allowInsecureKeySizes: true,
-          expiresIn: "1m",
-        }
-      );
+      const accessToken = generateAccessToken(user.dataValues.uid);
+      const refreshToken = generateRefreshToken(user.dataValues.uid);
 
       res.status(200).json({
         status: "success",
@@ -52,9 +42,9 @@ export const login = async (
           account: user.dataValues.account,
           name: user.dataValues.name,
           role: user.dataValues.role,
-          token: token,
+          accessToken,
+          refreshToken,
         },
-        message: "You have successfully logged in.",
       });
     });
   } catch (err) {
@@ -67,80 +57,98 @@ export const login = async (
   }
 };
 
-// export const verify = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const authHeader = req.headers["cookie"]; // get the session cookie from request header
+export const token = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { token } = req.body;
+    if (token === null) return res.sendStatus(401);
+    jwt.verify(
+      token,
+      process.env.JWT_REFRESH_SECRET as string,
+      (err: any, user: any) => {
+        if (err) return res.sendStatus(403);
+        const accessToken = generateAccessToken(user.id);
+        return res.status(200).json({
+          status: 200,
+          message: "customer updated!",
+          data: accessToken,
+        });
+      }
+    );
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      data: [],
+      message: "Internal Server Error",
+    });
+  }
+};
 
-//     if (!authHeader) return res.sendStatus(401); // if there is no cookie from request header, send an unauthorized response.
-//     const cookie = authHeader.split("=")[1]; // If there is, split the cookie string to get the actual jwt
+export const status = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
+    jwt.verify(
+      token,
+      process.env.JWT_ACCESS_SECRET as string,
+      (err: any, user: any) => {
+        if (err) return res.sendStatus(403);
+        const accessToken = generateAccessToken(user.id);
 
-//     // Verify using jwt to see if token has been tampered with or if it has expired.
-//     // that's like checking the integrity of the cookie
-//     jwt.verify(
-//       cookie,
-//       process.env.JWT_SECRET as string,
-//       async (err, decoded) => {
-//         if (err) {
-//           // if token has been altered or has expired, return an unauthorized error
-//           return res
-//             .status(401)
-//             .json({ message: "This session has expired. Please login" });
-//         }
+        Permissions.findOne({ where: { uid: user.id } }).then((permission) => {
+          let permissionData = permission?.dataValues;
+          delete permissionData?.uid;
+          delete permissionData?.pid;
+          delete permissionData?.createdAt;
+          delete permissionData?.updatedAt;
 
-//         const { uid } = decoded; // get user id from the decoded token
-//         const user = await User.findById(id); // find user by that `id`
-//         const { password, ...data } = user._doc; // return user object without the password
-//         req.user = data; // put the data object into req.user
-//         next();
-//       }
-//     );
-//   } catch (err) {
-//     res.status(500).json({
-//       status: "error",
-//       code: 500,
-//       data: [],
-//       message: "Internal Server Error",
-//     });
-//   }
-// };
-// exports.login = (req, res, next) => {
-//   const email = req.body.email;
-//   const password = req.body.password;
-//   let loadedUser;
-//   User.findOne({ email: email })
-//     .then((user) => {
-//       if (!user) {
-//         const error = new Error("A user with this email could not be found.");
-//         error.statusCode = 401;
-//         throw error;
-//       }
-//       loadedUser = user;
-//       return bcrypt.compare(password, user.password);
-//     })
-//     .then((isEqual) => {
-//       if (!isEqual) {
-//         const error = new Error("Wrong password!");
-//         error.statusCode = 401;
-//         throw error;
-//       }
-//       const token = jwt.sign(
-//         {
-//           email: loadedUser.email,
-//           userId: loadedUser._id.toString(),
-//         },
-//         "somesupersecretsecret",
-//         { expiresIn: "1h" }
-//       );
-//       res.status(200).json({ token: token, userId: loadedUser._id.toString() });
-//     })
-//     .catch((err) => {
-//       if (!err.statusCode) {
-//         err.statusCode = 500;
-//       }
-//       next(err);
-//     });
-// };
+          User.findOne({ where: { uid: user.id } }).then((user_data: any) => {
+            res.status(200).json({
+              status: 200,
+              data: {
+                uid: user_data.uid,
+                account: user_data.account,
+                name: user_data.name,
+                role: user_data.role,
+                token: accessToken,
+                permission: permissionData,
+              },
+            });
+          });
+        });
+      }
+    );
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      code: 500,
+      data: [],
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const generateAccessToken = (id: string) => {
+  return jwt.sign({ id }, process.env.JWT_ACCESS_SECRET as string, {
+    algorithm: "HS256",
+    allowInsecureKeySizes: true,
+    expiresIn: "30s",
+  });
+};
+
+const generateRefreshToken = (id: string) => {
+  return jwt.sign({ id }, process.env.JWT_REFRESH_SECRET as string, {
+    algorithm: "HS256",
+    allowInsecureKeySizes: true,
+    expiresIn: "90d",
+  });
+};
