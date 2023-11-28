@@ -240,7 +240,7 @@ const EditCustomers = () => {
               }}>
               <TextField
                 label="客服紀錄標題"
-                name="name"
+                name="title"
                 value={data?.title || ""}
                 size="small"
                 InputLabelProps={{ shrink: true }}

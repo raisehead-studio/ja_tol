@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { createCustomer } from "../api/customers";
 
@@ -21,6 +22,7 @@ const CreateCustomer = ({
   const [name, setName] = useState<string>("");
   const [shortName, setShortName] = useState<string>("");
   const [eleNumber, setEleNumber] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleCreateCustomer = async () => {
     const data: CustomerRequestDataType = {
@@ -29,13 +31,13 @@ const CreateCustomer = ({
       short_name: shortName,
       ele_number: eleNumber,
     };
-
+    setLoading(true);
     try {
-      const response = await createCustomer(data);
-      console.log(response);
+      await createCustomer(data);
+      setLoading(false);
       handleClose();
     } catch (error) {
-      console.log(error);
+      setLoading(false);
     }
   };
 
@@ -54,88 +56,105 @@ const CreateCustomer = ({
           borderRadius: "1rem",
           transform: "translate(calc(10vw - 50px), 5vh)",
         }}>
-        <Typography variant="h5">建立顧客</Typography>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-          }}>
+        {loading ? (
           <Box
             sx={{
               display: "flex",
-              justifyContent: "stretch",
-              gap: "1rem",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "80vh",
             }}>
-            <TextField
-              label="電號"
-              name="eleNumber"
-              value={eleNumber}
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              onChange={(e) => {
-                setEleNumber(e.target.value);
-              }}
-            />
-            <TextField
-              label="客戶名稱"
-              name="name"
-              value={name}
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              onChange={(e) => {
-                setName(e.target.value);
-              }}
-            />
+            <CircularProgress />
           </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "stretch",
-              gap: "1rem",
-            }}>
-            <TextField
-              label="客戶編號"
-              name="customerNumber"
-              value={customerNumber}
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              onChange={(e) => {
-                setCustomerNumber(e.target.value);
-              }}
-            />
-            <TextField
-              label="客戶簡稱"
-              name="shortName"
-              value={shortName}
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              onChange={(e) => {
-                setShortName(e.target.value);
-              }}
-            />
-          </Box>
-        </Box>
-        <Divider />
-        <Box
-          sx={{
-            display: "flex",
-            gap: "1rem",
-          }}>
-          <Button variant="contained" color="secondary" onClick={handleClose}>
-            取消
-          </Button>
-          <Button
-            disabled={!customerNumber || !name || !shortName || !eleNumber}
-            variant="contained"
-            onClick={handleCreateCustomer}>
-            建立
-          </Button>
-        </Box>
+        ) : (
+          <>
+            <Typography variant="h5">建立顧客</Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem",
+              }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "stretch",
+                  gap: "1rem",
+                }}>
+                <TextField
+                  label="電號"
+                  name="eleNumber"
+                  value={eleNumber}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  onChange={(e) => {
+                    setEleNumber(e.target.value);
+                  }}
+                />
+                <TextField
+                  label="客戶名稱"
+                  name="name"
+                  value={name}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  onChange={(e) => {
+                    setName(e.target.value);
+                  }}
+                />
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "stretch",
+                  gap: "1rem",
+                }}>
+                <TextField
+                  label="客戶編號"
+                  name="customerNumber"
+                  value={customerNumber}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  onChange={(e) => {
+                    setCustomerNumber(e.target.value);
+                  }}
+                />
+                <TextField
+                  label="客戶簡稱"
+                  name="shortName"
+                  value={shortName}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  onChange={(e) => {
+                    setShortName(e.target.value);
+                  }}
+                />
+              </Box>
+            </Box>
+            <Divider />
+            <Box
+              sx={{
+                display: "flex",
+                gap: "1rem",
+              }}>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleClose}>
+                取消
+              </Button>
+              <Button
+                disabled={!customerNumber || !name || !shortName || !eleNumber}
+                variant="contained"
+                onClick={handleCreateCustomer}>
+                建立
+              </Button>
+            </Box>
+          </>
+        )}
       </Box>
     </Modal>
   );
