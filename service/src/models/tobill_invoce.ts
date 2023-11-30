@@ -24,6 +24,9 @@ const ToBillInvoice = seq.define("tobill_invoce", {
   numbers_general_forms: Sequelize.INTEGER,
   numbers_inqualify_agreements: Sequelize.INTEGER,
   numbers_envelope: Sequelize.INTEGER,
+  is_del: Sequelize.BOOLEAN,
+  update_member: Sequelize.STRING,
+  create_member: Sequelize.STRING,
 });
 
 export default ToBillInvoice;

@@ -15,7 +15,11 @@ import {
   WorkOrderResponseDataType,
 } from "../types/work_order";
 
-export const create_work_order = (req: Request, res: Response) => {
+export const create_work_order = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const {
       cid,
@@ -31,6 +35,8 @@ export const create_work_order = (req: Request, res: Response) => {
       tobill_date,
       factory_date,
       assignment_date,
+      update_member,
+      create_member,
     } = req.body;
 
     WorkOrder.create({
@@ -47,6 +53,9 @@ export const create_work_order = (req: Request, res: Response) => {
       tobill_date,
       factory_date,
       assignment_date,
+      update_member,
+      create_member,
+      is_del: false,
     })
       .then(async (result) => {
         let executions: any = [];
@@ -91,7 +100,20 @@ export const create_work_order = (req: Request, res: Response) => {
             tracking_description,
             tracking_is_finished,
             finished_date,
+            update_member,
+            create_member,
+            is_del: false,
           })
+            .then(() => {})
+            .catch((err) => {
+              res.status(500).json({
+                status: "error",
+                code: 500,
+                err: err,
+                message: "發生問題。",
+              });
+              next();
+            })
         );
 
         executions.push(
@@ -116,7 +138,20 @@ export const create_work_order = (req: Request, res: Response) => {
             tracking_is_finished,
             finished_date,
             wt_report_number,
+            update_member,
+            create_member,
+            is_del: false,
           })
+            .then(() => {})
+            .catch((err) => {
+              res.status(500).json({
+                status: "error",
+                code: 500,
+                err: err,
+                message: "發生問題。",
+              });
+              next();
+            })
         );
 
         executions.push(
@@ -137,7 +172,20 @@ export const create_work_order = (req: Request, res: Response) => {
             tracking_description,
             tracking_is_finished,
             tracking_finished_date,
+            update_member,
+            create_member,
+            is_del: false,
           })
+            .then(() => {})
+            .catch((err) => {
+              res.status(500).json({
+                status: "error",
+                code: 500,
+                err: err,
+                message: "發生問題。",
+              });
+              next();
+            })
         );
 
         executions.push(
@@ -148,29 +196,54 @@ export const create_work_order = (req: Request, res: Response) => {
             tracking_description,
             tracking_is_finished,
             finished_date,
+            update_member,
+            create_member,
+            is_del: false,
           })
+            .then(() => {})
+            .catch((err) => {
+              res.status(500).json({
+                status: "error",
+                code: 500,
+                err: err,
+                message: "發生問題。",
+              });
+              next();
+            })
         );
 
-        Promise.all(executions).then(() => {
-          return res.status(200).json({
-            message: "Work order created successfully",
-            status: 200,
+        Promise.all(executions)
+          .then(() => {
+            return res.status(200).json({
+              message: "Work order created successfully",
+              status: 200,
+            });
+          })
+          .catch((err) => {
+            res.status(500).json({
+              status: "error",
+              code: 500,
+              err: err,
+              message: "發生問題。",
+            });
+            next();
           });
-        });
       })
       .catch((errors) => {
-        return res.status(500).json({
+        res.status(500).json({
           status: 500,
           message: "something went wrong when creating work order.",
           error: errors?.errors.map((err: any) => err.message),
         });
+        next(errors);
       });
   } catch (err) {
-    return res.status(500).json({
+    res.status(500).json({
       status: 500,
       message: "something went wrong when creating work order.",
       error: err,
     });
+    next(err);
   }
 };
 
@@ -185,6 +258,9 @@ export const get_work_orders_list = (
         {
           model: Customer,
           attributes: ["customer_number", "short_name"],
+        },
+        {
+          model: AcceptanceCheck,
         },
       ],
     })
@@ -210,9 +286,12 @@ export const get_work_orders_list = (
         });
       })
       .catch((err) => {
-        if (!err.statusCode) {
-          err.statusCode = 500;
-        }
+        res.status(500).json({
+          status: "error",
+          code: 500,
+          err: err,
+          message: "發生問題。",
+        });
         next(err);
       });
   } catch (err) {

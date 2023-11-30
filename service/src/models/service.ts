@@ -29,14 +29,9 @@ const CustomerService = seq.define("customer_service", {
     type: Sequelize.DATE,
     allowNull: false,
   },
-  update_member: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  create_member: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
+  is_del: Sequelize.BOOLEAN,
+  update_member: Sequelize.STRING,
+  create_member: Sequelize.STRING,
 });
 
 export default CustomerService;

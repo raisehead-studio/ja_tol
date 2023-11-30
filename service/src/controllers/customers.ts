@@ -3,7 +3,6 @@ import e, { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 
 import Customer from "../models/customer";
-// import CustomerNote from "../models/customer_note";
 import CustomerContact from "../models/customer_contact";
 import ElePlace from "../models/ele_place";
 import CustomerService from "../models/service";
@@ -15,16 +14,14 @@ export const create_customer = (
   res: Response,
   next: NextFunction
 ) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res
-      .status(422)
-      .json({ message: "Validation failed", errors: errors.array() });
-  }
-  const name = req.body.name;
-  const short_name = req.body.short_name;
-  const customer_number = req.body.customer_number;
-  const ele_number = req.body.ele_number;
+  const {
+    name,
+    short_name,
+    update_member,
+    create_member,
+    customer_number,
+    ele_number,
+  } = req.body;
 
   Customer.findOne({
     where: {
@@ -34,34 +31,48 @@ export const create_customer = (
         name: name,
       },
     },
-  }).then((customer) => {
-    if (!customer) {
-      Customer.create({
-        name: name,
-        short_name: short_name,
-        customer_number: customer_number,
-        ele_number: ele_number,
-      })
-        .then((result) => {
-          res.status(200).json({
-            status: 200,
-            message: "customer created!",
-            cid: result.dataValues.cid,
-          });
+  })
+    .then((customer) => {
+      if (!customer) {
+        Customer.create({
+          name: name,
+          short_name: short_name,
+          customer_number: customer_number,
+          ele_number: ele_number,
+          update_member,
+          create_member,
+          is_del: false,
         })
-        .catch((err) => {
-          if (!err.statusCode) {
-            err.statusCode = 500;
-            return res.status(500).json({ errors: err });
-          }
-          next(err);
+          .then((result) => {
+            res.status(200).json({
+              status: 200,
+              message: "customer created!",
+              cid: result.dataValues.cid,
+            });
+          })
+          .catch((err) => {
+            res.status(500).json({
+              status: "error",
+              code: 500,
+              err: err,
+              message: "建立客戶時發生問題。",
+            });
+          });
+      } else {
+        res.status(422).json({
+          message: "duplicate customer!",
         });
-    } else {
-      return res.status(422).json({
-        message: "duplicate customer!",
+        next();
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        status: "error",
+        code: 500,
+        err: err,
+        message: "建立客戶時發生問題。",
       });
-    }
-  });
+    });
 };
 
 export const get_customers_list = (
@@ -73,16 +84,18 @@ export const get_customers_list = (
     attributes: ["cid", "short_name", "customer_number", "name"],
   })
     .then((result) => {
-      return res.status(200).json({
+      res.status(200).json({
         status: 200,
         data: result,
       });
     })
     .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-        return res.status(500).json({ errors: err });
-      }
+      res.status(500).json({
+        status: "error",
+        code: 500,
+        err: err,
+        message: "取得客戶列別時發生問題。",
+      });
       next(err);
     });
 };
@@ -165,7 +178,12 @@ export const get_customers_detail = (
       });
     })
     .catch((err) => {
-      return res.status(500).json({ status: 500, errors: err });
+      res.status(500).json({
+        status: "error",
+        code: 500,
+        err: err,
+        message: "取得客戶時發生問題。",
+      });
     });
 };
 
@@ -174,13 +192,6 @@ export const create_ele_place = (
   res: Response,
   next: NextFunction
 ) => {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res
-      .status(422)
-      .json({ message: "Validation failed", errors: errors.array() });
-  }
   const name = req.body.name;
   const address = req.body.address;
   const owner = req.body.owner;
@@ -188,34 +199,45 @@ export const create_ele_place = (
 
   ElePlace.findOne({
     where: { name: name || "" },
-  }).then((ele_place) => {
-    if (!ele_place) {
-      ElePlace.create({
-        name: name,
-        address: address,
-        owner: owner,
-        cid: cid,
-      })
-        .then((result) => {
-          res.status(200).json({
-            status: 200,
-            message: "ele place created!",
-            cid: result.dataValues.epid,
-          });
+  })
+    .then((ele_place) => {
+      if (!ele_place) {
+        ElePlace.create({
+          name: name,
+          address: address,
+          owner: owner,
+          cid: cid,
         })
-        .catch((err) => {
-          if (!err.statusCode) {
-            err.statusCode = 500;
-            return res.status(500).json({ errors: err });
-          }
-          next(err);
+          .then((result) => {
+            res.status(200).json({
+              status: 200,
+              message: "ele place created!",
+              cid: result.dataValues.epid,
+            });
+          })
+          .catch((err) => {
+            if (!err.statusCode) {
+              err.statusCode = 500;
+              return res.status(500).json({ errors: err });
+            }
+            next(err);
+          });
+      } else {
+        res.status(500).json({
+          status: "error",
+          code: 500,
+          message: "用電場所已經存在。",
         });
-    } else {
-      return res.status(422).json({
-        message: "duplicate ele place!",
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        status: "error",
+        code: 500,
+        err: err,
+        message: "建立用電場所時發生問題。",
       });
-    }
-  });
+    });
 };
 
 export const create_customer_contact = (
@@ -223,12 +245,6 @@ export const create_customer_contact = (
   res: Response,
   next: NextFunction
 ) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res
-      .status(422)
-      .json({ message: "Validation failed", errors: errors.array() });
-  }
   const name = req.body.name;
   const type = req.body.type;
   const phone = req.body.phone;
@@ -256,11 +272,12 @@ export const create_customer_contact = (
       });
     })
     .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-        return res.status(500).json({ errors: err });
-      }
-      next(err);
+      res.status(500).json({
+        status: "error",
+        code: 500,
+        err: err,
+        message: "建立用客戶聯絡資訊時發生問題。",
+      });
     });
 };
 
@@ -284,76 +301,137 @@ export const update_customer_detail = (
   const ele_place_name = req.body.ele_place_name;
   const ele_place_address = req.body.ele_place_address;
   const ele_place_owner = req.body.ele_place_owner;
-
-  Customer.findByPk(cid).then((customer: any) => {
-    customer.name = name;
-    customer.short_name = short_name;
-    customer.customer_number = customer_number;
-    customer.ele_number = ele_number;
-    customer.acceptance_check_description = acceptance_check_description;
-    customer.factory_description = factory_description;
-    customer.assignment_description = assignment_description;
-    customer.tobill_description = tobill_description;
-    customer.invoice_description = invoice_description;
-    customer.save();
-    let executions: any = [];
-    JSON.parse(customer_contacts).forEach((contact: any) => {
-      executions.push(
-        CustomerContact.findOne({
-          where: { ccid: contact.id },
-        }).then((customer_contact: any) => {
-          customer_contact.name = contact.name;
-          customer_contact.type = contact.type;
-          customer_contact.phone = contact.phone;
-          customer_contact.job_description = contact.job_description;
-          customer_contact.title = contact.title;
-          customer_contact.note = contact.note;
-          customer_contact.email = contact.email;
-          customer_contact.save();
-        })
-      );
-    });
-    JSON.parse(customer_services).forEach((service: any) => {
-      executions.push(
-        CustomerService.findOne({
-          where: { csid: service.id },
-        }).then((customer_service: any) => {
-          customer_service.title = service.title;
-          customer_service.notify_date = service.notify_date;
-          customer_service.save();
-        })
-      );
-    });
-    ElePlace.findOne({
-      where: { cid: cid },
-    }).then((ele_place: any) => {
-      if (!ele_place) {
-        ElePlace.create({
-          name: ele_place_name,
-          address: ele_place_address,
-          owner: ele_place_owner,
-          cid: cid,
-        }).then(() => {
-          Promise.all(executions).then(() => {
-            return res.status(200).json({
-              status: 200,
-              message: "customer updated!",
-            });
-          });
+  try {
+    Customer.findByPk(cid)
+      .then((customer: any) => {
+        customer.name = name;
+        customer.short_name = short_name;
+        customer.customer_number = customer_number;
+        customer.ele_number = ele_number;
+        customer.acceptance_check_description = acceptance_check_description;
+        customer.factory_description = factory_description;
+        customer.assignment_description = assignment_description;
+        customer.tobill_description = tobill_description;
+        customer.invoice_description = invoice_description;
+        customer.save();
+        let executions: any = [];
+        JSON.parse(customer_contacts).forEach((contact: any) => {
+          executions.push(
+            CustomerContact.findOne({
+              where: { ccid: contact.id },
+            })
+              .then((customer_contact: any) => {
+                customer_contact.name = contact.name;
+                customer_contact.type = contact.type;
+                customer_contact.phone = contact.phone;
+                customer_contact.job_description = contact.job_description;
+                customer_contact.title = contact.title;
+                customer_contact.note = contact.note;
+                customer_contact.email = contact.email;
+                customer_contact.save();
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  status: "error",
+                  code: 500,
+                  err: err,
+                  message: "發生問題。",
+                });
+              })
+          );
         });
-      } else {
-        ele_place.name = ele_place_name || "";
-        ele_place.address = ele_place_address || "";
-        ele_place.owner = ele_place_owner || "";
-        ele_place.cid = cid;
-        ele_place.save();
-        Promise.all(executions).then(() => {
-          return res.status(200).json({
-            status: 200,
-            message: "customer updated!",
-          });
+        JSON.parse(customer_services).forEach((service: any) => {
+          executions.push(
+            CustomerService.findOne({
+              where: { csid: service.id },
+            })
+              .then((customer_service: any) => {
+                customer_service.title = service.title;
+                customer_service.notify_date = service.notify_date;
+                customer_service.save();
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  status: "error",
+                  code: 500,
+                  err: err,
+                  message: "發生問題。",
+                });
+              })
+          );
         });
-      }
+        ElePlace.findOne({
+          where: { cid: cid },
+        }).then((ele_place: any) => {
+          if (!ele_place) {
+            ElePlace.create({
+              name: ele_place_name,
+              address: ele_place_address,
+              owner: ele_place_owner,
+              cid: cid,
+            })
+              .then(() => {
+                Promise.all(executions)
+                  .then(() => {
+                    return res.status(200).json({
+                      status: 200,
+                      message: "customer updated!",
+                    });
+                  })
+                  .catch((err) => {
+                    res.status(500).json({
+                      status: "error",
+                      code: 500,
+                      err: err,
+                      message: "發生問題。",
+                    });
+                  });
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  status: "error",
+                  code: 500,
+                  err: err,
+                  message: "發生問題。",
+                });
+              });
+          } else {
+            ele_place.name = ele_place_name || "";
+            ele_place.address = ele_place_address || "";
+            ele_place.owner = ele_place_owner || "";
+            ele_place.cid = cid;
+            ele_place.save();
+            Promise.all(executions)
+              .then(() => {
+                return res.status(200).json({
+                  status: 200,
+                  message: "customer updated!",
+                });
+              })
+              .catch((err) => {
+                res.status(500).json({
+                  status: "error",
+                  code: 500,
+                  err: err,
+                  message: "發生問題。",
+                });
+              });
+          }
+        });
+      })
+      .catch((err: any) => {
+        res.status(500).json({
+          status: 500,
+          message: "更新失敗。",
+          err: err,
+        });
+      });
+  } catch (err) {
+    res.status(500).json({
+      status: 500,
+      message: "更新失敗。",
+      err: err,
     });
-  });
+    next();
+  }
 };

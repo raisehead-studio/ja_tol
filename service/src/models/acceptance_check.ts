@@ -53,6 +53,9 @@ const AcceptanceCheck = seq.define("acceptance_check", {
   },
   finished_date: Sequelize.DATE,
   wt_report_number: Sequelize.STRING,
+  is_del: Sequelize.BOOLEAN,
+  update_member: Sequelize.STRING,
+  create_member: Sequelize.STRING,
 });
 
 export default AcceptanceCheck;

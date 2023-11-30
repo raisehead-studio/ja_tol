@@ -18,7 +18,6 @@ export const verify = async (
       token,
       process.env.JWT_ACCESS_SECRET as string
     );
-    console.log(decoded_token);
     next();
   } catch (err) {
     return res.status(403).json({ errors: "Unauthorized" });

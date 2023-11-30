@@ -17,6 +17,9 @@ const CustomerServiceContent = seq.define("customer_service_content", {
     defaultValue: Sequelize.UUIDV4,
     allowNull: false,
   },
+  is_del: Sequelize.BOOLEAN,
+  update_member: Sequelize.STRING,
+  create_member: Sequelize.STRING,
 });
 
 export default CustomerServiceContent;

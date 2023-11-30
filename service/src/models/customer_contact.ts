@@ -45,6 +45,9 @@ const CustomerContact = seq.define("customer_contact", {
     allowNull: false,
   },
   note: Sequelize.STRING,
+  is_del: Sequelize.BOOLEAN,
+  update_member: Sequelize.STRING,
+  create_member: Sequelize.STRING,
 });
 
 export default CustomerContact;

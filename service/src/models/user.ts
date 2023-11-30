@@ -12,6 +12,9 @@ const User = seq.define("user", {
   account: Sequelize.STRING,
   password: Sequelize.STRING,
   role: Sequelize.STRING,
+  is_del: Sequelize.BOOLEAN,
+  update_member: Sequelize.STRING,
+  create_member: Sequelize.STRING,
 });
 
 export default User;

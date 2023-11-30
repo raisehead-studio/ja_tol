@@ -11,4 +11,6 @@ router.post("/", controller.create_user);
 
 router.put("/", controller.update_user);
 
+router.delete("/", controller.delete_user);
+
 export default router;

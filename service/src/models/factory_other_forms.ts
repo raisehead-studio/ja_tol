@@ -39,6 +39,9 @@ const FactoryOtherForm = seq.define("factory_other_form", {
     allowNull: false,
   },
   other_form: Sequelize.STRING,
+  is_del: Sequelize.BOOLEAN,
+  update_member: Sequelize.STRING,
+  create_member: Sequelize.STRING,
 });
 
 export default FactoryOtherForm;

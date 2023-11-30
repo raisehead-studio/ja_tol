@@ -52,6 +52,9 @@ const Assignments = seq.define("assignments", {
     defaultValue: false,
   },
   tracking_finished_date: Sequelize.DATE,
+  is_del: Sequelize.BOOLEAN,
+  update_member: Sequelize.STRING,
+  create_member: Sequelize.STRING,
 });
 
 export default Assignments;

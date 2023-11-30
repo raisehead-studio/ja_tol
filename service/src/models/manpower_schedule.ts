@@ -18,6 +18,9 @@ const ManpowerSchedule = seq.define("manpower_schedule", {
   started_time: Sequelize.TIME,
   finished_time: Sequelize.TIME,
   actual_date: Sequelize.DATE,
+  is_del: Sequelize.BOOLEAN,
+  update_member: Sequelize.STRING,
+  create_member: Sequelize.STRING,
 });
 
 export default ManpowerSchedule;
