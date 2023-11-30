@@ -35,11 +35,11 @@ root.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <Layout>
-          <BrowserRouter>
+        <BrowserRouter>
+          <Layout>
             <App />
-          </BrowserRouter>
-        </Layout>
+          </Layout>
+        </BrowserRouter>
       </LocalizationProvider>
     </ThemeProvider>
   </React.StrictMode>

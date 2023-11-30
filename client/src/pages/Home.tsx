@@ -122,8 +122,8 @@ const Home = () => {
                 <TableCell align="left">客戶編號</TableCell>
                 <TableCell align="left">客戶簡稱</TableCell>
                 <TableCell align="left">工單編號/客服紀錄</TableCell>
-                <TableCell align="left">追蹤項目/客服紀錄類型</TableCell>
-                <TableCell align="left">追蹤事項說明/客服紀錄標題</TableCell>
+                <TableCell align="left">工程名稱/客服紀錄</TableCell>
+                <TableCell align="left">追蹤內說明（作業紀錄）</TableCell>
                 <TableCell align="left">最新編輯者</TableCell>
                 <TableCell align="left">最新編輯時間</TableCell>
               </TableRow>

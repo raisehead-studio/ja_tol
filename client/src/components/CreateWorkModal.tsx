@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 
 import { createWork } from "../api/works";
 import { getCustomers } from "../api/customers";
+import { useLayoutContext } from "../components/LayoutContext";
 
 const CreateWork = ({
   open,
@@ -20,6 +21,7 @@ const CreateWork = ({
   open: boolean;
   handleClose: () => void;
 }) => {
+  const { user } = useLayoutContext();
   const [cid, setCid] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
@@ -43,6 +45,7 @@ const CreateWork = ({
     new Date().getTime()
   );
   const [customersOptions, setCustomersOptions] = useState<any>([]);
+  console.log(user);
 
   const handleCreateCustomer = async () => {
     const data = {
@@ -59,6 +62,8 @@ const CreateWork = ({
       tobill_date: toBillDate,
       factory_date: factoryDate,
       assignment_date: assignmentDate,
+      create_member: user?.uid,
+      update_member: user?.uid,
     };
     setLoading(true);
     try {

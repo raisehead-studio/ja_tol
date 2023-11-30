@@ -922,10 +922,12 @@ const EditWorksAssignments = ({
         }}>
         <TextField
           label="追蹤事項說明"
-          value={data?.tracking_description || false}
+          value={data?.tracking_description}
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
+          name="tracking_description"
+          onChange={handleUpdateFiled}
         />
       </Box>
       <Box

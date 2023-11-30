@@ -108,10 +108,13 @@ const EditCustomers = () => {
     };
 
     if (!data) return;
+    setLoading(true);
     try {
       await handleUpdateServiceDetail(param);
+      setLoading(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
 

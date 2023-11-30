@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -36,6 +37,7 @@ import logo from "../src/assets/images/logo.png";
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const settings = [
     {
       name: "個人資料",
@@ -70,6 +72,9 @@ function App() {
   };
 
   useEffect(() => {
+    console.log(user);
+    console.log(location);
+
     const pages = [
       {
         name: "追蹤列表",
@@ -124,7 +129,7 @@ function App() {
         ))}
       </Box>
     );
-  }, [user]);
+  }, [user, location]);
 
   return (
     <Box
