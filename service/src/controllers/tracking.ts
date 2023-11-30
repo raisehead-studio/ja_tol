@@ -92,13 +92,13 @@ export const get_tracking = (
             let date;
 
             if (!item.dataValues.assignment.dataValues.tracking_is_finished) {
-              item_data = "派工";
+              item_data = "112WT0268派工";
               description =
                 item.dataValues.assignment.dataValues.tracking_description;
               date = item.dataValues.assignment.dataValues.tracking_date;
             } else {
               if (!item.dataValues.factory.dataValues.tracking_is_finished) {
-                item_data = "入廠";
+                item_data = "112WT0187入廠";
                 description =
                   item.dataValues.factory.dataValues.tracking_description;
                 date = item.dataValues.factory.dataValues.tracking_date;
@@ -107,7 +107,7 @@ export const get_tracking = (
                   !item.dataValues.acceptance_check.dataValues
                     .tracking_is_finished
                 ) {
-                  item_data = "驗收";
+                  item_data = "112WT0268驗收";
                   description =
                     item.dataValues.acceptance_check.dataValues
                       .tracking_description;
@@ -115,7 +115,7 @@ export const get_tracking = (
                     item.dataValues.acceptance_check.dataValues.tracking_date;
                 } else {
                   if (!item.dataValues.tobill.dataValues.tracking_is_finished) {
-                    item_data = "請款";
+                    item_data = "112WT0551請款";
                     description =
                       item.dataValues.tobill.dataValues.tracking_description;
                     date = item.dataValues.tobill.dataValues.tracking_date;
