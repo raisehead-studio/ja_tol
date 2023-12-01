@@ -33,3 +33,9 @@ export const createServiceContent = async (data: any) => {
     body: data,
   });
 };
+
+export const deleteServices = async (id: string) => {
+  return request(`/api/v1/service/${id}`, {
+    method: "DELETE",
+  }).then((res) => res);
+};

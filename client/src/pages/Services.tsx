@@ -18,7 +18,7 @@ import Tooltip from "@mui/material/Tooltip";
 import dayjs from "dayjs";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import { getServices } from "../api/services";
+import { getServices, deleteServices } from "../api/services";
 import { ServiceResponseDataType } from "../types/services";
 import { useLayoutContext } from "../components/LayoutContext";
 
@@ -82,6 +82,26 @@ const Services = () => {
   const handleCloseCreateCustomerModal = () => {
     setOpenCreateServiceModal(false);
     return;
+  };
+
+  const handleDeleteService = async (id: string) => {
+    try {
+      setLoading(true);
+      const response = await deleteServices(id);
+
+      console.log(response);
+
+      if (response.code === 200) {
+        const services = await getServices();
+        setLoading(false);
+        setData(services);
+      }
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+
+      console.log(error);
+    }
   };
 
   return (
@@ -215,6 +235,9 @@ const Services = () => {
                     <TableCell align="left">
                       <Tooltip title="刪除">
                         <IconButton
+                          onClick={() => {
+                            handleDeleteService(service.id);
+                          }}
                           disabled={!user?.permission.is_service_page_delete}
                           size="small">
                           <DeleteIcon />

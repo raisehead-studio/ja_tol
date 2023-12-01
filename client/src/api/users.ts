@@ -29,3 +29,9 @@ export const updateUser = async (data: UsersType) => {
     body: data,
   });
 };
+
+export const deleteUser = async (id: string | undefined) => {
+  return request(`/api/v1/users/${id}`, {
+    method: "DELETE",
+  }).then((res) => res);
+};

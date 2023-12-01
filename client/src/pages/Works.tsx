@@ -18,7 +18,7 @@ import Tooltip from "@mui/material/Tooltip";
 import dayjs from "dayjs";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import { getWorks } from "../api/works";
+import { getWorks, deleteWorks } from "../api/works";
 import { WorkResponseDataType } from "../types/works";
 import { useLayoutContext } from "../components/LayoutContext";
 
@@ -85,6 +85,21 @@ const Works = () => {
   const handleCloseCreateWorkModal = () => {
     setOpenCreateWorkModal(false);
     return;
+  };
+
+  const handleDeleteWork = async (id: string) => {
+    try {
+      setLoading(true);
+      const response = await deleteWorks(id);
+      if (response.code === 200) {
+        const works = await getWorks();
+        setData(works);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
   };
 
   return (
@@ -193,6 +208,9 @@ const Works = () => {
                   <TableCell align="left">
                     <Tooltip title="刪除">
                       <IconButton
+                        onClick={() => {
+                          handleDeleteWork(work.id);
+                        }}
                         disabled={!user?.permission.is_work_page_delete}
                         size="small">
                         <DeleteIcon />

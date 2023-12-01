@@ -17,8 +17,7 @@ export type ServiceRequestDataType = {
   status: string;
   type: string;
   notify_date: number | "";
-  update_member: string;
-  create_member: string;
+
   content: string;
 };
 

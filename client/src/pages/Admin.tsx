@@ -19,7 +19,7 @@ import Tooltip from "@mui/material/Tooltip";
 
 import { useLayoutContext } from "../components/LayoutContext";
 import { UsersType } from "../types/users";
-import { getUsers } from "../api/users";
+import { getUsers, deleteUser } from "../api/users";
 
 import CreateMember from "../components/CreateMember";
 
@@ -35,6 +35,21 @@ const Admin = () => {
   const handleOpenCreateMember = () => setOpenCreateMemberModal(true);
 
   const handleCloseCreateMember = () => setOpenCreateMemberModal(false);
+
+  const handleDeleteUser = async (uid: string | undefined) => {
+    try {
+      setLoading(true);
+      const response = await deleteUser(uid);
+      if (response.code === 200) {
+        const users = await getUsers();
+        setData(users);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const handleGetUsers = async () => {
@@ -180,6 +195,10 @@ const Admin = () => {
                     <TableCell align="left">
                       <Tooltip title="刪除">
                         <IconButton
+                          onClick={() => {
+                            console.log("I am here");
+                            handleDeleteUser(user.uid);
+                          }}
                           disabled={!user_data?.permission.is_admin_page_delete}
                           size="small">
                           <DeleteIcon />

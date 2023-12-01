@@ -45,7 +45,6 @@ const CreateWork = ({
     new Date().getTime()
   );
   const [customersOptions, setCustomersOptions] = useState<any>([]);
-  console.log(user);
 
   const handleCreateCustomer = async () => {
     const data = {
@@ -67,10 +66,8 @@ const CreateWork = ({
     };
     setLoading(true);
     try {
-      console.log(data);
-
       const response = await createWork(data);
-      if (response.status === 200) {
+      if (response.code === 200) {
         handleClose();
       }
     } catch (error) {

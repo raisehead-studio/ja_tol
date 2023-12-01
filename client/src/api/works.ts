@@ -122,3 +122,9 @@ export const createInvoicebill = async (data: TobillInvoiceDataType) => {
     body: data,
   });
 };
+
+export const deleteWorks = async (id: string) => {
+  return request(`/api/v1/work_orders/${id}`, {
+    method: "DELETE",
+  }).then((res) => res);
+};

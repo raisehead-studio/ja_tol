@@ -29,8 +29,6 @@ const CreateService = ({
   const [status, setStatus] = useState<string>("");
   const [type, setType] = useState<string>("");
   const [notifyDate, setNotifyDate] = useState<number | "">("");
-  const [updateMember] = useState<string>("test_admin");
-  const [createMember] = useState<string>("test_admin");
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [customersOptions, setCustomersOptions] = useState<any>([]);
@@ -42,17 +40,13 @@ const CreateService = ({
       status: status,
       type: type,
       notify_date: notifyDate,
-      update_member: updateMember,
-      create_member: createMember,
       content: content,
     };
 
     try {
       setLoading(true);
       const response = await createServices(data);
-      console.log(response);
-
-      if (response.status === 200) {
+      if (response.code === 200) {
         setLoading(false);
         handleClose();
       }
@@ -208,9 +202,9 @@ const CreateService = ({
                 }}
                 select>
                 <MenuItem value="報價需求">報價需求</MenuItem>
-                <MenuItem value="報價需求">合約內檢測報價</MenuItem>
-                <MenuItem value="報價需求">議價</MenuItem>
-                <MenuItem value="報價需求">其他</MenuItem>
+                <MenuItem value="合約內檢測報價">合約內檢測報價</MenuItem>
+                <MenuItem value="議價">議價</MenuItem>
+                <MenuItem value="其他">其他</MenuItem>
               </TextField>
               <TextField
                 label="客服紀錄狀態"

@@ -36,3 +36,9 @@ export const createCustomerContact = async (
     body: data,
   });
 };
+
+export const deleteCustomer = async (id: string) => {
+  return request(`/api/v1/customers/${id}`, {
+    method: "DELETE",
+  });
+};

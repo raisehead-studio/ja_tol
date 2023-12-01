@@ -17,7 +17,7 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import { getCustomers } from "../api/customers";
+import { getCustomers, deleteCustomer } from "../api/customers";
 import { CustomersResponseType } from "../types/customers";
 import { useLayoutContext } from "../components/LayoutContext";
 
@@ -81,6 +81,18 @@ const Customers = () => {
   const handleCloseCreateCustomerModal = () => {
     setOpenCreateCustomerModal(false);
     return;
+  };
+
+  const handleDeleteCustomer = async (cid: string) => {
+    try {
+      setLoading(true);
+      await deleteCustomer(cid);
+      const customers = await getCustomers();
+      setData(customers);
+      setLoading(false);
+    } catch (er) {
+      setLoading(false);
+    }
   };
 
   return (
@@ -192,7 +204,8 @@ const Customers = () => {
                     <Tooltip title="刪除">
                       <IconButton
                         disabled={!user?.permission.is_customer_page_delete}
-                        size="small">
+                        size="small"
+                        onClick={() => handleDeleteCustomer(customer.cid)}>
                         <DeleteIcon />
                       </IconButton>
                     </Tooltip>
