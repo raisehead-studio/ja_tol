@@ -3,28 +3,33 @@ import { Request, Response, NextFunction } from "express";
 import User from "../models/user";
 import Permissions from "../models/permissions";
 
+interface RequestWithUser extends Request {
+  user?: {
+    name: string;
+    uid: string;
+  };
+}
+
 export const create_user = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
-  const account = req.body.account;
-  const name = req.body.name;
-  const password = req.body.password;
-  const role = req.body.role;
-  const update_member = req.body.update_member;
-  const create_member = req.body.create_member;
+  const { account, name, password, role } = req.body;
+  const { user } = req;
+  let create_member = user?.uid;
+  let update_member = user?.uid;
 
   User.findOne({ where: { account: account } })
-    .then((user) => {
+    .then((user: any) => {
       if (!user) {
         User.create({
           account,
           password,
           name,
           role,
-          update_member,
-          create_member,
+          update_member: update_member,
+          create_member: create_member,
           is_del: false,
         })
           .then((result) => {
@@ -58,9 +63,13 @@ export const create_user = (
                 is_admin_page_delete: true,
               })
                 .then(() => {
-                  res.status(200).json({
-                    message: "user created!",
-                    uid: result.dataValues.uid,
+                  return res.json({
+                    code: 200,
+                    status: "success",
+                    data: {
+                      uid: result.dataValues.uid,
+                    },
+                    message: `建立人員成功。`,
                   });
                 })
                 .catch((err) => {
@@ -101,17 +110,22 @@ export const create_user = (
                 is_admin_page_delete: false,
               })
                 .then(() => {
-                  res.status(200).json({
-                    message: "user created!",
-                    uid: result.dataValues.uid,
+                  return res.json({
+                    code: 200,
+                    status: "success",
+                    data: {
+                      uid: result.dataValues.uid,
+                    },
+                    message: `建立人員成功。`,
                   });
                   next();
                 })
                 .catch((err) => {
-                  res.status(500).json({
-                    status: 500,
-                    message: "something went wrong when creating user.",
-                    error: err,
+                  return res.json({
+                    code: 500,
+                    status: "error",
+                    data: null,
+                    message: `建立人員時發生問題。 ${err}`,
                   });
                   next(err);
                 });
@@ -145,62 +159,76 @@ export const create_user = (
                 is_admin_page_delete: false,
               })
                 .then(() => {
-                  res.status(200).json({
-                    message: "User created!",
-                    uid: result.dataValues.uid,
+                  return res.json({
+                    code: 200,
+                    status: "success",
+                    data: {
+                      uid: result.dataValues.uid,
+                    },
+                    message: `建立人員成功。`,
                   });
                 })
                 .catch((err) => {
-                  res.status(500).json({
-                    status: 500,
-                    message: "something went wrong when creating user.",
-                    error: err,
+                  return res.json({
+                    code: 500,
+                    status: "error",
+                    data: null,
+                    message: `建立人員時發生問題。 ${err}`,
                   });
                   next(err);
                 });
             }
           })
           .catch((err) => {
-            res.status(500).json({
-              status: "error",
+            return res.json({
               code: 500,
-              err: err,
-              message: "發生問題。",
+              status: "error",
+              data: null,
+              message: `建立人員時發生問題。 ${err}`,
             });
             next();
           });
       } else {
-        return res.status(422).json({
-          message: "This account was used! Please pick a new account.",
+        return res.json({
+          code: 401,
+          status: "success",
+          data: null,
+          message: `此人員已存在。`,
         });
       }
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "發生問題。",
+        status: "error",
+        data: null,
+        message: `建立人員時發生問題。 ${err}`,
       });
       next();
     });
 };
 
-export const get_users = (_: Request, res: Response, next: NextFunction) => {
+export const get_users = (
+  _: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
   User.findAll({ where: { is_del: false } })
     .then((users) => {
-      res.status(200).json({
-        status: 200,
+      return res.json({
+        code: 200,
+        status: "success",
         data: users,
+        message: `取得人員成功。`,
       });
       next();
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "發生問題。",
+        status: "error",
+        data: null,
+        message: `取得人員時發生問題。 ${err}`,
       });
       next();
     });
@@ -242,27 +270,29 @@ export const get_user = (req: Request, res: Response, next: NextFunction) => {
     },
   })
     .then((user: any) => {
-      return res.status(200).json({
-        status: 200,
+      return res.json({
+        code: 200,
+        status: "success",
         data: {
           ...user.dataValues,
           permission: user?.permission.dataValues,
         },
+        message: `取得人員成功。`,
       });
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "發生問題。",
+        status: "error",
+        data: null,
+        message: `取得人員時發生問題。 ${err}`,
       });
       next();
     });
 };
 
 export const update_user = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -298,8 +328,10 @@ export const update_user = (
       is_admin_page_update,
       is_admin_page_read,
       is_admin_page_delete,
-      update_member,
     } = req.body;
+
+    const { user } = req;
+    const update_member = user?.uid;
 
     User.findOne({
       where: { uid: uid },
@@ -307,6 +339,7 @@ export const update_user = (
       user.account = account;
       user.name = name;
       user.role = role;
+
       if (password) {
         user.password = password;
       }
@@ -341,38 +374,47 @@ export const update_user = (
           permission.is_admin_page_update = is_admin_page_update;
           permission.is_admin_page_read = is_admin_page_read;
           permission.is_admin_page_delete = is_admin_page_delete;
+          permission.update_member = update_member;
           permission.save();
-          res.status(200).json({
-            status: 200,
-            message: "User updated successfully",
+
+          return res.json({
+            code: 200,
+            status: "success",
+            data: null,
+            message: `更新人員資料成功。`,
           });
           next();
         })
         .catch((err) => {
-          res.status(500).json({
-            status: 500,
-            message: "something went wrong when deleting user.",
-            error: err,
+          return res.json({
+            code: 500,
+            status: "error",
+            data: null,
+            message: `更新人員資料時發生問題。 ${err}`,
           });
           next(err);
         });
     });
   } catch (err) {
-    res.status(500).json({
-      status: 500,
-      message: "something went wrong when updating assignment.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `更新人員資料時發生問題。 ${err}`,
     });
     next(err);
   }
 };
 
 export const delete_user = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
-  const { uid, update_member } = req.body;
+  const { uid } = req.params;
+  const { user } = req;
+  const update_member = user?.uid;
+
   try {
     User.findOne({ where: { uid: uid } })
       .then((user: any) => {
@@ -381,25 +423,29 @@ export const delete_user = (
         user.save();
       })
       .then(() => {
-        res.status(500).json({
-          status: 200,
-          message: "user deleted.",
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `刪除人員成功。`,
         });
         next();
       })
       .catch((err) => {
-        res.status(500).json({
-          status: 500,
-          message: "something went wrong when deleting user.",
-          error: err,
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `刪除人員資料時發生問題。 ${err}`,
         });
         next(err);
       });
   } catch (err) {
-    res.status(500).json({
-      status: 500,
-      message: "something went wrong when deleting user.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `刪除人員資料時發生問題。 ${err}`,
     });
     next(err);
   }

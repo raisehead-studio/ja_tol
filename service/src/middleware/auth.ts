@@ -1,8 +1,17 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
+import User from "../models/user";
+
+interface RequestWithUser extends Request {
+  user?: {
+    name: string;
+    uid: string;
+  };
+}
+
 export const verify = async (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -14,12 +23,44 @@ export const verify = async (
   }
 
   try {
-    const decoded_token = jwt.verify(
+    const decoded_token: any = jwt.verify(
       token,
       process.env.JWT_ACCESS_SECRET as string
     );
-    next();
+
+    if (!decoded_token) {
+      return res.json({
+        code: 401,
+        data: null,
+        status: "failed",
+        message: "Unauthorized",
+      });
+    } else {
+      User.findOne({ where: { uid: decoded_token.id } }).then((user: any) => {
+        if (user) {
+          req.user = {
+            name: user.name,
+            uid: user.uid,
+          };
+          next();
+        } else {
+          return res.json({
+            code: 401,
+            data: null,
+            status: "failed",
+            message: "Unauthorized",
+          });
+        }
+      });
+    }
+
+    // req.user = decoded_token;
   } catch (err) {
-    return res.status(403).json({ errors: "Unauthorized" });
+    return res.json({
+      code: 401,
+      data: null,
+      status: "failed",
+      message: "Unauthorized",
+    });
   }
 };

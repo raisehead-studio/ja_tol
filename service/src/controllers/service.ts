@@ -1,32 +1,24 @@
 import { Request, Response, NextFunction } from "express";
-import { validationResult } from "express-validator";
 
 import CustomerService from "../models/service";
 import CustomerServiceContent from "../models/service_content";
 import Customer from "../models/customer";
+import User from "../models/user";
+
+interface RequestWithUser extends Request {
+  user?: {
+    name: string;
+    uid: string;
+  };
+}
 
 export const create_service = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res
-      .status(422)
-      .json({ message: "Validation failed", errors: errors.array() });
-  }
-
-  const {
-    cid,
-    title,
-    status,
-    type,
-    notify_date,
-    update_member,
-    create_member,
-    content,
-  } = req.body;
+  const { cid, title, status, type, notify_date, content } = req.body;
+  const { user } = req;
 
   CustomerService.create({
     cid,
@@ -34,41 +26,50 @@ export const create_service = (
     status,
     type,
     notify_date,
-    update_member,
-    create_member,
+    update_member: user?.uid,
+    create_member: user?.uid,
+    is_del: false,
   })
     .then((service) => {
       CustomerServiceContent.create({
         content,
         csid: service.dataValues.csid,
+        update_member: user?.uid,
+        create_member: user?.uid,
+        is_del: false,
       })
         .then(() => {
-          return res.status(200).json({
-            message: "Customer service created",
-            status: 200,
+          return res.json({
+            code: 200,
+            status: "success",
+            data: {
+              csid: service.dataValues.csid,
+            },
+            message: `建立客服紀錄成功。`,
           });
         })
         .catch((err) => {
-          res.status(500).json({
-            status: "error",
+          return res.json({
             code: 500,
-            err: err,
-            message: "發生問題。",
+            status: "error",
+            data: null,
+            message: `建立客服紀錄時發生問題。 ${err}`,
           });
         });
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "發生問題。",
+        status: "error",
+        data: null,
+        message: `建立客服紀錄時發生問題。 ${err}`,
       });
     });
 };
 
-export const get_service_list = (req: Request, res: Response) => {
+export const get_service_list = (_: Request, res: Response) => {
   CustomerService.findAll({
+    where: { is_del: false },
     attributes: [
       "csid",
       "title",
@@ -85,9 +86,12 @@ export const get_service_list = (req: Request, res: Response) => {
       attributes: ["customer_number", "short_name"],
     },
   })
-    .then((result) => {
-      res.status(200).json({
-        status: 200,
+    .then(async (result) => {
+      const users: any = await User.findAll({ where: { is_del: false } });
+
+      return res.json({
+        code: 200,
+        status: "success",
         data: result.map((item) => {
           return {
             id: item.dataValues.csid,
@@ -95,8 +99,12 @@ export const get_service_list = (req: Request, res: Response) => {
             status: item.dataValues.status,
             type: item.dataValues.type,
             notify_date: new Date(item.dataValues.notify_date).getTime(),
-            update_member: item.dataValues.update_member,
-            create_member: item.dataValues.create_member,
+            update_member: users.filter(
+              (user: any) => item.dataValues.update_member === user.uid
+            )[0].name,
+            create_member: users.filter(
+              (user: any) => item.dataValues.update_member === user.uid
+            )[0].name,
             update_date: new Date(item.dataValues.updatedAt).getTime(),
             customer_number:
               item.dataValues.customer.dataValues.customer_number,
@@ -104,20 +112,21 @@ export const get_service_list = (req: Request, res: Response) => {
             create_date: new Date(item.dataValues.createdAt).getTime(),
           };
         }),
+        message: `取得客服資料列表成功。`,
       });
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "發生問題。",
+        status: "error",
+        data: null,
+        message: `得客服資料列表時發生問題。 ${err}`,
       });
     });
 };
 
 export const get_service_detail = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -145,13 +154,14 @@ export const get_service_detail = (
       },
     ],
   })
-    .then((result) => {
-      if (!result)
-        return res.status(500).json({
-          status: 500,
-          error: "something went wrong when getting service detail.",
-        });
+    .then(async (result: any) => {
       let data: any = {};
+      const update_name = await User.findOne({
+        where: { uid: result.dataValues.update_member },
+      });
+      const create_name = await User.findOne({
+        where: { uid: result.dataValues.create_member },
+      });
 
       data.short_name = result.dataValues.customer.short_name;
       data.customer_number = result.dataValues.customer.customer_number;
@@ -159,8 +169,8 @@ export const get_service_detail = (
       data.status = result.dataValues.status;
       data.type = result.dataValues.type;
       data.notify_date = new Date(result.dataValues.notify_date).getTime();
-      data.update_member = result.dataValues.update_member;
-      data.create_member = result.dataValues.create_member;
+      data.update_member = update_name;
+      data.create_member = create_name;
       data.create_date = new Date(result.dataValues.updatedAt).getTime();
       data.customer_service_contents =
         result.dataValues.customer_service_contents.map((item: any) => {
@@ -171,49 +181,58 @@ export const get_service_detail = (
           };
         });
 
-      return res.status(200).json({
-        status: 200,
+      return res.json({
+        code: 200,
+        status: "success",
         data: data,
+        message: `取得客服資料成功。`,
       });
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "發生問題。",
+        status: "error",
+        data: null,
+        message: `取得客服資料時發生問題。 ${err}`,
       });
     });
 };
 
 export const create_service_content = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
   const { csid, content } = req.body;
+  const { user } = req;
 
   CustomerServiceContent.create({
     csid,
     content,
+    update_member: user?.uid,
+    create_member: user?.uid,
+    is_del: false,
   })
-    .then(() => {
-      return res.status(200).json({
-        message: "Customer service content created",
-        status: 200,
+    .then((result) => {
+      return res.json({
+        code: 200,
+        status: "success",
+        data: result,
+        message: `建立客服紀錄內容成功。`,
       });
+      next();
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "發生問題。",
+        status: "error",
+        data: null,
+        message: `建立客服紀錄內容時發生問題。 ${err}`,
       });
     });
 };
 
-export const update_service = (req: Request, res: Response) => {
+export const update_service = (req: RequestWithUser, res: Response) => {
   try {
     const {
       csid,
@@ -221,9 +240,9 @@ export const update_service = (req: Request, res: Response) => {
       status,
       type,
       notify_date,
-      update_member,
       customer_service_contents,
     } = req.body;
+    const { user } = req;
 
     CustomerService.findOne({
       where: { csid },
@@ -234,7 +253,8 @@ export const update_service = (req: Request, res: Response) => {
           service.status = status;
           service.type = type;
           service.notify_date = notify_date;
-          service.update_member = update_member;
+          service.update_member = user?.uid;
+
           service.save();
           let update_customer_service_contents = JSON.parse(
             customer_service_contents
@@ -248,6 +268,7 @@ export const update_service = (req: Request, res: Response) => {
               where: { cscid: cscid },
             });
             service_content.content = content;
+            service_content.update_member = user?.uid;
             await service_content.save();
           };
           for (let i = 0; i < update_customer_service_contents.length; i++) {
@@ -260,41 +281,79 @@ export const update_service = (req: Request, res: Response) => {
           }
           Promise.all(execution)
             .then(() => {
-              res.status(200).json({
-                message: "Customer service updated",
-                status: 200,
+              return res.json({
+                code: 200,
+                status: "success",
+                data: null,
+                message: `更新客服紀錄成功。`,
               });
             })
             .catch((err) => {
-              res.status(500).json({
-                status: "error",
+              return res.json({
                 code: 500,
-                err: err,
-                message: "發生問題。",
+                status: "error",
+                data: null,
+                message: `更新客服紀錄時發生問題。 ${err}`,
               });
             });
         } else {
-          res.status(500).json({
-            status: "error",
+          return res.json({
             code: 500,
-            message: "發生問題。",
+            status: "error",
+            data: null,
+            message: `更新客服紀錄時發生問題。 沒有此筆客服紀錄資料`,
           });
         }
       })
       .catch((err) => {
-        res.status(500).json({
-          status: "error",
+        return res.json({
           code: 500,
-          err: err,
-          message: "發生問題。",
+          status: "error",
+          data: null,
+          message: `更新客服紀錄時發生問題。 ${err}`,
         });
       });
   } catch (err) {
-    res.status(500).json({
-      status: "error",
+    return res.json({
       code: 500,
-      err: err,
-      message: "發生問題。",
+      status: "error",
+      data: null,
+      message: `更新客服紀錄時發生問題。 ${err}`,
+    });
+  }
+};
+
+export const delete_service = (req: RequestWithUser, res: Response) => {
+  try {
+    const { csid } = req.params;
+    const { user } = req;
+
+    CustomerService.findOne({ where: { csid: csid } })
+      .then(async (service: any) => {
+        service.is_del = true;
+        service.update_member = user?.uid;
+        await service.save();
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `刪除客服紀錄成功。`,
+        });
+      })
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `刪除客服紀錄時發生問題。 ${err}`,
+        });
+      });
+  } catch (err) {
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `刪除客服紀錄時發生問題。 ${err}`,
     });
   }
 };

@@ -1,6 +1,5 @@
 import { Op } from "sequelize";
-import e, { Request, Response, NextFunction } from "express";
-import { validationResult } from "express-validator";
+import { Request, Response, NextFunction } from "express";
 
 import Customer from "../models/customer";
 import CustomerContact from "../models/customer_contact";
@@ -9,19 +8,20 @@ import CustomerService from "../models/service";
 
 import { CustomerDataType, CustomerContactDataType } from "../types/customers";
 
+interface RequestWithUser extends Request {
+  user?: {
+    name: string;
+    uid: string;
+  };
+}
+
 export const create_customer = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
-  const {
-    name,
-    short_name,
-    update_member,
-    create_member,
-    customer_number,
-    ele_number,
-  } = req.body;
+  const { name, short_name, customer_number, ele_number } = req.body;
+  const { user } = req;
 
   Customer.findOne({
     where: {
@@ -39,69 +39,78 @@ export const create_customer = (
           short_name: short_name,
           customer_number: customer_number,
           ele_number: ele_number,
-          update_member,
-          create_member,
+          update_member: user?.uid,
+          create_member: user?.uid,
           is_del: false,
         })
           .then((result) => {
-            res.status(200).json({
-              status: 200,
-              message: "customer created!",
-              cid: result.dataValues.cid,
+            return res.json({
+              code: 200,
+              status: "success",
+              data: {
+                cid: result.dataValues.cid,
+              },
+              message: "建立客戶資料成功。",
             });
           })
           .catch((err) => {
-            res.status(500).json({
-              status: "error",
+            return res.json({
               code: 500,
-              err: err,
-              message: "建立客戶時發生問題。",
+              status: "error",
+              data: null,
+              message: `建立客戶時發生問題 ${err}。`,
             });
           });
       } else {
-        res.status(422).json({
-          message: "duplicate customer!",
+        return res.json({
+          code: 401,
+          status: "failed",
+          data: null,
+          message: `顧客重複。`,
         });
         next();
       }
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "建立客戶時發生問題。",
+        status: "error",
+        data: null,
+        message: `建立客戶時發生問題 ${err}。`,
       });
     });
 };
 
 export const get_customers_list = (
-  _: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
   Customer.findAll({
+    where: { is_del: false },
     attributes: ["cid", "short_name", "customer_number", "name"],
   })
     .then((result) => {
-      res.status(200).json({
-        status: 200,
+      return res.json({
+        code: 200,
+        status: "success",
         data: result,
+        message: `取得客戶列表成功。`,
       });
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "取得客戶列別時發生問題。",
+        status: "error",
+        data: null,
+        message: `取得客戶時發生問題 ${err}。`,
       });
       next(err);
     });
 };
 
 export const get_customers_detail = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -124,78 +133,81 @@ export const get_customers_detail = (
   })
     .then((result) => {
       if (!result) {
-        return res.status(500).json({
-          status: 500,
-          message: "customer not found!",
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `找不到此客戶資料。`,
+        });
+      } else {
+        let data: any = {};
+        data.cid = result.dataValues.cid;
+        data.name = result.dataValues.name;
+        data.short_name = result.dataValues.short_name;
+        data.customer_number = result.dataValues.customer_number;
+        data.ele_number = result.dataValues.ele_number;
+        data.acceptance_check_description =
+          result.dataValues.acceptance_check_description;
+        data.factory_description = result.dataValues.factory_description;
+        data.assignment_description = result.dataValues.assignment_description;
+        data.tobill_description = result.dataValues.tobill_description;
+        data.invoice_description = result.dataValues.invoice_description;
+        data.customer_contacts = !Array.isArray(
+          result.dataValues.customer_contacts
+        )
+          ? []
+          : result.dataValues.customer_contacts.map((item: any) => {
+              return {
+                id: item.dataValues.ccid,
+                name: item.dataValues.name,
+                type: item.dataValues.type,
+                phone: item.dataValues.phone,
+                job_description: item.dataValues.job_description,
+                title: item.dataValues.title,
+                note: item.dataValues.note,
+                email: item.dataValues.email,
+              };
+            });
+        data.ele_place_name = result.dataValues.ele_place?.name || "";
+        data.ele_place_address = result.dataValues.ele_place?.address || "";
+        data.ele_place_owner = result.dataValues.ele_place?.owner || "";
+        data.customer_services = !Array.isArray(
+          result.dataValues.customer_services
+        )
+          ? []
+          : result.dataValues.customer_services.map((item: any) => {
+              return {
+                id: item.dataValues.csid,
+                title: item.dataValues.title,
+                notify_date: item.dataValues.notify_date,
+              };
+            }) || [];
+
+        return res.json({
+          code: 200,
+          status: "success",
+          data: data,
+          message: `取得客戶資料列表成功。`,
         });
       }
-      let data: any = {};
-      data.cid = result.dataValues.cid;
-      data.name = result.dataValues.name;
-      data.short_name = result.dataValues.short_name;
-      data.customer_number = result.dataValues.customer_number;
-      data.ele_number = result.dataValues.ele_number;
-      data.acceptance_check_description =
-        result.dataValues.acceptance_check_description;
-      data.factory_description = result.dataValues.factory_description;
-      data.assignment_description = result.dataValues.assignment_description;
-      data.tobill_description = result.dataValues.tobill_description;
-      data.invoice_description = result.dataValues.invoice_description;
-      data.customer_contacts = !Array.isArray(
-        result.dataValues.customer_contacts
-      )
-        ? []
-        : result.dataValues.customer_contacts.map((item: any) => {
-            return {
-              id: item.dataValues.ccid,
-              name: item.dataValues.name,
-              type: item.dataValues.type,
-              phone: item.dataValues.phone,
-              job_description: item.dataValues.job_description,
-              title: item.dataValues.title,
-              note: item.dataValues.note,
-              email: item.dataValues.email,
-            };
-          });
-      data.ele_place_name = result.dataValues.ele_place?.name || "";
-      data.ele_place_address = result.dataValues.ele_place?.address || "";
-      data.ele_place_owner = result.dataValues.ele_place?.owner || "";
-      data.customer_services = !Array.isArray(
-        result.dataValues.customer_services
-      )
-        ? []
-        : result.dataValues.customer_services.map((item: any) => {
-            return {
-              id: item.dataValues.csid,
-              title: item.dataValues.title,
-              notify_date: item.dataValues.notify_date,
-            };
-          }) || [];
-
-      return res.status(200).json({
-        status: 200,
-        data: data,
-      });
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "取得客戶時發生問題。",
+        status: "error",
+        data: null,
+        message: `取得客戶資料時發生問題 ${err}。`,
       });
     });
 };
 
 export const create_ele_place = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
-  const name = req.body.name;
-  const address = req.body.address;
-  const owner = req.body.owner;
-  const cid = req.body.cid;
+  const { name, address, owner, cid } = req.body;
+  const { user } = req;
 
   ElePlace.findOne({
     where: { name: name || "" },
@@ -207,52 +219,56 @@ export const create_ele_place = (
           address: address,
           owner: owner,
           cid: cid,
+          update_member: user?.uid,
+          create_member: user?.uid,
+          is_del: false,
         })
           .then((result) => {
-            res.status(200).json({
-              status: 200,
-              message: "ele place created!",
-              cid: result.dataValues.epid,
+            return res.json({
+              code: 200,
+              status: "success",
+              data: {
+                cid: result.dataValues.epid,
+              },
+              message: `用電場所資料建立成功。`,
             });
           })
           .catch((err) => {
-            if (!err.statusCode) {
-              err.statusCode = 500;
-              return res.status(500).json({ errors: err });
-            }
+            return res.json({
+              code: 500,
+              status: "error",
+              data: null,
+              message: `建立用電場所時發生問題 ${err}。`,
+            });
             next(err);
           });
       } else {
-        res.status(500).json({
-          status: "error",
+        return res.json({
           code: 500,
-          message: "用電場所已經存在。",
+          status: "error",
+          data: null,
+          message: `用電場所已經存在。`,
         });
       }
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "建立用電場所時發生問題。",
+        status: "error",
+        data: null,
+        message: `建立用電場所時發生問題 ${err}。`,
       });
     });
 };
 
 export const create_customer_contact = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
-  const name = req.body.name;
-  const type = req.body.type;
-  const phone = req.body.phone;
-  const job_description = req.body.job_description;
-  const title = req.body.title;
-  const cid = req.body.cid;
-  const note = req.body.note;
-  const email = req.body.email;
+  const { name, type, phone, job_description, title, cid, note, email } =
+    req.body;
+  const { user } = req;
 
   CustomerContact.create({
     name: name,
@@ -263,44 +279,54 @@ export const create_customer_contact = (
     title: title,
     note: note,
     email: email,
+    update_member: user?.uid,
+    create_member: user?.uid,
+    is_del: false,
   })
     .then((result) => {
-      res.status(200).json({
-        status: 200,
-        message: "customer contact created!",
-        cid: result.dataValues.ccid,
+      return res.json({
+        code: 200,
+        status: "success",
+        data: {
+          cid: result.dataValues.epid,
+        },
+        message: `客戶聯絡人資料建立成功。`,
       });
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "建立用客戶聯絡資訊時發生問題。",
+        status: "error",
+        data: null,
+        message: `建立客戶聯絡人時發生問題 ${err}。`,
       });
     });
 };
 
 export const update_customer_detail = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
-  const cid = req.body.cid;
-  const name = req.body.name;
-  const short_name = req.body.short_name;
-  const customer_number = req.body.customer_number;
-  const ele_number = req.body.ele_number;
-  const acceptance_check_description = req.body.acceptance_check_description;
-  const factory_description = req.body.factory_description;
-  const assignment_description = req.body.assignment_description;
-  const tobill_description = req.body.tobill_description;
-  const invoice_description = req.body.invoice_description;
-  const customer_contacts = req.body.customer_contacts;
-  const customer_services = req.body.customer_services;
-  const ele_place_name = req.body.ele_place_name;
-  const ele_place_address = req.body.ele_place_address;
-  const ele_place_owner = req.body.ele_place_owner;
+  const {
+    cid,
+    name,
+    short_name,
+    customer_number,
+    ele_number,
+    acceptance_check_description,
+    factory_description,
+    assignment_description,
+    tobill_description,
+    invoice_description,
+    customer_contacts,
+    customer_services,
+    ele_place_name,
+    ele_place_address,
+    ele_place_owner,
+  } = req.body;
+  const { user } = req;
+
   try {
     Customer.findByPk(cid)
       .then((customer: any) => {
@@ -313,6 +339,7 @@ export const update_customer_detail = (
         customer.assignment_description = assignment_description;
         customer.tobill_description = tobill_description;
         customer.invoice_description = invoice_description;
+        customer.update_member = user?.uid;
         customer.save();
         let executions: any = [];
         JSON.parse(customer_contacts).forEach((contact: any) => {
@@ -328,14 +355,15 @@ export const update_customer_detail = (
                 customer_contact.title = contact.title;
                 customer_contact.note = contact.note;
                 customer_contact.email = contact.email;
+                customer_contact.update_member = user?.uid;
                 customer_contact.save();
               })
               .catch((err) => {
-                res.status(500).json({
-                  status: "error",
+                return res.json({
                   code: 500,
-                  err: err,
-                  message: "發生問題。",
+                  status: "error",
+                  data: null,
+                  message: `編輯顧客基本資料時發生問題 ${err}。`,
                 });
               })
           );
@@ -348,18 +376,20 @@ export const update_customer_detail = (
               .then((customer_service: any) => {
                 customer_service.title = service.title;
                 customer_service.notify_date = service.notify_date;
+                customer_service.update_member = user?.uid;
                 customer_service.save();
               })
               .catch((err) => {
-                res.status(500).json({
-                  status: "error",
+                return res.json({
                   code: 500,
-                  err: err,
-                  message: "發生問題。",
+                  status: "error",
+                  data: null,
+                  message: `編輯顧客基本資料時發生問題 ${err}。`,
                 });
               })
           );
         });
+
         ElePlace.findOne({
           where: { cid: cid },
         }).then((ele_place: any) => {
@@ -369,30 +399,35 @@ export const update_customer_detail = (
               address: ele_place_address,
               owner: ele_place_owner,
               cid: cid,
+              update_member: user?.uid,
+              create_member: user?.uid,
+              is_del: false,
             })
               .then(() => {
                 Promise.all(executions)
                   .then(() => {
-                    return res.status(200).json({
-                      status: 200,
-                      message: "customer updated!",
+                    return res.json({
+                      code: 200,
+                      status: "success",
+                      data: null,
+                      message: `編輯顧客基本資料成功。`,
                     });
                   })
                   .catch((err) => {
-                    res.status(500).json({
-                      status: "error",
+                    return res.json({
                       code: 500,
-                      err: err,
-                      message: "發生問題。",
+                      status: "error",
+                      data: null,
+                      message: `編輯顧客基本資料時發生問題 ${err}。`,
                     });
                   });
               })
               .catch((err) => {
-                res.status(500).json({
-                  status: "error",
+                return res.json({
                   code: 500,
-                  err: err,
-                  message: "發生問題。",
+                  status: "error",
+                  data: null,
+                  message: `編輯顧客基本資料時發生問題 ${err}。`,
                 });
               });
           } else {
@@ -400,38 +435,77 @@ export const update_customer_detail = (
             ele_place.address = ele_place_address || "";
             ele_place.owner = ele_place_owner || "";
             ele_place.cid = cid;
+            ele_place.update_member = user?.uid;
             ele_place.save();
             Promise.all(executions)
               .then(() => {
-                return res.status(200).json({
-                  status: 200,
-                  message: "customer updated!",
+                return res.json({
+                  code: 200,
+                  status: "success",
+                  data: null,
+                  message: `編輯顧客基本資料成功。`,
                 });
               })
               .catch((err) => {
-                res.status(500).json({
-                  status: "error",
+                return res.json({
                   code: 500,
-                  err: err,
-                  message: "發生問題。",
+                  status: "error",
+                  data: null,
+                  message: `編輯顧客基本資料時發生問題 ${err}。`,
                 });
               });
           }
         });
       })
-      .catch((err: any) => {
-        res.status(500).json({
-          status: 500,
-          message: "更新失敗。",
-          err: err,
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `編輯顧客基本資料時發生問題 ${err}。`,
         });
       });
   } catch (err) {
-    res.status(500).json({
-      status: 500,
-      message: "更新失敗。",
-      err: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `編輯顧客基本資料時發生問題 ${err}。`,
     });
     next();
+  }
+};
+
+export const delete_customer = (req: RequestWithUser, res: Response) => {
+  try {
+    const { cid } = req.params;
+    const { user } = req;
+    Customer.findOne({ where: { cid: cid } })
+      .then((customer: any) => {
+        customer.is_del = true;
+        customer.update_member = user?.uid;
+        customer.save();
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `刪除客戶成功。`,
+        });
+      })
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `刪除客戶時發生問題。 ${err}`,
+        });
+      });
+  } catch (err) {
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `刪除客戶時發生問題。 ${err}`,
+    });
   }
 };

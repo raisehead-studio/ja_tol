@@ -7,13 +7,17 @@ import ToBill from "../models/tobill";
 import AcceptanceCheck from "../models/acceptance_check";
 import Factorys from "../models/factorys";
 import Assignments from "../models/assignments";
+import User from "../models/user";
 
-export const get_tracking = (
+export const get_tracking = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const users: any = await User.findAll({ where: { is_del: false } });
+
   CustomerService.findAll({
+    where: { is_del: false },
     attributes: [
       "csid",
       "title",
@@ -41,11 +45,14 @@ export const get_tracking = (
           work_order_number: "客服紀錄",
           item: item.dataValues.type,
           description: item.dataValues.title,
-          update_member: item.dataValues.update_member,
+          update_member: users.filter(
+            (user: any) => item.dataValues.update_member === user.uid
+          )[0].name,
           update_date: new Date(item.dataValues.updatedAt).getTime(),
         });
       });
       WorkOrder.findAll({
+        where: { is_del: false },
         include: [
           {
             model: Customer,
@@ -134,34 +141,36 @@ export const get_tracking = (
                 work_order_number: item.dataValues.order_number,
                 item: item_data,
                 description: description,
-                update_member: item.dataValues.update_member,
+                update_member: users.filter(
+                  (user: any) => item.dataValues.update_member === user.uid
+                )[0].name,
                 update_date: new Date(item.dataValues.updatedAt).getTime(),
               });
             }
           });
 
-          res.status(200).json({
-            status: 200,
+          return res.json({
+            code: 200,
+            status: "success",
             data: data,
+            message: `取得追蹤列表成功。`,
           });
-          next();
         })
         .catch((err) => {
-          res.status(500).json({
-            status: "error",
+          return res.json({
             code: 500,
-            err: err,
-            message: "發生問題。",
+            status: "error",
+            data: null,
+            message: `取得追蹤列表時發生問題。 ${err}`,
           });
-          next();
         });
     })
     .catch((err) => {
-      res.status(500).json({
-        status: "error",
+      return res.json({
         code: 500,
-        err: err,
-        message: "發生問題。",
+        status: "error",
+        data: null,
+        message: `取得追蹤列表時發生問題。 ${err}`,
       });
       next();
     });

@@ -10,13 +10,21 @@ import Factorys from "../models/factorys";
 import FactoryOtherForm from "../models/factory_other_forms";
 import ToBill from "../models/tobill";
 import ToBillInvoice from "../models/tobill_invoce";
+import User from "../models/user";
 import {
   WorkOrderRequestDataType,
   WorkOrderResponseDataType,
 } from "../types/work_order";
 
+interface RequestWithUser extends Request {
+  user?: {
+    name: string;
+    uid: string;
+  };
+}
+
 export const create_work_order = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -35,9 +43,8 @@ export const create_work_order = (
       tobill_date,
       factory_date,
       assignment_date,
-      update_member,
-      create_member,
     } = req.body;
+    const { user } = req;
 
     WorkOrder.create({
       cid,
@@ -53,8 +60,8 @@ export const create_work_order = (
       tobill_date,
       factory_date,
       assignment_date,
-      update_member,
-      create_member,
+      update_member: user?.uid,
+      create_member: user?.uid,
       is_del: false,
     })
       .then(async (result) => {
@@ -100,17 +107,17 @@ export const create_work_order = (
             tracking_description,
             tracking_is_finished,
             finished_date,
-            update_member,
-            create_member,
+            update_member: user?.uid,
+            create_membe: user?.uid,
             is_del: false,
           })
             .then(() => {})
             .catch((err) => {
-              res.status(500).json({
-                status: "error",
+              return res.json({
                 code: 500,
-                err: err,
-                message: "發生問題。",
+                status: "error",
+                data: null,
+                message: `建立工單資料時發生問題。 ${err}`,
               });
               next();
             })
@@ -138,17 +145,17 @@ export const create_work_order = (
             tracking_is_finished,
             finished_date,
             wt_report_number,
-            update_member,
-            create_member,
+            update_member: user?.uid,
+            create_member: user?.uid,
             is_del: false,
           })
             .then(() => {})
             .catch((err) => {
-              res.status(500).json({
-                status: "error",
+              return res.json({
                 code: 500,
-                err: err,
-                message: "發生問題。",
+                status: "error",
+                data: null,
+                message: `建立工單資料時發生問題。 ${err}`,
               });
               next();
             })
@@ -172,17 +179,17 @@ export const create_work_order = (
             tracking_description,
             tracking_is_finished,
             tracking_finished_date,
-            update_member,
-            create_member,
+            update_member: user?.uid,
+            create_member: user?.uid,
             is_del: false,
           })
             .then(() => {})
             .catch((err) => {
-              res.status(500).json({
-                status: "error",
+              return res.json({
                 code: 500,
-                err: err,
-                message: "發生問題。",
+                status: "error",
+                data: null,
+                message: `建立工單資料時發生問題。 ${err}`,
               });
               next();
             })
@@ -196,17 +203,17 @@ export const create_work_order = (
             tracking_description,
             tracking_is_finished,
             finished_date,
-            update_member,
-            create_member,
+            update_member: user?.uid,
+            create_member: user?.uid,
             is_del: false,
           })
             .then(() => {})
             .catch((err) => {
-              res.status(500).json({
-                status: "error",
+              return res.json({
                 code: 500,
-                err: err,
-                message: "發生問題。",
+                status: "error",
+                data: null,
+                message: `建立工單資料時發生問題。 ${err}`,
               });
               next();
             })
@@ -214,46 +221,52 @@ export const create_work_order = (
 
         Promise.all(executions)
           .then(() => {
-            return res.status(200).json({
-              message: "Work order created successfully",
-              status: 200,
+            return res.json({
+              code: 200,
+              status: "success",
+              data: null,
+              message: "建立工單資料成功",
             });
           })
           .catch((err) => {
-            res.status(500).json({
-              status: "error",
+            return res.json({
               code: 500,
-              err: err,
-              message: "發生問題。",
+              status: "error",
+              data: null,
+              message: `建立工單資料時發生問題。 ${err}`,
             });
             next();
           });
       })
-      .catch((errors) => {
-        res.status(500).json({
-          status: 500,
-          message: "something went wrong when creating work order.",
-          error: errors?.errors.map((err: any) => err.message),
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `建立工單資料時發生問題。 ${err}`,
         });
-        next(errors);
+        next(err);
       });
   } catch (err) {
-    res.status(500).json({
-      status: 500,
-      message: "something went wrong when creating work order.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `建立工單資料時發生問題。 ${err}`,
     });
     next(err);
   }
 };
 
-export const get_work_orders_list = (
+export const get_work_orders_list = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const users: any = await User.findAll({ where: { is_del: false } });
   try {
     WorkOrder.findAll({
+      where: { is_del: false },
       include: [
         {
           model: Customer,
@@ -265,8 +278,9 @@ export const get_work_orders_list = (
       ],
     })
       .then((work_orders) => {
-        res.status(200).json({
-          status: 200,
+        return res.json({
+          code: 200,
+          status: "success",
           data: work_orders.map((worker_order) => {
             return {
               id: worker_order.dataValues.woid,
@@ -279,26 +293,32 @@ export const get_work_orders_list = (
               customer_name:
                 worker_order.dataValues.customer.dataValues.short_name,
               notify_date: new Date(),
-              update_member: "admin",
+              update_member: users.filter(
+                (user: any) =>
+                  worker_order.dataValues.update_member === user.uid
+              )[0].name,
               status: [""],
             };
           }),
+          message: "取得工單資料列表成功",
         });
       })
       .catch((err) => {
-        res.status(500).json({
-          status: "error",
+        return res.json({
           code: 500,
-          err: err,
-          message: "發生問題。",
+          status: "error",
+          data: null,
+          message: `取得工單資料列表時發生問題。 ${err}`,
         });
+
         next(err);
       });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when getting wok order lists.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `取得工單資料列表時發生問題。 ${err}`,
     });
   }
 };
@@ -312,28 +332,33 @@ export const get_work_order_detail = (
   try {
     WorkOrder.findOne({ where: { woid: woid } })
       .then((work_order) => {
-        res.status(200).json({
-          status: 200,
+        return res.json({
+          code: 200,
+          status: "success",
           data: work_order,
+          message: "取得工單資料成功",
         });
       })
       .catch((err) => {
-        if (!err.statusCode) {
-          err.statusCode = 500;
-        }
-        next(err);
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `取得工單資料時發生問題。 ${err}`,
+        });
       });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when getting wok order lists.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `取得工單資料時發生問題。 ${err}`,
     });
   }
 };
 
 export const update_work_order_detail = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -353,161 +378,201 @@ export const update_work_order_detail = (
       factory_date,
       assignment_date,
     } = req.body;
+    const { user } = req;
 
-    WorkOrder.findOne({ where: { woid: woid } }).then((work: any) => {
-      try {
-        // work.name = name;
-        // work.invoice_number = invoice_number;
-        // work.order_number = order_number;
-        work.type = type;
-        // work.amount = amount;
-        // work.inquiry_member = inquiry_member;
-        // work.responsible_member = responsible_member;
-        work.po = po;
-        work.acceptance_check_date = acceptance_check_date;
-        work.tobill_date = tobill_date;
-        work.factory_date = factory_date;
-        work.assignment_date = assignment_date;
-        work.save();
+    WorkOrder.findOne({ where: { woid: woid } })
+      .then((work: any) => {
+        try {
+          // work.name = name;
+          // work.invoice_number = invoice_number;
+          // work.order_number = order_number;
+          work.type = type;
+          // work.amount = amount;
+          // work.inquiry_member = inquiry_member;
+          // work.responsible_member = responsible_member;
+          work.po = po;
+          work.acceptance_check_date = acceptance_check_date;
+          work.tobill_date = tobill_date;
+          work.factory_date = factory_date;
+          work.assignment_date = assignment_date;
+          work.update_member = user?.uid;
+          work.save();
 
-        return res.status(200).json({
-          status: 200,
-          message: "Work order updated successfully",
+          return res.json({
+            code: 200,
+            status: "success",
+            data: null,
+            message: `更新工單資料成功。`,
+          });
+        } catch (err) {
+          return res.json({
+            code: 500,
+            status: "error",
+            data: null,
+            message: `更新工單資料時發生問題。 ${err}`,
+          });
+        }
+      })
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `更新工單資料時發生問題。 ${err}`,
         });
-      } catch (err) {
-        next(err);
-      }
-    });
+      });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when updating assignment.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `更新工單資料時發生問題。 ${err}`,
     });
   }
 };
 
 export const get_assignment_detail = (req: Request, res: Response) => {
   const { woid } = req.params;
-
-  Assignments.findOne({
-    where: { woid: woid },
-    include: [
-      {
-        model: ManpowerSchedule,
-        attributes: [
-          "msid",
-          "note",
-          "schedule_date",
-          "started_time",
-          "finished_time",
-          "actual_date",
-        ],
-      },
-      {
-        model: PowerStop,
-        attributes: ["psid", "area", "started_date", "finished_date"],
-      },
-    ],
-  }).then((assignment) => {
-    WorkOrder.findOne({
+  try {
+    Assignments.findOne({
       where: { woid: woid },
-      attributes: [
-        "name",
-        "type",
-        "po",
-        "acceptance_check_date",
-        "tobill_date",
-        "factory_date",
-        "assignment_date",
-      ],
       include: [
         {
-          model: Customer,
-          attributes: ["customer_number", "short_name"],
+          model: ManpowerSchedule,
+          attributes: [
+            "msid",
+            "note",
+            "schedule_date",
+            "started_time",
+            "finished_time",
+            "actual_date",
+          ],
+        },
+        {
+          model: PowerStop,
+          attributes: ["psid", "area", "started_date", "finished_date"],
         },
       ],
-    }).then((work_order: any) => {
-      if (!assignment) {
-        return res.status(500).json({
-          status: 500,
-          message: "something went wrong when getting assignment detail.",
-        });
-      }
-      let data: any = {};
-      data.id = assignment?.dataValues.aid;
-      data.manufacturing_address = assignment?.dataValues.manufacturing_address;
-      data.manufacturing_status = assignment?.dataValues.manufacturing_status;
-      data.manufacturing_date = assignment?.dataValues.manufacturing_date;
-      data.power_stop_contact = assignment?.dataValues.power_stop_contact;
-      data.power_stop_phone1 = assignment?.dataValues.power_stop_phone1;
-      data.power_stop_phone2 = assignment?.dataValues.power_stop_phone2;
-      data.power_stop_date = assignment?.dataValues.power_stop_date;
-      data.external_contact_is_holiday =
-        assignment?.dataValues.external_contact_is_holiday;
-      data.external_contact_is_power_stop =
-        assignment?.dataValues.external_contact_is_power_stop;
-      data.external_contact_request_date =
-        assignment?.dataValues.external_contact_request_date;
-      data.external_contact_receive_date =
-        assignment?.dataValues.external_contact_receive_date;
-      data.tracking_date = assignment?.dataValues.tracking_date;
-      data.tracking_description = assignment?.dataValues.tracking_description;
-      data.tracking_is_finished = assignment?.dataValues.tracking_is_finished;
-      data.tracking_finished_date =
-        assignment?.dataValues.tracking_finished_date;
-      data.work_order_name = work_order.dataValues.name;
-      data.work_order_type = work_order.dataValues.type;
-      data.po = work_order.dataValues.po;
-      data.acceptance_check_date = work_order.dataValues.acceptance_check_date;
-      data.tobill_date = work_order.dataValues.tobill_date;
-      data.factory_date = work_order.dataValues.factory_date;
-      data.assignment_date = work_order.dataValues.assignment_date;
-      data.customer_number =
-        work_order.dataValues.customer.dataValues.customer_number;
-      data.customer_name = work_order.dataValues.customer.dataValues.short_name;
-      data.is_assign_manpower = assignment?.dataValues.is_assign_manpower;
-      data.manpower_schedule = assignment?.dataValues.manpower_schedules.map(
-        (manpower_schedule: any) => {
-          return {
-            id: manpower_schedule.dataValues.msid,
-            note: manpower_schedule.dataValues.note,
-            schedule_date: manpower_schedule.dataValues.schedule_date,
-            started_time: manpower_schedule.dataValues.started_time,
-            finished_time: manpower_schedule.dataValues.finished_time,
-            actual_date: manpower_schedule.dataValues.actual_date,
-          };
-        }
-      );
-      data.power_stop = assignment?.dataValues.power_stops.map(
-        (power_stop: any) => {
-          return {
-            id: power_stop.dataValues.psid,
-            area: power_stop.dataValues.area,
-            started_date: power_stop.dataValues.started_date,
-            finished_date: power_stop.dataValues.finished_date,
-          };
-        }
-      );
+    })
+      .then((assignment) => {
+        WorkOrder.findOne({
+          where: { woid: woid },
+          attributes: [
+            "name",
+            "type",
+            "po",
+            "acceptance_check_date",
+            "tobill_date",
+            "factory_date",
+            "assignment_date",
+          ],
+          include: [
+            {
+              model: Customer,
+              attributes: ["customer_number", "short_name"],
+            },
+          ],
+        })
+          .then((work_order: any) => {
+            let data: any = {};
+            data.id = assignment?.dataValues.aid;
+            data.manufacturing_address =
+              assignment?.dataValues.manufacturing_address;
+            data.manufacturing_status =
+              assignment?.dataValues.manufacturing_status;
+            data.manufacturing_date = assignment?.dataValues.manufacturing_date;
+            data.power_stop_contact = assignment?.dataValues.power_stop_contact;
+            data.power_stop_phone1 = assignment?.dataValues.power_stop_phone1;
+            data.power_stop_phone2 = assignment?.dataValues.power_stop_phone2;
+            data.power_stop_date = assignment?.dataValues.power_stop_date;
+            data.external_contact_is_holiday =
+              assignment?.dataValues.external_contact_is_holiday;
+            data.external_contact_is_power_stop =
+              assignment?.dataValues.external_contact_is_power_stop;
+            data.external_contact_request_date =
+              assignment?.dataValues.external_contact_request_date;
+            data.external_contact_receive_date =
+              assignment?.dataValues.external_contact_receive_date;
+            data.tracking_date = assignment?.dataValues.tracking_date;
+            data.tracking_description =
+              assignment?.dataValues.tracking_description;
+            data.tracking_is_finished =
+              assignment?.dataValues.tracking_is_finished;
+            data.tracking_finished_date =
+              assignment?.dataValues.tracking_finished_date;
+            data.work_order_name = work_order.dataValues.name;
+            data.work_order_type = work_order.dataValues.type;
+            data.po = work_order.dataValues.po;
+            data.acceptance_check_date =
+              work_order.dataValues.acceptance_check_date;
+            data.tobill_date = work_order.dataValues.tobill_date;
+            data.factory_date = work_order.dataValues.factory_date;
+            data.assignment_date = work_order.dataValues.assignment_date;
+            data.customer_number =
+              work_order.dataValues.customer.dataValues.customer_number;
+            data.customer_name =
+              work_order.dataValues.customer.dataValues.short_name;
+            data.is_assign_manpower = assignment?.dataValues.is_assign_manpower;
+            data.manpower_schedule =
+              assignment?.dataValues.manpower_schedules.map(
+                (manpower_schedule: any) => {
+                  return {
+                    id: manpower_schedule.dataValues.msid,
+                    note: manpower_schedule.dataValues.note,
+                    schedule_date: manpower_schedule.dataValues.schedule_date,
+                    started_time: manpower_schedule.dataValues.started_time,
+                    finished_time: manpower_schedule.dataValues.finished_time,
+                    actual_date: manpower_schedule.dataValues.actual_date,
+                  };
+                }
+              );
+            data.power_stop = assignment?.dataValues.power_stops.map(
+              (power_stop: any) => {
+                return {
+                  id: power_stop.dataValues.psid,
+                  area: power_stop.dataValues.area,
+                  started_date: power_stop.dataValues.started_date,
+                  finished_date: power_stop.dataValues.finished_date,
+                };
+              }
+            );
 
-      return res.status(200).json({
-        status: 200,
-        data: data,
+            return res.json({
+              code: 200,
+              status: "success",
+              data: data,
+              message: `取得派工資料成功。`,
+            });
+          })
+          .catch((err) => {
+            return res.json({
+              code: 500,
+              status: "error",
+              data: null,
+              message: `取得派工資料時發生問題 ${err}`,
+            });
+          });
+      })
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `取得派工資料時發生問題 ${err}`,
+        });
       });
-    });
-  });
-  try {
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when getting assignment detail.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `取得派工資料時發生問題 ${err}`,
     });
   }
 };
 
 export const update_assignment = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -539,39 +604,32 @@ export const update_assignment = (
       manpower_schedule,
       power_stop,
     } = req.body;
+    const { user } = req;
 
     Assignments.findOne({
       where: { woid: woid },
-    }).then((assignment: any) => {
-      assignment.manufacturing_address = manufacturing_address;
-      assignment.manufacturing_status = manufacturing_status;
-      assignment.manufacturing_date = manufacturing_date;
-      // assignment.power_stop_contact = power_stop_contact;
-      // assignment.power_stop_phone1 = power_stop_phone1;
-      // assignment.power_stop_phone2 = power_stop_phone2;
-      // assignment.power_stop_date = power_stop_date;
-      assignment.external_contact_is_holiday = external_contact_is_holiday;
-      assignment.external_contact_is_power_stop =
-        external_contact_is_power_stop;
-      assignment.external_contact_request_date = external_contact_request_date;
-      assignment.external_contact_receive_date = external_contact_receive_date;
-      assignment.tracking_date = tracking_date;
-      assignment.tracking_description = tracking_description;
-      assignment.tracking_is_finished = tracking_is_finished;
-      assignment.tracking_finished_date = tracking_finished_date;
-
-      assignment.save();
-      WorkOrder.findOne({
-        where: { woid: woid },
-      }).then((work_order: any) => {
-        // work_order.name = work_order_name;
-        // work_order.type = work_order_type;
-        // work_order.po = po;
-        // work_order.acceptance_check_date = acceptance_check_date;
-        // work_order.tobill_date = tobill_date;
-        // work_order.factory_date = factory_date;
-        // work_order.assignment_date = assignment_date;
-        // work_order.save();
+    })
+      .then((assignment: any) => {
+        assignment.manufacturing_address = manufacturing_address;
+        assignment.manufacturing_status = manufacturing_status;
+        assignment.manufacturing_date = manufacturing_date;
+        // assignment.power_stop_contact = power_stop_contact;
+        // assignment.power_stop_phone1 = power_stop_phone1;
+        // assignment.power_stop_phone2 = power_stop_phone2;
+        // assignment.power_stop_date = power_stop_date;
+        assignment.external_contact_is_holiday = external_contact_is_holiday;
+        assignment.external_contact_is_power_stop =
+          external_contact_is_power_stop;
+        assignment.external_contact_request_date =
+          external_contact_request_date;
+        assignment.external_contact_receive_date =
+          external_contact_receive_date;
+        assignment.tracking_date = tracking_date;
+        assignment.tracking_description = tracking_description;
+        assignment.tracking_is_finished = tracking_is_finished;
+        assignment.tracking_finished_date = tracking_finished_date;
+        assignment.update_member = user?.uid;
+        assignment.save();
 
         let executions: any = [];
         JSON.parse(manpower_schedule).forEach((manpower_schedule_item: any) => {
@@ -593,10 +651,16 @@ export const update_assignment = (
                 );
                 manpower_schedule.actual_date =
                   manpower_schedule_item.actual_date;
+                manpower_schedule.update_member = user?.uid;
                 manpower_schedule.save();
               })
               .catch((err) => {
-                next(err);
+                return res.json({
+                  code: 500,
+                  status: "error",
+                  data: null,
+                  message: `更新派工資料時發生錯誤 ${err}`,
+                });
               })
           );
         });
@@ -610,33 +674,58 @@ export const update_assignment = (
                 power_stop.area = power_stop_item.area;
                 power_stop.started_date = power_stop_item.started_date;
                 power_stop.finished_date = power_stop_item.finished_date;
+                power_stop.update_member = user?.uid;
                 power_stop.save();
               })
               .catch((err) => {
-                next(err);
+                return res.json({
+                  code: 500,
+                  status: "error",
+                  data: null,
+                  message: `更新派工資料時發生錯誤 ${err}`,
+                });
               })
           );
         });
 
-        Promise.all(executions).then(() => {
-          return res.status(200).json({
-            status: 200,
-            message: "Assignment updated successfully",
+        Promise.all(executions)
+          .then(() => {
+            return res.json({
+              code: 200,
+              status: "success",
+              data: null,
+              message: `更新派工資料成功。`,
+            });
+          })
+          .catch((err) => {
+            return res.json({
+              code: 500,
+              status: "error",
+              data: null,
+              message: `更新派工資料時發生錯誤 ${err}`,
+            });
           });
+      })
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `更新派工資料時發生錯誤 ${err}`,
         });
       });
-    });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when updating assignment.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `更新派工資料時發生錯誤 ${err}`,
     });
   }
 };
 
 export const create_assignment = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -659,6 +748,7 @@ export const create_assignment = (
       tracking_is_finished,
       tracking_finished_date,
     } = req.body;
+    const { user } = req;
 
     Assignments.create({
       woid,
@@ -677,31 +767,38 @@ export const create_assignment = (
       tracking_description,
       tracking_is_finished,
       tracking_finished_date,
+      update_member: user?.uid,
+      create_member: user?.uid,
+      is_del: false,
     })
       .then(() => {
-        return res.status(200).json({
-          message: "Assignment created successfully",
-          status: 200,
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `建立派工資料成功。`,
         });
       })
-      .catch((errors) => {
-        return res.status(500).json({
-          status: 500,
-          message: "something went wrong when creating assignment.",
-          error: errors,
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `建立派工資料發生錯誤 ${err}`,
         });
       });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when creating assignment.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `建立派工資料發生錯誤 ${err}`,
     });
   }
 };
 
 export const create_manpower_schedule = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -714,13 +811,10 @@ export const create_manpower_schedule = (
       finished_time,
       actual_date,
     } = req.body;
+    const { user } = req;
 
     let started_time_t = new Date(started_time).getTime();
     let finished_time_t = new Date(finished_time).getTime();
-
-    console.log("started_time_t", started_time_t);
-    console.log("finished_time_t", finished_time_t);
-
     ManpowerSchedule.create({
       aid,
       note,
@@ -728,67 +822,84 @@ export const create_manpower_schedule = (
       started_time_t,
       finished_time_t,
       actual_date,
+      update_member: user?.uid,
+      create_member: user?.uid,
+      is_del: false,
     })
       .then(() => {
-        return res.status(200).json({
-          message: "Manpower schedule created successfully",
-          status: 200,
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `建立施工時間及人力安排成功。`,
         });
       })
-      .catch((errors) => {
-        console.log("errors", errors);
-
-        return res.status(500).json({
-          status: 500,
-          message: "something went wrong when creating manpower schedule.",
-          error: errors?.errors.map((err: any) => err.message),
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `建立施工時間及人力安排發生錯誤 ${err}`,
         });
       });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when creating manpower schedule.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `建立施工時間及人力安排發生錯誤 ${err}`,
     });
   }
 };
 
 export const create_power_stop = (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { aid, area, started_date, finished_date } = req.body;
+    const { user } = req;
+
     PowerStop.create({
       aid,
       area,
       started_date,
       finished_date,
+      update_member: user?.uid,
+      create_member: user?.uid,
+      is_del: false,
     })
       .then(() => {
-        return res.status(200).json({
-          message: "Power stop created successfully",
-          status: 200,
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `建立停電狀況成功。`,
         });
       })
-      .catch((errors) => {
-        return res.status(500).json({
-          status: 500,
-          message: "something went wrong when creating power stop.",
-          error: errors?.errors.map((err: any) => err.message),
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `建立停電狀況時發生錯誤 ${err}`,
         });
       });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when creating power stop.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `建立停電狀況時發生錯誤 ${err}`,
     });
   }
 };
 
-export const update_acceptance_check = (req: Request, res: Response) => {
+export const update_acceptance_check = (
+  req: RequestWithUser,
+  res: Response
+) => {
   try {
     const {
       woid,
@@ -819,55 +930,56 @@ export const update_acceptance_check = (req: Request, res: Response) => {
       // factory_date,
       // assignment_date,
     } = req.body;
+    const { user } = req;
 
     AcceptanceCheck.findOne({
       where: { woid: woid },
-    }).then((acceptance_check: any) => {
-      acceptance_check.description = description;
-      acceptance_check.is_photo_before = is_photo_before;
-      acceptance_check.is_photo_during = is_photo_during;
-      acceptance_check.is_photo_after = is_photo_after;
-      acceptance_check.power_switch_date1 = power_switch_date1;
-      acceptance_check.power_switch_date2 = power_switch_date2;
-      acceptance_check.power_switch_date3 = power_switch_date3;
-      acceptance_check.power_switch_date4 = power_switch_date4;
-      acceptance_check.defect_agreement = defect_agreement;
-      acceptance_check.report_type = report_type;
-      acceptance_check.ew06_registration = ew06_registration;
-      acceptance_check.fom17_registration_government_date =
-        fom17_registration_government_date;
-      acceptance_check.fom17_registration_ele_date =
-        fom17_registration_ele_date;
-      acceptance_check.is_warranty = is_warranty;
-      acceptance_check.tracking_date = tracking_date;
-      acceptance_check.tracking_description = tracking_description;
-      acceptance_check.tracking_is_finished = tracking_is_finished;
-      acceptance_check.finished_date = finished_date;
-      acceptance_check.wt_report_number = wt_report_number;
-      acceptance_check.save();
-      WorkOrder.findOne({
-        where: { woid: woid },
-      }).then((work_order: any) => {
-        // work_order.name = work_order_name;
-        // work_order.type = work_order_type;
-        // work_order.po = po;
-        // work_order.acceptance_check_date = acceptance_check_date;
-        // work_order.tobill_date = tobill_date;
-        // work_order.factory_date = factory_date;
-        // work_order.assignment_date = assignment_date;
-        // work_order.save();
-
-        return res.status(200).json({
-          status: 200,
-          message: "Acceptance check updated successfully",
+    })
+      .then((acceptance_check: any) => {
+        acceptance_check.description = description;
+        acceptance_check.is_photo_before = is_photo_before;
+        acceptance_check.is_photo_during = is_photo_during;
+        acceptance_check.is_photo_after = is_photo_after;
+        acceptance_check.power_switch_date1 = power_switch_date1;
+        acceptance_check.power_switch_date2 = power_switch_date2;
+        acceptance_check.power_switch_date3 = power_switch_date3;
+        acceptance_check.power_switch_date4 = power_switch_date4;
+        acceptance_check.defect_agreement = defect_agreement;
+        acceptance_check.report_type = report_type;
+        acceptance_check.ew06_registration = ew06_registration;
+        acceptance_check.fom17_registration_government_date =
+          fom17_registration_government_date;
+        acceptance_check.fom17_registration_ele_date =
+          fom17_registration_ele_date;
+        acceptance_check.is_warranty = is_warranty;
+        acceptance_check.tracking_date = tracking_date;
+        acceptance_check.tracking_description = tracking_description;
+        acceptance_check.tracking_is_finished = tracking_is_finished;
+        acceptance_check.finished_date = finished_date;
+        acceptance_check.wt_report_number = wt_report_number;
+        acceptance_check.update_member = user?.uid;
+        acceptance_check.save();
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `更新驗收資料成功。`,
+        });
+      })
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `更新驗收資料時發生錯誤 ${err}`,
         });
       });
-    });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when updating acceptance check.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `更新驗收資料時發生錯誤 ${err}`,
     });
   }
 };
@@ -887,71 +999,84 @@ export const get_acceptance_check_detail = (req: Request, res: Response) => {
           ],
         },
       ],
-    }).then((acceptance_check) => {
-      if (!acceptance_check) {
-        return res.status(500).json({
-          status: 500,
-          message: "something went wrong when getting acceptance check detail.",
-        });
-      }
-      let data: any = {};
-      data.id = acceptance_check?.dataValues.acid;
-      data.description = acceptance_check?.dataValues.description;
-      data.is_photo_before = acceptance_check?.dataValues.is_photo_before;
-      data.is_photo_during = acceptance_check?.dataValues.is_photo_during;
-      data.is_photo_after = acceptance_check?.dataValues.is_photo_after;
-      data.power_switch_date1 = acceptance_check?.dataValues.power_switch_date1;
-      data.power_switch_date2 = acceptance_check?.dataValues.power_switch_date2;
-      data.power_switch_date3 = acceptance_check?.dataValues.power_switch_date3;
-      data.power_switch_date4 = acceptance_check?.dataValues.power_switch_date4;
-      data.defect_agreement = acceptance_check?.dataValues.defect_agreement;
-      data.report_type = acceptance_check?.dataValues.report_type;
-      data.ew06_registration = acceptance_check?.dataValues.ew06_registration;
-      data.fom17_registration_government_date =
-        acceptance_check?.dataValues.fom17_registration_government_date;
-      data.fom17_registration_ele_date =
-        acceptance_check?.dataValues.fom17_registration_ele_date;
-      data.is_warranty = acceptance_check?.dataValues.is_warranty;
-      data.tracking_date = acceptance_check?.dataValues.tracking_date;
-      data.tracking_description =
-        acceptance_check?.dataValues.tracking_description;
-      data.tracking_is_finished =
-        acceptance_check?.dataValues.tracking_is_finished;
-      data.finished_date = acceptance_check?.dataValues.finished_date;
-      // data.wt_report_number = acceptance_check?.dataValues.wt_report_number;
-      // data.work_order_name =
-      //   acceptance_check?.dataValues.work_order.dataValues.name;
-      // data.work_order_type =
-      //   acceptance_check?.dataValues.work_order.dataValues.type;
-      // data.po = acceptance_check?.dataValues.work_order.dataValues.po;
-      // data.acceptance_check_date =
-      //   acceptance_check?.dataValues.work_order.dataValues.acceptance_check_date;
-      // data.tobill_date =
-      //   acceptance_check?.dataValues.work_order.dataValues.tobill_date;
-      // data.factory_date =
-      //   acceptance_check?.dataValues.work_order.dataValues.factory_date;
-      // data.assignment_date =
-      //   acceptance_check?.dataValues.work_order.dataValues.assignment_date;
-      // data.customer_number =
-      //   acceptance_check?.dataValues.work_order.dataValues.customer.dataValues.customer_number;
-      // data.customer_name =
-      //   acceptance_check?.dataValues.work_order.dataValues.customer.dataValues.short_name;
+    })
+      .then((acceptance_check) => {
+        let data: any = {};
+        data.id = acceptance_check?.dataValues.acid;
+        data.description = acceptance_check?.dataValues.description;
+        data.is_photo_before = acceptance_check?.dataValues.is_photo_before;
+        data.is_photo_during = acceptance_check?.dataValues.is_photo_during;
+        data.is_photo_after = acceptance_check?.dataValues.is_photo_after;
+        data.power_switch_date1 =
+          acceptance_check?.dataValues.power_switch_date1;
+        data.power_switch_date2 =
+          acceptance_check?.dataValues.power_switch_date2;
+        data.power_switch_date3 =
+          acceptance_check?.dataValues.power_switch_date3;
+        data.power_switch_date4 =
+          acceptance_check?.dataValues.power_switch_date4;
+        data.defect_agreement = acceptance_check?.dataValues.defect_agreement;
+        data.report_type = acceptance_check?.dataValues.report_type;
+        data.ew06_registration = acceptance_check?.dataValues.ew06_registration;
+        data.fom17_registration_government_date =
+          acceptance_check?.dataValues.fom17_registration_government_date;
+        data.fom17_registration_ele_date =
+          acceptance_check?.dataValues.fom17_registration_ele_date;
+        data.is_warranty = acceptance_check?.dataValues.is_warranty;
+        data.tracking_date = acceptance_check?.dataValues.tracking_date;
+        data.tracking_description =
+          acceptance_check?.dataValues.tracking_description;
+        data.tracking_is_finished =
+          acceptance_check?.dataValues.tracking_is_finished;
+        data.finished_date = acceptance_check?.dataValues.finished_date;
+        // data.wt_report_number = acceptance_check?.dataValues.wt_report_number;
+        // data.work_order_name =
+        //   acceptance_check?.dataValues.work_order.dataValues.name;
+        // data.work_order_type =
+        //   acceptance_check?.dataValues.work_order.dataValues.type;
+        // data.po = acceptance_check?.dataValues.work_order.dataValues.po;
+        // data.acceptance_check_date =
+        //   acceptance_check?.dataValues.work_order.dataValues.acceptance_check_date;
+        // data.tobill_date =
+        //   acceptance_check?.dataValues.work_order.dataValues.tobill_date;
+        // data.factory_date =
+        //   acceptance_check?.dataValues.work_order.dataValues.factory_date;
+        // data.assignment_date =
+        //   acceptance_check?.dataValues.work_order.dataValues.assignment_date;
+        // data.customer_number =
+        //   acceptance_check?.dataValues.work_order.dataValues.customer.dataValues.customer_number;
+        // data.customer_name =
+        //   acceptance_check?.dataValues.work_order.dataValues.customer.dataValues.short_name;
 
-      return res.status(200).json({
-        status: 200,
-        data: data,
+        return res.json({
+          code: 200,
+          status: "success",
+          data: data,
+          message: `取得驗收資料成功。`,
+        });
+      })
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `取得驗收資料發生錯誤 ${err}`,
+        });
       });
-    });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when getting acceptance check detail.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `取得驗收資料發生錯誤 ${err}`,
     });
   }
 };
 
-export const create_acceptance_check = (req: Request, res: Response) => {
+export const create_acceptance_check = (
+  req: RequestWithUser,
+  res: Response
+) => {
   try {
     const {
       woid,
@@ -975,6 +1100,8 @@ export const create_acceptance_check = (req: Request, res: Response) => {
       finished_date,
       wt_report_number,
     } = req.body;
+    const { user } = req;
+
     AcceptanceCheck.create({
       woid,
       description,
@@ -996,25 +1123,32 @@ export const create_acceptance_check = (req: Request, res: Response) => {
       tracking_is_finished,
       finished_date,
       wt_report_number,
+      update_member: user?.uid,
+      create_member: user?.uid,
+      is_del: false,
     })
       .then(() => {
-        return res.status(200).json({
-          message: "Acceptance check created successfully",
-          status: 200,
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `建立驗收資料成功。`,
         });
       })
-      .catch((errors) => {
-        return res.status(500).json({
-          status: 500,
-          message: "something went wrong when creating acceptance check.",
-          error: errors,
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `建立驗收資料發生錯誤 ${err}`,
         });
       });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when creating acceptance check.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `建立驗收資料發生錯誤 ${err}`,
     });
   }
 };
@@ -1037,66 +1171,72 @@ export const get_factory_detail = (req: Request, res: Response) => {
           model: FactoryOtherForm,
         },
       ],
-    }).then((factory) => {
-      if (!factory) {
-        return res.status(500).json({
-          status: 500,
-          message: "something went wrong when getting factory detail.",
-        });
-      }
-      let data: any = {};
-      data.id = factory?.dataValues.fid;
-      data.description = factory?.dataValues.description;
-      data.tracking_date = factory?.dataValues.tracking_date;
-      data.tracking_description = factory?.dataValues.tracking_description;
-      data.tracking_is_finished = factory?.dataValues.tracking_is_finished;
-      data.finished_date = factory?.dataValues.finished_date;
-      // data.wt_report_number = factory?.dataValues.wt_report_number;
-      // data.work_order_name = factory?.dataValues.work_order.dataValues.name;
-      // data.work_order_type = factory?.dataValues.work_order.dataValues.type;
-      // data.po = factory?.dataValues.work_order.dataValues.po;
-      // data.acceptance_check_date =
-      //   factory?.dataValues.work_order.dataValues.acceptance_check_date;
-      // data.tobill_date = factory?.dataValues.work_order.dataValues.tobill_date;
-      // data.factory_date =
-      //   factory?.dataValues.work_order.dataValues.factory_date;
-      // data.assignment_date =
-      //   factory?.dataValues.work_order.dataValues.assignment_date;
-      // data.customer_number =
-      //   factory?.dataValues.work_order.dataValues.customer.dataValues.customer_number;
-      // data.customer_name =
-      //   factory?.dataValues.work_order.dataValues.customer.dataValues.short_name;
-      data.factory_other_form = factory?.dataValues.factory_other_forms.map(
-        (factory_other_form: any) => {
-          return {
-            id: factory_other_form.dataValues.foid,
-            is_class: factory_other_form.dataValues.is_class,
-            is_bunny_shoe: factory_other_form.dataValues.is_bunny_shoe,
-            is_bunny_suit: factory_other_form.dataValues.is_bunny_suit,
-            is_group_insurance:
-              factory_other_form.dataValues.is_group_insurance,
-            is_label_insurance:
-              factory_other_form.dataValues.is_label_insurance,
-            other_form: factory_other_form.dataValues.other_form,
-          };
-        }
-      );
+    })
+      .then((factory) => {
+        let data: any = {};
+        data.id = factory?.dataValues.fid;
+        data.description = factory?.dataValues.description;
+        data.tracking_date = factory?.dataValues.tracking_date;
+        data.tracking_description = factory?.dataValues.tracking_description;
+        data.tracking_is_finished = factory?.dataValues.tracking_is_finished;
+        data.finished_date = factory?.dataValues.finished_date;
+        // data.wt_report_number = factory?.dataValues.wt_report_number;
+        // data.work_order_name = factory?.dataValues.work_order.dataValues.name;
+        // data.work_order_type = factory?.dataValues.work_order.dataValues.type;
+        // data.po = factory?.dataValues.work_order.dataValues.po;
+        // data.acceptance_check_date =
+        //   factory?.dataValues.work_order.dataValues.acceptance_check_date;
+        // data.tobill_date = factory?.dataValues.work_order.dataValues.tobill_date;
+        // data.factory_date =
+        //   factory?.dataValues.work_order.dataValues.factory_date;
+        // data.assignment_date =
+        //   factory?.dataValues.work_order.dataValues.assignment_date;
+        // data.customer_number =
+        //   factory?.dataValues.work_order.dataValues.customer.dataValues.customer_number;
+        // data.customer_name =
+        //   factory?.dataValues.work_order.dataValues.customer.dataValues.short_name;
+        data.factory_other_form = factory?.dataValues.factory_other_forms.map(
+          (factory_other_form: any) => {
+            return {
+              id: factory_other_form.dataValues.foid,
+              is_class: factory_other_form.dataValues.is_class,
+              is_bunny_shoe: factory_other_form.dataValues.is_bunny_shoe,
+              is_bunny_suit: factory_other_form.dataValues.is_bunny_suit,
+              is_group_insurance:
+                factory_other_form.dataValues.is_group_insurance,
+              is_label_insurance:
+                factory_other_form.dataValues.is_label_insurance,
+              other_form: factory_other_form.dataValues.other_form,
+            };
+          }
+        );
 
-      return res.status(200).json({
-        status: 200,
-        data: data,
+        return res.json({
+          code: 200,
+          status: "success",
+          data: data,
+          message: `取得入廠驗收資料成功。 `,
+        });
+      })
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `取得入廠驗收資料發生錯誤 ${err}`,
+        });
       });
-    });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when getting factory detail.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `取得入廠驗收資料發生錯誤 ${err}`,
     });
   }
 };
 
-export const update_factory = (req: Request, res: Response) => {
+export const update_factory = (req: RequestWithUser, res: Response) => {
   try {
     const {
       woid,
@@ -1115,29 +1255,19 @@ export const update_factory = (req: Request, res: Response) => {
       // assignment_date,
       factory_other_form,
     } = req.body;
+    const { user } = req;
 
     Factorys.findOne({
       where: { woid: woid },
-    }).then((factory: any) => {
-      factory.description = description;
-      factory.tracking_date = tracking_date;
-      factory.tracking_description = tracking_description;
-      factory.tracking_is_finished = tracking_is_finished;
-      factory.finished_date = finished_date;
-      factory.save();
-
-      WorkOrder.findOne({
-        where: { woid: woid },
-      }).then((work_order: any) => {
-        // work_order.name = work_order_name;
-        // work_order.type = work_order_type;
-        // work_order.po = po;
-        // work_order.acceptance_check_date = acceptance_check_date;
-        // work_order.tobill_date = tobill_date;
-        // work_order.factory_date = factory_date;
-        // work_order.assignment_date = assignment_date;
-        // work_order.wt_report_number = wt_report_number;
-        // work_order.save();
+    })
+      .then((factory: any) => {
+        factory.description = description;
+        factory.tracking_date = tracking_date;
+        factory.tracking_description = tracking_description;
+        factory.tracking_is_finished = tracking_is_finished;
+        factory.finished_date = finished_date;
+        factory.update_member = user?.uid;
+        factory.save();
 
         let executions: any = [];
         JSON.parse(factory_other_form).forEach(
@@ -1145,42 +1275,73 @@ export const update_factory = (req: Request, res: Response) => {
             executions.push(
               FactoryOtherForm.findOne({
                 where: { foid: factory_other_form_item.id },
-              }).then((factory_other_form: any) => {
-                factory_other_form.is_class = factory_other_form_item.is_class;
-                factory_other_form.is_bunny_shoe =
-                  factory_other_form_item.is_bunny_shoe;
-                factory_other_form.is_bunny_suit =
-                  factory_other_form_item.is_bunny_suit;
-                factory_other_form.is_group_insurance =
-                  factory_other_form_item.is_group_insurance;
-                factory_other_form.is_label_insurance =
-                  factory_other_form_item.is_label_insurance;
-                factory_other_form.other_form =
-                  factory_other_form_item.other_form;
-                factory_other_form.save();
               })
+                .then((factory_other_form: any) => {
+                  factory_other_form.is_class =
+                    factory_other_form_item.is_class;
+                  factory_other_form.is_bunny_shoe =
+                    factory_other_form_item.is_bunny_shoe;
+                  factory_other_form.is_bunny_suit =
+                    factory_other_form_item.is_bunny_suit;
+                  factory_other_form.is_group_insurance =
+                    factory_other_form_item.is_group_insurance;
+                  factory_other_form.is_label_insurance =
+                    factory_other_form_item.is_label_insurance;
+                  factory_other_form.other_form =
+                    factory_other_form_item.other_form;
+                  factory_other_form.update_member = user?.uid;
+
+                  factory_other_form.save();
+                })
+                .catch((err) => {
+                  return res.json({
+                    code: 500,
+                    status: "error",
+                    data: null,
+                    message: `更新入廠驗收資料發生錯誤 ${err}`,
+                  });
+                })
             );
           }
         );
 
-        Promise.all(executions).then(() => {
-          return res.status(200).json({
-            status: 200,
-            message: "Factory updated successfully",
+        Promise.all(executions)
+          .then(() => {
+            return res.json({
+              code: 200,
+              status: "success",
+              data: null,
+              message: `更新入廠驗收資料成功。`,
+            });
+          })
+          .catch((err) => {
+            return res.json({
+              code: 500,
+              status: "error",
+              data: null,
+              message: `更新入廠驗收資料發生錯誤 ${err}`,
+            });
           });
+      })
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `更新入廠驗收資料發生錯誤 ${err}`,
         });
       });
-    });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when updating factory.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `更新入廠驗收資料發生錯誤 ${err}`,
     });
   }
 };
 
-export const create_factory = (req: Request, res: Response) => {
+export const create_factory = (req: RequestWithUser, res: Response) => {
   try {
     const {
       woid,
@@ -1190,6 +1351,8 @@ export const create_factory = (req: Request, res: Response) => {
       tracking_is_finished,
       finished_date,
     } = req.body;
+    const { user } = req;
+
     Factorys.create({
       woid,
       description,
@@ -1197,30 +1360,40 @@ export const create_factory = (req: Request, res: Response) => {
       tracking_description,
       tracking_is_finished,
       finished_date,
+      update_member: user?.uid,
+      create_member: user?.uid,
+      is_del: false,
     })
       .then(() => {
-        return res.status(200).json({
-          message: "Factory created successfully",
-          status: 200,
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `建立入廠驗收資料成功。`,
         });
       })
-      .catch((errors) => {
-        return res.status(500).json({
-          status: 500,
-          message: "something went wrong when creating factory.",
-          error: errors?.errors.map((err: any) => err.message),
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `建立入廠驗收資料發生錯誤 ${err}`,
         });
       });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when creating factory.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `建立入廠驗收資料發生錯誤 ${err}`,
     });
   }
 };
 
-export const create_factory_other_form = (req: Request, res: Response) => {
+export const create_factory_other_form = (
+  req: RequestWithUser,
+  res: Response
+) => {
   try {
     const {
       fid,
@@ -1231,6 +1404,8 @@ export const create_factory_other_form = (req: Request, res: Response) => {
       is_label_insurance,
       other_form,
     } = req.body;
+    const { user } = req;
+
     FactoryOtherForm.create({
       fid,
       is_class,
@@ -1239,30 +1414,37 @@ export const create_factory_other_form = (req: Request, res: Response) => {
       is_group_insurance,
       is_label_insurance,
       other_form,
+      update_member: user?.uid,
+      create_member: user?.uid,
+      is_del: false,
     })
       .then(() => {
-        return res.status(200).json({
-          message: "Factory other form created successfully",
-          status: 200,
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `建立入廠驗收資料其他表格成功。`,
         });
       })
-      .catch((errors) => {
-        return res.status(500).json({
-          status: 500,
-          message: "something went wrong when creating factory other form.",
-          error: errors?.errors.map((err: any) => err.message),
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `建立入廠驗收資料其他表格發生錯誤 ${err}`,
         });
       });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when creating factory other form.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `建立入廠驗收資料其他表格發生錯誤 ${err}`,
     });
   }
 };
 
-export const update_tobill = (req: Request, res: Response) => {
+export const update_tobill = (req: RequestWithUser, res: Response) => {
   try {
     const {
       woid,
@@ -1281,70 +1463,90 @@ export const update_tobill = (req: Request, res: Response) => {
       // assignment_date,
       tobill_invoice,
     } = req.body;
+    const { user } = req;
+
     ToBill.findOne({
       where: { woid: woid },
-    }).then((tobill: any) => {
-      tobill.description = description;
-      tobill.tracking_date = tracking_date;
-      tobill.tracking_description = tracking_description;
-      tobill.tracking_is_finished = tracking_is_finished;
-      tobill.finished_date = finished_date;
-      tobill.save();
-
-      WorkOrder.findOne({
-        where: { woid: woid },
-      }).then((work_order: any) => {
-        // work_order.name = work_order_name;
-        // work_order.type = work_order_type;
-        // work_order.po = po;
-        // work_order.acceptance_check_date = acceptance_check_date;
-        // work_order.tobill_date = tobill_date;
-        // work_order.factory_date = factory_date;
-        // work_order.assignment_date = assignment_date;
-        // work_order.wt_report_number = wt_report_number;
-        // work_order.save();
+    })
+      .then((tobill: any) => {
+        tobill.description = description;
+        tobill.tracking_date = tracking_date;
+        tobill.tracking_description = tracking_description;
+        tobill.tracking_is_finished = tracking_is_finished;
+        tobill.finished_date = finished_date;
+        tobill.update_member = user?.uid;
+        tobill.save();
 
         let executions: any = [];
         JSON.parse(tobill_invoice).forEach((tobill_invoice_item: any) => {
           executions.push(
             ToBillInvoice.findOne({
               where: { tbiid: tobill_invoice_item.id },
-            }).then((tobill_invoice: any) => {
-              tobill_invoice.percentage = tobill_invoice_item.percentage;
-              tobill_invoice.date = tobill_invoice_item.date;
-              tobill_invoice.amount = tobill_invoice_item.amount;
-              tobill_invoice.sent_date = tobill_invoice_item.sent_date;
-              tobill_invoice.note = tobill_invoice_item.note;
-              tobill_invoice.numbers_invoices =
-                tobill_invoice_item.numbers_invoices;
-              tobill_invoice.numbers_reports =
-                tobill_invoice_item.numbers_reports;
-              tobill_invoice.numbers_general_forms =
-                tobill_invoice_item.numbers_general_forms;
-              tobill_invoice.numbers_inqualify_agreements =
-                tobill_invoice_item.numbers_inqualify_agreements;
-              tobill_invoice.invoice_number =
-                tobill_invoice_item.invoice_number;
-              tobill_invoice.numbers_envelope =
-                tobill_invoice_item.numbers_envelope;
-              tobill_invoice.save();
             })
+              .then((tobill_invoice: any) => {
+                tobill_invoice.percentage = tobill_invoice_item.percentage;
+                tobill_invoice.date = tobill_invoice_item.date;
+                tobill_invoice.amount = tobill_invoice_item.amount;
+                tobill_invoice.sent_date = tobill_invoice_item.sent_date;
+                tobill_invoice.note = tobill_invoice_item.note;
+                tobill_invoice.numbers_invoices =
+                  tobill_invoice_item.numbers_invoices;
+                tobill_invoice.numbers_reports =
+                  tobill_invoice_item.numbers_reports;
+                tobill_invoice.numbers_general_forms =
+                  tobill_invoice_item.numbers_general_forms;
+                tobill_invoice.numbers_inqualify_agreements =
+                  tobill_invoice_item.numbers_inqualify_agreements;
+                tobill_invoice.invoice_number =
+                  tobill_invoice_item.invoice_number;
+                tobill_invoice.numbers_envelope =
+                  tobill_invoice_item.numbers_envelope;
+                tobill_invoice.update_member = user?.uid;
+                tobill_invoice.save();
+              })
+              .catch((err) => {
+                return res.json({
+                  code: 500,
+                  status: "error",
+                  data: null,
+                  message: `更新請款資料發生錯誤 ${err}`,
+                });
+              })
           );
         });
 
-        Promise.all(executions).then(() => {
-          return res.status(200).json({
-            status: 200,
-            message: "Tobill updated successfully",
+        Promise.all(executions)
+          .then(() => {
+            return res.json({
+              code: 200,
+              status: "success",
+              data: null,
+              message: `更新請款資料成功。`,
+            });
+          })
+          .catch((err) => {
+            return res.json({
+              code: 500,
+              status: "error",
+              data: null,
+              message: `更新請款資料發生錯誤 ${err}`,
+            });
           });
+      })
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `更新請款資料發生錯誤 ${err}`,
         });
       });
-    });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when updating to bill.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `更新請款資料發生錯誤 ${err}`,
     });
   }
 };
@@ -1367,73 +1569,77 @@ export const get_tobill_detail = (req: Request, res: Response) => {
           model: ToBillInvoice,
         },
       ],
-    }).then((tobill) => {
-      if (!tobill) {
-        return res.status(500).json({
-          status: 500,
-          message: "something went wrong when getting to bill detail.",
+    })
+      .then((tobill) => {
+        let data: any = {};
+        data.id = tobill?.dataValues.tbid;
+        data.description = tobill?.dataValues.description;
+        data.tracking_date = tobill?.dataValues.tracking_date;
+        data.tracking_description = tobill?.dataValues.tracking_description;
+        data.tracking_is_finished = tobill?.dataValues.tracking_is_finished;
+        data.finished_date = tobill?.dataValues.finished_date;
+
+        // data.wt_report_number = tobill?.dataValues.wt_report_number;
+        // data.work_order_name = tobill?.dataValues.work_order.dataValues.name;
+        // data.work_order_type = tobill?.dataValues.work_order.dataValues.type;
+        // data.po = tobill?.dataValues.work_order.dataValues.po;
+        // data.acceptance_check_date =
+        //   tobill?.dataValues.work_order.dataValues.acceptance_check_date;
+        // data.tobill_date = tobill?.dataValues.work_order.dataValues.tobill_date;
+        // data.factory_date = tobill?.dataValues.work_order.dataValues.factory_date;
+        // data.assignment_date =
+        //   tobill?.dataValues.work_order.dataValues.assignment_date;
+        // data.customer_number =
+        //   tobill?.dataValues.work_order.dataValues.customer.dataValues.customer_number;
+        // data.customer_name =
+        //   tobill?.dataValues.work_order.dataValues.customer.dataValues.short_name;
+        data.tobill_invoice = tobill?.dataValues.tobill_invoces.map(
+          (tobill_invoice: any) => {
+            return {
+              id: tobill_invoice.dataValues.tbiid,
+              percentage: tobill_invoice.dataValues.percentage,
+              date: tobill_invoice.dataValues.date,
+              amount: tobill_invoice.dataValues.amount,
+              sent_date: tobill_invoice.dataValues.sent_date,
+              note: tobill_invoice.dataValues.note,
+              numbers_invoices: tobill_invoice.dataValues.numbers_invoices,
+              numbers_reports: tobill_invoice.dataValues.numbers_reports,
+              numbers_general_forms:
+                tobill_invoice.dataValues.numbers_general_forms,
+              numbers_inqualify_agreements:
+                tobill_invoice.dataValues.numbers_inqualify_agreements,
+              numbers_envelope: tobill_invoice.dataValues.numbers_envelope,
+              invoice_number: tobill_invoice.dataValues.invoice_number,
+            };
+          }
+        );
+
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `取得請款資料成功。`,
         });
-      }
-      console.log(tobill?.dataValues);
-
-      let data: any = {};
-      data.id = tobill?.dataValues.tbid;
-      data.description = tobill?.dataValues.description;
-      data.tracking_date = tobill?.dataValues.tracking_date;
-      data.tracking_description = tobill?.dataValues.tracking_description;
-      data.tracking_is_finished = tobill?.dataValues.tracking_is_finished;
-      data.finished_date = tobill?.dataValues.finished_date;
-
-      // data.wt_report_number = tobill?.dataValues.wt_report_number;
-      // data.work_order_name = tobill?.dataValues.work_order.dataValues.name;
-      // data.work_order_type = tobill?.dataValues.work_order.dataValues.type;
-      // data.po = tobill?.dataValues.work_order.dataValues.po;
-      // data.acceptance_check_date =
-      //   tobill?.dataValues.work_order.dataValues.acceptance_check_date;
-      // data.tobill_date = tobill?.dataValues.work_order.dataValues.tobill_date;
-      // data.factory_date = tobill?.dataValues.work_order.dataValues.factory_date;
-      // data.assignment_date =
-      //   tobill?.dataValues.work_order.dataValues.assignment_date;
-      // data.customer_number =
-      //   tobill?.dataValues.work_order.dataValues.customer.dataValues.customer_number;
-      // data.customer_name =
-      //   tobill?.dataValues.work_order.dataValues.customer.dataValues.short_name;
-      data.tobill_invoice = tobill?.dataValues.tobill_invoces.map(
-        (tobill_invoice: any) => {
-          return {
-            id: tobill_invoice.dataValues.tbiid,
-            percentage: tobill_invoice.dataValues.percentage,
-            date: tobill_invoice.dataValues.date,
-            amount: tobill_invoice.dataValues.amount,
-            sent_date: tobill_invoice.dataValues.sent_date,
-            note: tobill_invoice.dataValues.note,
-            numbers_invoices: tobill_invoice.dataValues.numbers_invoices,
-            numbers_reports: tobill_invoice.dataValues.numbers_reports,
-            numbers_general_forms:
-              tobill_invoice.dataValues.numbers_general_forms,
-            numbers_inqualify_agreements:
-              tobill_invoice.dataValues.numbers_inqualify_agreements,
-            numbers_envelope: tobill_invoice.dataValues.numbers_envelope,
-            invoice_number: tobill_invoice.dataValues.invoice_number,
-          };
-        }
-      );
-
-      return res.status(200).json({
-        status: 200,
-        data: data,
+      })
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `取得請款資料發生錯誤 ${err}`,
+        });
       });
-    });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when getting to bill detail.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `取得請款資料發生錯誤 ${err}`,
     });
   }
 };
 
-export const create_tobill = (req: Request, res: Response) => {
+export const create_tobill = (req: RequestWithUser, res: Response) => {
   try {
     const {
       woid,
@@ -1443,6 +1649,8 @@ export const create_tobill = (req: Request, res: Response) => {
       tracking_is_finished,
       finished_date,
     } = req.body;
+    const { user } = req;
+
     ToBill.create({
       woid,
       description,
@@ -1450,30 +1658,37 @@ export const create_tobill = (req: Request, res: Response) => {
       tracking_description,
       tracking_is_finished,
       finished_date,
+      update_member: user?.uid,
+      create_member: user?.uid,
+      is_del: false,
     })
       .then(() => {
-        return res.status(200).json({
-          message: "To bill created successfully",
-          status: 200,
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `建立請款資料成功。`,
         });
       })
-      .catch((errors) => {
-        return res.status(500).json({
-          status: 500,
-          message: "something went wrong when creating to bill.",
-          error: errors?.errors.map((err: any) => err.message),
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `建立請款資料發生錯誤 ${err}`,
         });
       });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when creating to bill.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `建立請款資料發生錯誤 ${err}`,
     });
   }
 };
 
-export const create_tobill_invoice = (req: Request, res: Response) => {
+export const create_tobill_invoice = (req: RequestWithUser, res: Response) => {
   try {
     const {
       tbid,
@@ -1489,6 +1704,8 @@ export const create_tobill_invoice = (req: Request, res: Response) => {
       numbers_envelope,
       invoice_number,
     } = req.body;
+    const { user } = req;
+
     ToBillInvoice.create({
       tbid,
       percentage,
@@ -1502,25 +1719,71 @@ export const create_tobill_invoice = (req: Request, res: Response) => {
       numbers_inqualify_agreements,
       numbers_envelope,
       invoice_number,
+      update_member: user?.uid,
+      create_member: user?.uid,
+      is_del: false,
     })
       .then(() => {
-        return res.status(200).json({
-          message: "To bill invoice created successfully",
-          status: 200,
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `建立發票記錄成功。`,
         });
       })
-      .catch((errors) => {
-        return res.status(500).json({
-          status: 500,
-          message: "something went wrong when creating to bill invoice.",
-          error: errors?.errors.map((err: any) => err.message),
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `建立發票記錄資料發生錯誤 ${err}`,
         });
       });
   } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: "something went wrong when creating to bill invoice.",
-      error: err,
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `建立發票記錄資料發生錯誤 ${err}`,
+    });
+  }
+};
+
+export const delete__work_order = (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  const { woid } = req.params;
+  const { user } = req;
+
+  try {
+    WorkOrder.findOne({ where: { woid: woid } })
+      .then((work_order: any) => {
+        work_order.is_del = true;
+        work_order.update_member = user?.uid;
+        work_order.save();
+        return res.json({
+          code: 200,
+          status: "success",
+          data: null,
+          message: `刪除工單成功。`,
+        });
+      })
+      .catch((err) => {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `刪除工單時發生問題。 ${err}`,
+        });
+      });
+  } catch (err) {
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `刪除工單時發生問題。 ${err}`,
     });
   }
 };
