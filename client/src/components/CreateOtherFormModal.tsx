@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
@@ -7,6 +7,7 @@ import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import CircularProgress from "@mui/material/CircularProgress";
+import { enqueueSnackbar } from "notistack";
 
 import { createOtherForm } from "../api/works";
 
@@ -39,14 +40,38 @@ const CreateOtherForm = ({
     };
     setLoading(true);
     try {
-      await createOtherForm(data);
+      const res = await createOtherForm(data);
+      enqueueSnackbar(res.message, {
+        variant: res.status,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
       handleClose();
-    } catch (error) {
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
-      console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (!open) {
+      setIsClass(0);
+      setIsGroupInsurance(0);
+      setIsLabelInsurance(0);
+      setIsBunnyShoe(0);
+      setIsBunnySuit(0);
+      setOtherForm("");
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -75,7 +100,7 @@ const CreateOtherForm = ({
           </Box>
         ) : (
           <>
-            <Typography variant="h5">建立停電狀況</Typography>
+            <Typography variant="h5">建立其他表格</Typography>
             <Box
               sx={{
                 display: "flex",
@@ -172,14 +197,7 @@ const CreateOtherForm = ({
                 取消
               </Button>
               <Button
-                disabled={
-                  !isClass ||
-                  !isGroupInsurance ||
-                  !isLabelInsurance ||
-                  !isBunnyShoe ||
-                  !isBunnySuit ||
-                  !otherForm
-                }
+                disabled={!otherForm}
                 variant="contained"
                 onClick={handleCreateOtherForm}>
                 建立

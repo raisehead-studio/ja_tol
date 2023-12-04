@@ -7,6 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { SnackbarProvider } from "notistack";
 
 import Layout from "./components/StatusLayout";
 
@@ -36,9 +37,11 @@ root.render(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <BrowserRouter>
-          <Layout>
-            <App />
-          </Layout>
+          <SnackbarProvider maxSnack={1}>
+            <Layout>
+              <App />
+            </Layout>
+          </SnackbarProvider>
         </BrowserRouter>
       </LocalizationProvider>
     </ThemeProvider>

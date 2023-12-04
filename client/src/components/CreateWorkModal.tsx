@@ -9,6 +9,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import MenuItem from "@mui/material/MenuItem";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
+import { enqueueSnackbar } from "notistack";
 
 import { createWork } from "../api/works";
 import { getCustomers } from "../api/customers";
@@ -66,10 +67,16 @@ const CreateWork = ({
     };
     setLoading(true);
     try {
-      const response = await createWork(data);
-      if (response.code === 200) {
-        handleClose();
-      }
+      const res = await createWork(data);
+      enqueueSnackbar(res.message, {
+        variant: res.status,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
+      handleClose();
+      setLoading(false);
     } catch (error) {
       setLoading(false);
       console.log(error);
@@ -82,14 +89,34 @@ const CreateWork = ({
         const customers = await getCustomers();
         setCustomersOptions(customers);
         setLoading(false);
-      } catch (error) {
-        console.log(error);
+      } catch (error: any) {
+        enqueueSnackbar(error.message, {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
         setLoading(false);
       }
     };
 
     handleGetCustomers();
   }, []);
+
+  useEffect(() => {
+    if (!open) {
+      setCid("");
+      setName("");
+      setOrderNumber("");
+      setType("");
+      setPo("");
+      setAcceptanceCheckDate(new Date().getTime());
+      setToBillDate(new Date().getTime());
+      setFactoryDate(new Date().getTime());
+      setAssignmentDate(new Date().getTime());
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={handleClose}>

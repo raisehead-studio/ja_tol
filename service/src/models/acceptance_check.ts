@@ -39,6 +39,8 @@ const AcceptanceCheck = seq.define("acceptance_check", {
   ew06_registration: Sequelize.STRING,
   fom17_registration_government_date: Sequelize.DATE,
   fom17_registration_ele_date: Sequelize.DATE,
+  is_inspection_report_retrieved: Sequelize.BOOLEAN,
+  is_inspection_report_retrieved_date: Sequelize.DATE,
   is_warranty: {
     type: Sequelize.BOOLEAN,
     allowNull: false,

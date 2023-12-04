@@ -7,6 +7,7 @@ import TextField from "@mui/material/TextField";
 import Modal from "@mui/material/Modal";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
+import { enqueueSnackbar } from "notistack";
 
 import { ServiceDetailResponseDataType } from "../types/services";
 import { getServiceDetail } from "../api/services";
@@ -32,8 +33,14 @@ const ViewServiceContent = ({
         const customers = await getServiceDetail(id);
         setData(customers);
         setLoading(false);
-      } catch (error) {
-        console.log(error);
+      } catch (error: any) {
+        enqueueSnackbar(error.message, {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
         setLoading(false);
       }
     };
@@ -88,6 +95,12 @@ const ViewServiceContent = ({
     };
     setData(updateDate);
   };
+
+  useEffect(() => {
+    if (!open) {
+      setData(null);
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={handleClose}>

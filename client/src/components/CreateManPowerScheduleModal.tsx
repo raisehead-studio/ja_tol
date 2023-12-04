@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
@@ -9,6 +9,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
 import CircularProgress from "@mui/material/CircularProgress";
+import { enqueueSnackbar } from "notistack";
 
 import { createManPowerSchedule } from "../api/works";
 
@@ -43,14 +44,36 @@ const CreateManPowerSchedule = ({
     };
     setLoading(true);
     try {
-      await createManPowerSchedule(data);
+      const res = await createManPowerSchedule(data);
+      enqueueSnackbar(res.message, {
+        variant: res.status,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
       handleClose();
-    } catch (error) {
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
-      console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (!open) {
+      setStartedTime(new Date().getTime());
+      setFinishedTime(new Date().getTime());
+      setActualDate(new Date().getTime());
+      setNote("");
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={handleClose}>

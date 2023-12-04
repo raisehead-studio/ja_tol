@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
@@ -8,6 +8,7 @@ import TextField from "@mui/material/TextField";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import CircularProgress from "@mui/material/CircularProgress";
+import { enqueueSnackbar } from "notistack";
 
 import { createInvoicebill } from "../api/works";
 
@@ -51,14 +52,43 @@ const CreateTobillInvoice = ({
     };
     try {
       setLoading(true);
-      await createInvoicebill(data);
+      const res = await createInvoicebill(data);
+      enqueueSnackbar(res.message, {
+        variant: res.status,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
       handleClose();
-    } catch (error) {
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
-      console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (!open) {
+      setInvoiceNumber("");
+      setDate(new Date().getTime());
+      setAmount(0);
+      setPercentage("0%");
+      setNote("");
+      setSentDate(new Date());
+      setNumbersInvoices(0);
+      setNumbersEnvelope(0);
+      setNumbersReports(0);
+      setNumbersGeneralForms(0);
+      setNumbersInqualifyAgreements(0);
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={handleClose}>

@@ -64,7 +64,7 @@ export const create_customer = (
       } else {
         return res.json({
           code: 401,
-          status: "failed",
+          status: "warning",
           data: null,
           message: `顧客重複。`,
         });

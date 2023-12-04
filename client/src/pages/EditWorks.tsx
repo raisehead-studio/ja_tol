@@ -18,6 +18,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import CircularProgress from "@mui/material/CircularProgress";
 import dayjs from "dayjs";
+import { enqueueSnackbar } from "notistack";
 
 import {
   getWorksDetail,
@@ -76,12 +77,29 @@ const EditWorks = () => {
     update_list.push(handleUpdateFactory());
     update_list.push(handleUpdateTobill());
     update_list.push(handleUpdateCheck());
-    Promise.all(update_list).then(() => {
-      if (woid) {
-        handleGetWorks(woid);
-      }
-      setLoading(false);
-    });
+    Promise.all(update_list)
+      .then(() => {
+        if (woid) {
+          enqueueSnackbar("更新工單成功。", {
+            variant: "success",
+            anchorOrigin: {
+              vertical: "top",
+              horizontal: "center",
+            },
+          });
+          handleGetWorks(woid);
+        }
+        setLoading(false);
+      })
+      .catch((error: any) => {
+        enqueueSnackbar(error.message, {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
+      });
   };
 
   const handleUpdateWorkDetail = async () => {
@@ -98,8 +116,14 @@ const EditWorks = () => {
       };
 
       await updateWorkDetail(updateData);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
     }
   };
@@ -131,8 +155,14 @@ const EditWorks = () => {
       };
 
       await updateWorksDetailAssignment(updateDta);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
     }
   };
@@ -151,8 +181,14 @@ const EditWorks = () => {
       };
 
       await updateWorksDetailFactory(updateDta);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
     }
   };
@@ -182,11 +218,20 @@ const EditWorks = () => {
         tracking_is_finished: check?.tracking_is_finished,
         finished_date: check?.finished_date,
         wt_report_number: check?.wt_report_number,
+        is_inspection_report_retrieved: check?.is_inspection_report_retrieved,
+        is_inspection_report_retrieved_date:
+          check?.is_inspection_report_retrieved_date,
       };
 
       await updateWorksDetailAcceptanceCheck(updateDta);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
     }
   };
@@ -205,8 +250,14 @@ const EditWorks = () => {
       };
 
       await updateWorksDetailTobill(updateDta);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
     }
   };
@@ -963,6 +1014,7 @@ const EditWorksAssignments = ({
           onChange={(newValue) =>
             handleUpdateDate(newValue, "tracking_finished_date")
           }
+          disabled={!data?.tracking_is_finished}
         />
       </Box>
       <CreateManPowerSchedule
@@ -1221,7 +1273,7 @@ const EditWorksFactory = ({
         }}>
         <TextField
           label="入廠-追蹤事項說明"
-          value={data?.tracking_description || false}
+          value={data?.tracking_description}
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
@@ -1262,6 +1314,7 @@ const EditWorksFactory = ({
           onChange={(newValue) =>
             handleUpdateDate(newValue, "tracking_finished_date")
           }
+          disabled={!data?.tracking_is_finished}
         />
       </Box>
       <CreateOtherForm
@@ -1488,6 +1541,40 @@ const EditWorksAcceptanceCheck = ({
           gap: "1rem",
         }}>
         <TextField
+          label="取回檢驗總表2張"
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          value={data?.is_inspection_report_retrieved ? 0 : 1}
+          name="is_inspection_report_retrieved"
+          onChange={handleUpdateSelection}
+          select>
+          <MenuItem value={0}>取回</MenuItem>
+          <MenuItem value={1}>尚未取回</MenuItem>
+        </TextField>
+        <DatePicker
+          format="YYYY/MM/DD"
+          label="檢驗總表取回日期"
+          value={dayjs(data?.is_inspection_report_retrieved_date) || ""}
+          slotProps={{
+            textField: {
+              fullWidth: true,
+              size: "small",
+            },
+          }}
+          onChange={(newValue) =>
+            handleUpdateDate(newValue, "is_inspection_report_retrieved_date")
+          }
+        />
+      </Box>
+      <Divider />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "stretch",
+          gap: "1rem",
+        }}>
+        <TextField
           label="申報-良好 / 不良"
           size="small"
           InputLabelProps={{ shrink: true }}
@@ -1570,7 +1657,7 @@ const EditWorksAcceptanceCheck = ({
         }}>
         <TextField
           label="驗收-追蹤事項說明"
-          value={data?.tracking_description || false}
+          value={data?.tracking_description}
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
@@ -1608,6 +1695,7 @@ const EditWorksAcceptanceCheck = ({
               size: "small",
             },
           }}
+          disabled={!data?.tracking_is_finished}
           onChange={(newValue) =>
             handleUpdateDate(newValue, "tracking_finished_date")
           }
@@ -1910,7 +1998,7 @@ const EditWorksTobill = ({
         }}>
         <TextField
           label="請款-追蹤事項說明"
-          value={data?.tracking_description || false}
+          value={data?.tracking_description}
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
@@ -1948,6 +2036,7 @@ const EditWorksTobill = ({
               size: "small",
             },
           }}
+          disabled={!data?.tracking_is_finished}
           onChange={(newValue) =>
             handleUpdateDate(newValue, "tracking_finished_date")
           }

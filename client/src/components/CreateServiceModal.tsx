@@ -9,6 +9,7 @@ import MenuItem from "@mui/material/MenuItem";
 import CircularProgress from "@mui/material/CircularProgress";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
+import { enqueueSnackbar } from "notistack";
 
 import { createServices } from "../api/services";
 import { getCustomers } from "../api/customers";
@@ -45,14 +46,25 @@ const CreateService = ({
 
     try {
       setLoading(true);
-      const response = await createServices(data);
-      if (response.code === 200) {
-        setLoading(false);
-        handleClose();
-      }
-    } catch (error) {
+      const res = await createServices(data);
+      enqueueSnackbar(res.message, {
+        variant: res.status,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
-      console.log(error);
+      handleClose();
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
+      setLoading(false);
     }
   };
 
@@ -82,6 +94,17 @@ const CreateService = ({
       setCid(selectedCid);
     }
   }, [selectedCid]);
+
+  useEffect(() => {
+    if (!open) {
+      setCid("");
+      setTitle("");
+      setStatus("");
+      setType("");
+      setNotifyDate("");
+      setContent("");
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={handleClose}>

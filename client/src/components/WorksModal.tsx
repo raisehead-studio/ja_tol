@@ -16,6 +16,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import CircularProgress from "@mui/material/CircularProgress";
 import dayjs from "dayjs";
+import { enqueueSnackbar } from "notistack";
 
 import {
   getWorksDetail,
@@ -70,8 +71,14 @@ const WorksModal = ({
         const work = await getWorksDetail(woid);
         setData(work);
         setLoading(false);
-      } catch (error) {
-        console.log(error);
+      } catch (error: any) {
+        enqueueSnackbar(error.message, {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
         setLoading(false);
       }
     };
@@ -79,6 +86,13 @@ const WorksModal = ({
       handleGetWorks(woid);
     }
   }, [woid]);
+
+  useEffect(() => {
+    if (!open) {
+      setData(null);
+      setTab(0);
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -753,7 +767,7 @@ const EditWorksFactory = ({
         }}>
         <TextField
           label="入廠-追蹤事項說明"
-          value={data?.tracking_description || false}
+          value={data?.tracking_description}
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
@@ -1026,7 +1040,7 @@ const EditWorksAcceptanceCheck = ({
         }}>
         <TextField
           label="驗收-追蹤事項說明"
-          value={data?.tracking_description || false}
+          value={data?.tracking_description}
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
@@ -1261,7 +1275,7 @@ const EditWorksTobill = ({
         }}>
         <TextField
           label="請款-追蹤事項說明"
-          value={data?.tracking_description || false}
+          value={data?.tracking_description}
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth

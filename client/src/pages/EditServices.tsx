@@ -11,6 +11,7 @@ import UpdateIcon from "@mui/icons-material/Update";
 import MenuItem from "@mui/material/MenuItem";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
+import { enqueueSnackbar } from "notistack";
 
 import { ServiceDetailResponseDataType } from "../types/services";
 import { getServiceDetail, handleUpdateServiceDetail } from "../api/services";
@@ -30,8 +31,14 @@ const EditCustomers = () => {
         const customers = await getServiceDetail(id);
         setData(customers);
         setLoading(false);
-      } catch (error) {
-        console.log(error);
+      } catch (error: any) {
+        enqueueSnackbar(error.message, {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
         setLoading(false);
       }
     };
@@ -110,10 +117,23 @@ const EditCustomers = () => {
     if (!data) return;
     setLoading(true);
     try {
-      await handleUpdateServiceDetail(param);
+      const res = await handleUpdateServiceDetail(param);
+      enqueueSnackbar(res.message, {
+        variant: res.status,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
     }
   };

@@ -6,6 +6,7 @@ import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import CircularProgress from "@mui/material/CircularProgress";
 import dayjs from "dayjs";
+import { enqueueSnackbar } from "notistack";
 
 import { getCustomer } from "../api/customers";
 
@@ -30,8 +31,14 @@ const ViewCustomers = ({
         const customers = await getCustomer(id);
         setData(customers);
         setLoading(false);
-      } catch (error) {
-        console.log(error);
+      } catch (error: any) {
+        enqueueSnackbar(error.message, {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
         setLoading(false);
       }
     };
@@ -39,6 +46,13 @@ const ViewCustomers = ({
       handleGetCustomers(cid);
     }
   }, [cid]);
+
+  useEffect(() => {
+    if (!open) {
+      setData(null);
+      setLoading(true);
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={handleClose}>

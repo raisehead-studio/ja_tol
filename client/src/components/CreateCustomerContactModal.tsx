@@ -1,9 +1,10 @@
-import { useState, Fragment } from "react";
+import { useState, Fragment, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import CircularProgress from "@mui/material/CircularProgress";
+import { enqueueSnackbar } from "notistack";
 
 import { createCustomerContact } from "../api/customers";
 
@@ -42,14 +43,39 @@ const CreateCustomerContact = ({
     };
     try {
       setLoading(true);
-      await createCustomerContact(data);
+      const res = await createCustomerContact(data);
+      enqueueSnackbar(res.message, {
+        variant: res.status,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
       handleClose();
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!open) {
+      setType("");
+      setName("");
+      setTitle("");
+      setPhone("");
+      setJobDescription("");
+      setNote("");
+      setEmail("");
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={handleClose}>

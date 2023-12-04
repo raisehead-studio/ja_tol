@@ -12,6 +12,7 @@ import Switch from "@mui/material/Switch";
 import CircularProgress from "@mui/material/CircularProgress";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
+import { enqueueSnackbar } from "notistack";
 
 import { getUser, updateUser } from "../api/users";
 
@@ -62,10 +63,24 @@ const CreateCustomer = () => {
         role,
         ...permission,
       };
-      await updateUser(data);
+      const res = await updateUser(data);
+      enqueueSnackbar(res.message, {
+        variant: res.status,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
+      setLoading(false);
     }
   };
 
@@ -87,8 +102,14 @@ const CreateCustomer = () => {
         setRole(user.role);
         setPermission(user.permission);
         setLoading(false);
-      } catch (error) {
-        console.log(error);
+      } catch (error: any) {
+        enqueueSnackbar(error.message, {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
         setLoading(false);
       }
     };

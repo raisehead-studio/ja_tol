@@ -16,7 +16,7 @@ export const login = async (
         if (!user) {
           return res.json({
             code: 401,
-            status: "failed",
+            status: "warning",
             data: null,
             message: "帳號錯誤，請重新輸入。",
           });
@@ -24,7 +24,7 @@ export const login = async (
           return res.json({
             code: 401,
             data: null,
-            status: "failed",
+            status: "warning",
             message: "密碼錯誤，請重新輸入。",
           });
         } else {

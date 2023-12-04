@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
@@ -7,6 +7,7 @@ import Modal from "@mui/material/Modal";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
+import { enqueueSnackbar } from "notistack";
 
 import { createUser } from "../api/users";
 
@@ -32,14 +33,36 @@ const CreateCustomer = ({
     };
     try {
       setLoading(true);
-      await createUser(data);
+      const res = await createUser(data);
+      enqueueSnackbar(res.message, {
+        variant: res.status,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
       handleClose();
-    } catch (error) {
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
-      console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (!open) {
+      setMemberName("");
+      setAccount("");
+      setPw("");
+      setRole("");
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={handleClose}>

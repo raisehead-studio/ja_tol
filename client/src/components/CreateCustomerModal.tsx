@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import CircularProgress from "@mui/material/CircularProgress";
+import { enqueueSnackbar } from "notistack";
 
 import { createCustomer } from "../api/customers";
 
@@ -33,13 +34,36 @@ const CreateCustomer = ({
     };
     setLoading(true);
     try {
-      await createCustomer(data);
+      const res = await createCustomer(data);
+      enqueueSnackbar(res.message, {
+        variant: res.status,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
       handleClose();
-    } catch (error) {
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!open) {
+      setCustomerNumber("");
+      setName("");
+      setShortName("");
+      setEleNumber("");
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={handleClose}>

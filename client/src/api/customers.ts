@@ -18,7 +18,7 @@ export const createCustomer = async (data: CustomerRequestDataType) => {
   return request("/api/v1/customers/create_customer", {
     method: "POST",
     body: data,
-  });
+  }).then((res) => res);
 };
 
 export const updateCustomer = async (data: UpdateCustomerRequestDataType) => {

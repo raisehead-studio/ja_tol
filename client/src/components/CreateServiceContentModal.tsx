@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
@@ -6,6 +6,7 @@ import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
+import { enqueueSnackbar } from "notistack";
 
 import { createServiceContent } from "../api/services";
 
@@ -29,21 +30,32 @@ const CreateServiceContent = ({
     };
     try {
       setLoading(true);
-      const service_content = await createServiceContent(payload);
-      if (service_content.status === 200) {
-        setData("");
-        setLoading(false);
-        handleClose();
-      } else {
-        console.log(service_content);
-        setLoading(false);
-      }
-    } catch (error) {
+      const res = await createServiceContent(payload);
+      enqueueSnackbar(res.message, {
+        variant: res.status,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
-
-      console.log(error);
+      handleClose();
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
     }
   };
+
+  useEffect(() => {
+    if (!open) {
+      setData("");
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={handleClose}>

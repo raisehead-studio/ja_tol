@@ -10,6 +10,7 @@ import Button from "@mui/material/Button";
 import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import CircularProgress from "@mui/material/CircularProgress";
+import { enqueueSnackbar } from "notistack";
 
 import login_photo from "../assets/images/login.jpg";
 
@@ -26,14 +27,36 @@ const Login = () => {
     setLoading(true);
     try {
       const res = await login(account, pw);
+
       if (res.status === "success") {
         localStorage.setItem("token", res.data.accessToken);
         localStorage.setItem("rf_token", res.data.refreshToken);
+        enqueueSnackbar(res.message, {
+          variant: res.status,
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
         navigate("/");
       } else {
+        enqueueSnackbar(res.message, {
+          variant: res.status,
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
         setLoading(false);
       }
-    } catch (error) {
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
     }
   };

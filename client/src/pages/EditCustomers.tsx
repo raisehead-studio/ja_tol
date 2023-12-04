@@ -9,6 +9,7 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import UpdateIcon from "@mui/icons-material/Update";
 import CircularProgress from "@mui/material/CircularProgress";
 import dayjs from "dayjs";
+import { enqueueSnackbar } from "notistack";
 
 import { getCustomer, updateCustomer } from "../api/customers";
 
@@ -62,10 +63,23 @@ const EditCustomers = () => {
       customer_services: JSON.stringify(data.customer_services),
     };
     try {
-      await updateCustomer(updateData);
+      const res = await updateCustomer(updateData);
+      enqueueSnackbar(res.message, {
+        variant: res.status,
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "error",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
       setLoading(false);
     }
   };
@@ -130,8 +144,14 @@ const EditCustomers = () => {
         const customers = await getCustomer(id);
         setData(customers);
         setLoading(false);
-      } catch (error) {
-        console.log(error);
+      } catch (error: any) {
+        enqueueSnackbar(error.message, {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
         setLoading(false);
       }
     };

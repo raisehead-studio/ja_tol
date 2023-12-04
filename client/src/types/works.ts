@@ -9,6 +9,11 @@ export type WorkResponseDataType = {
   update_member?: string;
   status?: string;
   notify_date?: string;
+  manufacturing_date?: Date;
+  is_inspection_report_retrieved_date?: Date;
+  started_time?: Date;
+  item_data?: string;
+  is_assign_manpower: boolean;
 };
 
 export type WorkRequestDataType = {
@@ -219,6 +224,8 @@ export type AcceptanceCheckDataType = {
   tracking_is_finished: boolean;
   finished_date: Date;
   wt_report_number?: string;
+  is_inspection_report_retrieved?: boolean;
+  is_inspection_report_retrieved_date?: Date;
 };
 
 export type AcceptanceCheckRequestDataType = {

@@ -275,6 +275,41 @@ export const get_work_orders_list = async (
         {
           model: AcceptanceCheck,
         },
+        {
+          model: Assignments,
+          attributes: [
+            "manufacturing_date",
+            "aid",
+            "is_assign_manpower",
+            "tracking_date",
+            "tracking_is_finished",
+            "tracking_description",
+          ],
+          include: [
+            {
+              model: ManpowerSchedule,
+              attributes: ["started_time"],
+              order: [["started_time", "ASC"]],
+              limit: 1,
+            },
+          ],
+        },
+        {
+          model: ToBill,
+          attributes: [
+            "tracking_date",
+            "tracking_is_finished",
+            "tracking_description",
+          ],
+        },
+        {
+          model: Factorys,
+          attributes: [
+            "tracking_date",
+            "tracking_is_finished",
+            "tracking_description",
+          ],
+        },
       ],
     })
       .then((work_orders) => {
@@ -282,6 +317,35 @@ export const get_work_orders_list = async (
           code: 200,
           status: "success",
           data: work_orders.map((worker_order) => {
+            let item_data;
+
+            if (
+              !worker_order.dataValues.assignment.dataValues
+                .tracking_is_finished
+            ) {
+              item_data = "112WT0268派工";
+            } else {
+              if (
+                !worker_order.dataValues.factory.dataValues.tracking_is_finished
+              ) {
+                item_data = "112WT0187入廠";
+              } else {
+                if (
+                  !worker_order.dataValues.acceptance_check.dataValues
+                    .tracking_is_finished
+                ) {
+                  item_data = "112WT0268驗收";
+                } else {
+                  if (
+                    !worker_order.dataValues.tobill.dataValues
+                      .tracking_is_finished
+                  ) {
+                    item_data = "112WT0551請款";
+                  }
+                }
+              }
+            }
+
             return {
               id: worker_order.dataValues.woid,
               work_order_name: worker_order.dataValues.name,
@@ -297,7 +361,21 @@ export const get_work_orders_list = async (
                 (user: any) =>
                   worker_order.dataValues.update_member === user.uid
               )[0].name,
+              manufacturing_date:
+                worker_order.dataValues.assignment.manufacturing_date,
+              started_time:
+                worker_order.dataValues.assignment.manpower_schedules.length > 0
+                  ? worker_order.dataValues.assignment.manpower_schedules[0]
+                      .dataValues.started_time
+                  : null,
               status: [""],
+              is_inspection_report_retrieved_date:
+                worker_order.dataValues.acceptance_check.dataValues
+                  .is_inspection_report_retrieved_date,
+              item_data: item_data || null,
+              is_assign_manpower:
+                worker_order.dataValues.assignment.dataValues
+                  .is_assign_manpower,
             };
           }),
           message: "取得工單資料列表成功",
@@ -638,8 +716,6 @@ export const update_assignment = (
               where: { msid: manpower_schedule_item.id },
             })
               .then((manpower_schedule: any) => {
-                console.log("manpower_schedule", manpower_schedule);
-
                 manpower_schedule.note = manpower_schedule_item.note;
                 // manpower_schedule.schedule_date =
                 //   manpower_schedule_item.schedule_date;
@@ -812,15 +888,12 @@ export const create_manpower_schedule = (
       actual_date,
     } = req.body;
     const { user } = req;
-
-    let started_time_t = new Date(started_time).getTime();
-    let finished_time_t = new Date(finished_time).getTime();
     ManpowerSchedule.create({
       aid,
       note,
       // schedule_date,
-      started_time_t,
-      finished_time_t,
+      started_time,
+      finished_time,
       actual_date,
       update_member: user?.uid,
       create_member: user?.uid,
@@ -929,6 +1002,8 @@ export const update_acceptance_check = (
       // tobill_date,
       // factory_date,
       // assignment_date,
+      is_inspection_report_retrieved_date,
+      is_inspection_report_retrieved,
     } = req.body;
     const { user } = req;
 
@@ -958,6 +1033,10 @@ export const update_acceptance_check = (
         acceptance_check.finished_date = finished_date;
         acceptance_check.wt_report_number = wt_report_number;
         acceptance_check.update_member = user?.uid;
+        acceptance_check.is_inspection_report_retrieved_date =
+          is_inspection_report_retrieved_date;
+        acceptance_check.is_inspection_report_retrieved =
+          is_inspection_report_retrieved;
         acceptance_check.save();
         return res.json({
           code: 200,
@@ -1029,6 +1108,10 @@ export const get_acceptance_check_detail = (req: Request, res: Response) => {
         data.tracking_is_finished =
           acceptance_check?.dataValues.tracking_is_finished;
         data.finished_date = acceptance_check?.dataValues.finished_date;
+        data.is_inspection_report_retrieved =
+          acceptance_check?.dataValues.is_inspection_report_retrieved;
+        data.is_inspection_report_retrieved_date =
+          acceptance_check?.dataValues.is_inspection_report_retrieved_date;
         // data.wt_report_number = acceptance_check?.dataValues.wt_report_number;
         // data.work_order_name =
         //   acceptance_check?.dataValues.work_order.dataValues.name;

@@ -223,14 +223,29 @@ const Works = () => {
                   <TableCell align="left">{work.customer_name}</TableCell>
                   <TableCell align="left">{work.order_number}</TableCell>
                   <TableCell align="left">{work.work_order_name}</TableCell>
+                  <TableCell align="left">
+                    {dayjs(work.manufacturing_date).format("YYYY/MM/DD")}
+                  </TableCell>
+                  <TableCell align="left">
+                    {work.started_time
+                      ? dayjs(work.started_time).format("YYYY/MM/DD")
+                      : "暫無資料"}
+                  </TableCell>
+                  <TableCell align="left">
+                    {work.is_assign_manpower ? "已完成" : "未完成"}
+                  </TableCell>
                   <TableCell align="left">--</TableCell>
                   <TableCell align="left">--</TableCell>
+                  <TableCell align="left">
+                    {" "}
+                    {work.is_inspection_report_retrieved_date
+                      ? dayjs(work.is_inspection_report_retrieved_date).format(
+                          "YYYY/MM/DD"
+                        )
+                      : "暫無資料"}
+                  </TableCell>
                   <TableCell align="left">--</TableCell>
-                  <TableCell align="left">--</TableCell>
-                  <TableCell align="left">--</TableCell>
-                  <TableCell align="left">--</TableCell>
-                  <TableCell align="left">--</TableCell>
-                  <TableCell align="left">--</TableCell>
+                  <TableCell align="left">{work.item_data}</TableCell>
                   <TableCell align="left">
                     {dayjs(work.notify_date).format("YYYY/MM/DD")}
                   </TableCell>

@@ -32,7 +32,7 @@ export const verify = async (
       return res.json({
         code: 401,
         data: null,
-        status: "failed",
+        status: "warning",
         message: "Unauthorized",
       });
     } else {
@@ -47,7 +47,7 @@ export const verify = async (
           return res.json({
             code: 401,
             data: null,
-            status: "failed",
+            status: "warning",
             message: "Unauthorized",
           });
         }
@@ -59,7 +59,7 @@ export const verify = async (
     return res.json({
       code: 401,
       data: null,
-      status: "failed",
+      status: "warning",
       message: "Unauthorized",
     });
   }
