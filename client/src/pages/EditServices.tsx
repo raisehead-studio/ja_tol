@@ -278,38 +278,42 @@ const EditCustomers = () => {
               />
             </Box>
           </Box>
-          {data?.customer_service_contents.map((customer_service, index) => (
-            <Box
-              key={customer_service.id}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1rem",
-              }}>
+          {data?.customer_service_contents
+            .sort((a: any, b: any) => b.create_date - a.create_date)
+            .map((customer_service) => (
               <Box
+                key={customer_service.id}
                 sx={{
                   display: "flex",
+                  flexDirection: "column",
                   gap: "1rem",
                 }}>
-                <TextField
-                  label={`客服紀錄內容-${
-                    customer_service.create_date
-                      ? dayjs(customer_service.create_date).format("MM/DD")
-                      : dayjs().format("MM/DD")
-                  }`}
-                  name="content"
-                  value={customer_service.content}
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                  fullWidth
-                  type="textarea"
-                  multiline={true}
-                  rows={4}
-                  onChange={(e) => handleUpdateContent(e, customer_service.id)}
-                />
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: "1rem",
+                  }}>
+                  <TextField
+                    label={`客服紀錄內容-${
+                      customer_service.create_date
+                        ? dayjs(customer_service.create_date).format("MM/DD")
+                        : dayjs().format("MM/DD")
+                    }`}
+                    name="content"
+                    value={customer_service.content}
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                    type="textarea"
+                    multiline={true}
+                    rows={4}
+                    onChange={(e) =>
+                      handleUpdateContent(e, customer_service.id)
+                    }
+                  />
+                </Box>
               </Box>
-            </Box>
-          ))}
+            ))}
           <Box>
             <Button startIcon={<AddIcon />} onClick={handleOpenModal}>
               新增客服紀錄內容

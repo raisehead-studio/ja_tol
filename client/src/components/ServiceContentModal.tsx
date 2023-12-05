@@ -317,8 +317,9 @@ const ViewServiceContent = ({
                     />
                   </Box>
                 </Box>
-                {data?.customer_service_contents.map(
-                  (customer_service, index) => (
+                {data?.customer_service_contents
+                  .sort((a: any, b: any) => b.create_date - a.create_date)
+                  .map((customer_service) => (
                     <Box
                       key={customer_service.id}
                       sx={{
@@ -362,8 +363,7 @@ const ViewServiceContent = ({
                         />
                       </Box>
                     </Box>
-                  )
-                )}
+                  ))}
               </>
             )}
             <CreateServiceContentModal
