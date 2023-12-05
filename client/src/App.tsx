@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -155,13 +155,15 @@ function App() {
                 width: "120px",
                 pr: "1rem",
               }}>
-              <img
-                style={{
-                  width: "100%",
-                }}
-                src={logo}
-                alt="logo"
-              />
+              <Link to="/">
+                <img
+                  style={{
+                    width: "100%",
+                  }}
+                  src={logo}
+                  alt="logo"
+                />
+              </Link>
             </Box>
 
             {menu}
