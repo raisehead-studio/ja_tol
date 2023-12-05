@@ -16,6 +16,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import Swal from "sweetalert2";
 
 import { useLayoutContext } from "../components/LayoutContext";
 import { UsersType } from "../types/users";
@@ -37,18 +38,29 @@ const Admin = () => {
   const handleCloseCreateMember = () => setOpenCreateMemberModal(false);
 
   const handleDeleteUser = async (uid: string | undefined) => {
-    try {
-      setLoading(true);
-      const response = await deleteUser(uid);
-      if (response.code === 200) {
-        const users = await getUsers();
-        setData(users);
-        setLoading(false);
+    Swal.fire({
+      title: "系統訊息",
+      text: "您確定要刪除此筆資料?(資料刪除後將無法復原)",
+      showCancelButton: true,
+      cancelButtonText: "取消",
+      confirmButtonText: "確定",
+      confirmButtonColor: "#3f50b5",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          setLoading(true);
+          const response = await deleteUser(uid);
+          if (response.code === 200) {
+            const users = await getUsers();
+            setData(users);
+            setLoading(false);
+          }
+        } catch (error) {
+          console.log(error);
+          setLoading(false);
+        }
       }
-    } catch (error) {
-      console.log(error);
-      setLoading(false);
-    }
+    });
   };
 
   useEffect(() => {

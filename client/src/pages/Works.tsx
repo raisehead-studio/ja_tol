@@ -17,6 +17,7 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import dayjs from "dayjs";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Swal from "sweetalert2";
 
 import { getWorks, deleteWorks } from "../api/works";
 import { WorkResponseDataType } from "../types/works";
@@ -88,18 +89,29 @@ const Works = () => {
   };
 
   const handleDeleteWork = async (id: string) => {
-    try {
-      setLoading(true);
-      const response = await deleteWorks(id);
-      if (response.code === 200) {
-        const works = await getWorks();
-        setData(works);
-        setLoading(false);
+    Swal.fire({
+      title: "系統訊息",
+      text: "您確定要刪除此筆資料?(資料刪除後將無法復原)",
+      showCancelButton: true,
+      cancelButtonText: "取消",
+      confirmButtonText: "確定",
+      confirmButtonColor: "#3f50b5",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          setLoading(true);
+          const response = await deleteWorks(id);
+          if (response.code === 200) {
+            const works = await getWorks();
+            setData(works);
+            setLoading(false);
+          }
+        } catch (error) {
+          console.log(error);
+          setLoading(false);
+        }
       }
-    } catch (error) {
-      console.log(error);
-      setLoading(false);
-    }
+    });
   };
 
   return (
