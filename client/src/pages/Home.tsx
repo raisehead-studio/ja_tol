@@ -14,6 +14,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import EditIcon from "@mui/icons-material/Edit";
+import TableSortLabel from "@mui/material/TableSortLabel";
 import dayjs from "dayjs";
 
 import { getTrackings } from "../api/tracking";
@@ -30,6 +31,7 @@ const Home = () => {
   const [openCustomerModal, setOpenCustomerModal] = useState<boolean>(false);
   const [woid, setWoid] = useState<string>("");
   const [cid, setCid] = useState<string>("");
+  const [sort, setSort] = useState<"desc" | "asc" | undefined>("asc");
   const { user } = useLayoutContext();
   const navigate = useNavigate();
 
@@ -46,6 +48,26 @@ const Home = () => {
     };
     handleGetTrackings();
   }, []);
+
+  useEffect(() => {
+    if (sort === "desc") {
+      setData(
+        data.sort(
+          (a, b) => dayjs(a.update_date).unix() - dayjs(b.update_date).unix()
+        )
+      );
+    } else {
+      setData(
+        data.sort(
+          (a, b) => dayjs(b.update_date).unix() - dayjs(a.update_date).unix()
+        )
+      );
+    }
+  }, [data, sort]);
+
+  const handleToggleSort = () => {
+    setSort(sort === "asc" ? "desc" : "asc");
+  };
 
   const handleOpenWorkModal = (id: string) => {
     setWoid(id);
@@ -111,19 +133,36 @@ const Home = () => {
                 <TableCell
                   align="left"
                   sx={{
-                    width: "5%",
+                    width: "2.5%",
                   }}></TableCell>
                 <TableCell
                   align="left"
                   sx={{
-                    width: "5%",
+                    width: "2.5%",
                   }}></TableCell>
-                <TableCell align="left">追蹤日期</TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    width: "8%",
+                  }}>
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={handleToggleSort}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    追蹤日期
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell align="left">客戶編號</TableCell>
                 <TableCell align="left">客戶簡稱</TableCell>
                 <TableCell align="left">工單編號/客服紀錄</TableCell>
                 <TableCell align="left">工程名稱/客服紀錄</TableCell>
-                <TableCell align="left">追蹤內說明（作業紀錄）</TableCell>
+                <TableCell align="left">客服紀錄主旨（作業紀錄）</TableCell>
                 <TableCell align="left">最新編輯者</TableCell>
                 <TableCell align="left">最新編輯時間</TableCell>
               </TableRow>

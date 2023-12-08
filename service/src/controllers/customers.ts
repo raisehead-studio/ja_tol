@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { Request, Response, NextFunction } from "express";
+import e, { Request, Response, NextFunction } from "express";
 
 import Customer from "../models/customer";
 import CustomerContact from "../models/customer_contact";
@@ -39,6 +39,13 @@ export const create_customer = (
           short_name: short_name,
           customer_number: customer_number,
           ele_number: ele_number,
+          factory_description:
+            "進廠施工務必申請作業,,提供文件：勞保/團保/入廠證件/3H勞安證/動火申請/",
+          acceptance_check_description:
+            "前/中/後  之施工相片／產品保固一年／／／",
+          tobill_description: "發票務必要註明P.O.編號",
+          invoice_description:
+            "本客戶固定都會議價10%以上,,所以報價者注意要先提高報價金額／本客戶有不良記錄,欠公司20萬,,請款刁難／本客戶為優質客戶不議價,,要求品質...等等",
           update_member: user?.uid,
           create_member: user?.uid,
           is_del: false,
@@ -146,12 +153,14 @@ export const get_customers_detail = (
         data.short_name = result.dataValues.short_name;
         data.customer_number = result.dataValues.customer_number;
         data.ele_number = result.dataValues.ele_number;
+
         data.acceptance_check_description =
           result.dataValues.acceptance_check_description;
         data.factory_description = result.dataValues.factory_description;
         data.assignment_description = result.dataValues.assignment_description;
         data.tobill_description = result.dataValues.tobill_description;
         data.invoice_description = result.dataValues.invoice_description;
+        data.other_description = result.dataValues.other_description;
         data.customer_contacts = !Array.isArray(
           result.dataValues.customer_contacts
         )
@@ -171,6 +180,13 @@ export const get_customers_detail = (
         data.ele_place_name = result.dataValues.ele_place?.name || "";
         data.ele_place_address = result.dataValues.ele_place?.address || "";
         data.ele_place_owner = result.dataValues.ele_place?.owner || "";
+        data.registration_member_number =
+          result.dataValues.ele_place?.registration_member_number || "";
+        data.ele_engineer = result.dataValues.ele_place?.ele_engineer || "";
+        data.taiwan_power_company =
+          result.dataValues.ele_place?.taiwan_power_company || "";
+        data.government = result.dataValues.ele_place?.government || "";
+        data.test = result.dataValues.ele_place?.test || "";
         data.customer_services = !Array.isArray(
           result.dataValues.customer_services
         )
@@ -206,7 +222,17 @@ export const create_ele_place = (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, address, owner, cid } = req.body;
+  const {
+    name,
+    address,
+    owner,
+    cid,
+    registration_member_number,
+    ele_engineer,
+    taiwan_power_company,
+    government,
+    test,
+  } = req.body;
   const { user } = req;
 
   ElePlace.findOne({
@@ -219,6 +245,11 @@ export const create_ele_place = (
           address: address,
           owner: owner,
           cid: cid,
+          registration_member_number: registration_member_number,
+          ele_engineer: ele_engineer,
+          taiwan_power_company: taiwan_power_company,
+          government: government,
+          test: test,
           update_member: user?.uid,
           create_member: user?.uid,
           is_del: false,
@@ -319,11 +350,17 @@ export const update_customer_detail = (
     assignment_description,
     tobill_description,
     invoice_description,
+    other_description,
     customer_contacts,
     customer_services,
     ele_place_name,
     ele_place_address,
     ele_place_owner,
+    registration_member_number,
+    ele_engineer,
+    taiwan_power_company,
+    government,
+    test,
   } = req.body;
   const { user } = req;
 
@@ -340,6 +377,8 @@ export const update_customer_detail = (
         customer.tobill_description = tobill_description;
         customer.invoice_description = invoice_description;
         customer.update_member = user?.uid;
+        customer.other_description = other_description;
+
         customer.save();
         let executions: any = [];
         JSON.parse(customer_contacts).forEach((contact: any) => {
@@ -399,6 +438,11 @@ export const update_customer_detail = (
               address: ele_place_address,
               owner: ele_place_owner,
               cid: cid,
+              registration_member_number: registration_member_number,
+              ele_engineer: ele_engineer,
+              taiwan_power_company: taiwan_power_company,
+              government: government,
+              test: test,
               update_member: user?.uid,
               create_member: user?.uid,
               is_del: false,
@@ -431,11 +475,18 @@ export const update_customer_detail = (
                 });
               });
           } else {
+            console.log(registration_member_number);
+
             ele_place.name = ele_place_name || "";
             ele_place.address = ele_place_address || "";
             ele_place.owner = ele_place_owner || "";
             ele_place.cid = cid;
             ele_place.update_member = user?.uid;
+            ele_place.registration_member_number = registration_member_number;
+            ele_place.ele_engineer = ele_engineer;
+            ele_place.taiwan_power_company = taiwan_power_company;
+            ele_place.government = government;
+            ele_place.test = test;
             ele_place.save();
             Promise.all(executions)
               .then(() => {

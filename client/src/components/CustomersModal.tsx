@@ -112,7 +112,7 @@ const ViewCustomers = ({
                   disabled
                 />
                 <TextField
-                  label="客戶名稱"
+                  label="客戶名稱(經濟部公司登記)"
                   name="name"
                   value={data?.name || " - - "}
                   size="small"
@@ -161,7 +161,7 @@ const ViewCustomers = ({
                   disabled
                 />
                 <TextField
-                  label="客戶編號"
+                  label="客戶編號(統一編號)"
                   name="customer_number"
                   value={data?.customer_number || " - - "}
                   size="small"
@@ -239,7 +239,107 @@ const ViewCustomers = ({
                   disabled
                 />
               </Box>
-              <Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: "1rem",
+                }}>
+                <TextField
+                  label="電器技術人員登記執照編號"
+                  name="registration_member_number"
+                  value={data?.registration_member_number || " - - "}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
+                    fieldset: {
+                      borderColor: "rgba(0,0,0,0) !important",
+                    },
+                    ".MuiInputBase-input": {
+                      color: "#000 !important",
+                      WebkitTextFillColor: "#000 !important",
+                    },
+                  }}
+                  disabled
+                />
+                <TextField
+                  label="專任電器技術人員"
+                  name="ele_engineer"
+                  value={data?.ele_engineer || " - - "}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
+                    fieldset: {
+                      borderColor: "rgba(0,0,0,0) !important",
+                    },
+                    ".MuiInputBase-input": {
+                      color: "#000 !important",
+                      WebkitTextFillColor: "#000 !important",
+                    },
+                  }}
+                  disabled
+                />
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: "1rem",
+                }}>
+                <TextField
+                  label="台電單位"
+                  name="taiwan_power_company"
+                  value={data?.taiwan_power_company || " - - "}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
+                    fieldset: {
+                      borderColor: "rgba(0,0,0,0) !important",
+                    },
+                    ".MuiInputBase-input": {
+                      color: "#000 !important",
+                      WebkitTextFillColor: "#000 !important",
+                    },
+                  }}
+                  disabled
+                />
+                <TextField
+                  label="政府單位"
+                  name="government"
+                  value={data?.government || " - - "}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
+                    fieldset: {
+                      borderColor: "rgba(0,0,0,0) !important",
+                    },
+                    ".MuiInputBase-input": {
+                      color: "#000 !important",
+                      WebkitTextFillColor: "#000 !important",
+                    },
+                  }}
+                  disabled
+                />
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: "1rem",
+                }}>
                 <TextField
                   label="用電場所地址"
                   name="ele_place_address"
@@ -261,8 +361,137 @@ const ViewCustomers = ({
                   }}
                   disabled
                 />
+                <TextField
+                  label="檢測"
+                  name="test"
+                  value={data?.test || " - - "}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
+                    fieldset: {
+                      borderColor: "rgba(0,0,0,0) !important",
+                    },
+                    ".MuiInputBase-input": {
+                      color: "#000 !important",
+                      WebkitTextFillColor: "#000 !important",
+                    },
+                  }}
+                  disabled
+                />
               </Box>
             </Box>
+
+            <Divider />
+            <Typography variant="h5">備註</Typography>
+            <TextField
+              label={`入廠說明`}
+              name="factory_description"
+              value={data?.factory_description || " - - "}
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              sx={{
+                ".MuiInputLabel-root": {
+                  color: "rgba(0,0,0,9)",
+                },
+                fieldset: {
+                  borderColor: "rgba(0,0,0,0) !important",
+                },
+                ".MuiInputBase-input": {
+                  color: "#000 !important",
+                  WebkitTextFillColor: "#000 !important",
+                },
+              }}
+              disabled
+            />
+            <TextField
+              label={`驗收說明`}
+              name="acceptance_check_description"
+              value={data?.acceptance_check_description || " - - "}
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              sx={{
+                ".MuiInputLabel-root": {
+                  color: "rgba(0,0,0,9)",
+                },
+                fieldset: {
+                  borderColor: "rgba(0,0,0,0) !important",
+                },
+                ".MuiInputBase-input": {
+                  color: "#000 !important",
+                  WebkitTextFillColor: "#000 !important",
+                },
+              }}
+              disabled
+            />
+            <TextField
+              label={`請款說明`}
+              name="tobill_description"
+              value={data?.tobill_description || " - - "}
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              sx={{
+                ".MuiInputLabel-root": {
+                  color: "rgba(0,0,0,9)",
+                },
+                fieldset: {
+                  borderColor: "rgba(0,0,0,0) !important",
+                },
+                ".MuiInputBase-input": {
+                  color: "#000 !important",
+                  WebkitTextFillColor: "#000 !important",
+                },
+              }}
+              disabled
+            />
+            <TextField
+              label={`報價說明`}
+              name="invoice_description"
+              value={data?.invoice_description || " - - "}
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              sx={{
+                ".MuiInputLabel-root": {
+                  color: "rgba(0,0,0,9)",
+                },
+                fieldset: {
+                  borderColor: "rgba(0,0,0,0) !important",
+                },
+                ".MuiInputBase-input": {
+                  color: "#000 !important",
+                  WebkitTextFillColor: "#000 !important",
+                },
+              }}
+              disabled
+            />
+            <TextField
+              label={`其他說明`}
+              name="other_description"
+              value={data?.other_description || " - - "}
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              sx={{
+                ".MuiInputLabel-root": {
+                  color: "rgba(0,0,0,9)",
+                },
+                fieldset: {
+                  borderColor: "rgba(0,0,0,0) !important",
+                },
+                ".MuiInputBase-input": {
+                  color: "#000 !important",
+                  WebkitTextFillColor: "#000 !important",
+                },
+              }}
+              disabled
+            />
             <Divider />
             <Typography variant="h5">客戶聯絡人</Typography>
             {data?.customer_contacts.map((contact, index) => (
@@ -394,92 +623,6 @@ const ViewCustomers = ({
                 <Divider />
               </Box>
             ))}
-            <Divider />
-            <Typography variant="h5">備註</Typography>
-            <TextField
-              label={`聯絡人備註`}
-              name="factory_description"
-              value={data?.factory_description || " - - "}
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              sx={{
-                ".MuiInputLabel-root": {
-                  color: "rgba(0,0,0,9)",
-                },
-                fieldset: {
-                  borderColor: "rgba(0,0,0,0) !important",
-                },
-                ".MuiInputBase-input": {
-                  color: "#000 !important",
-                  WebkitTextFillColor: "#000 !important",
-                },
-              }}
-              disabled
-            />
-            <TextField
-              label={`聯絡人備註`}
-              name="factory_description"
-              value={data?.factory_description || " - - "}
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              sx={{
-                ".MuiInputLabel-root": {
-                  color: "rgba(0,0,0,9)",
-                },
-                fieldset: {
-                  borderColor: "rgba(0,0,0,0) !important",
-                },
-                ".MuiInputBase-input": {
-                  color: "#000 !important",
-                  WebkitTextFillColor: "#000 !important",
-                },
-              }}
-              disabled
-            />
-            <TextField
-              label={`聯絡人備註`}
-              name="factory_description"
-              value={data?.factory_description || " - - "}
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              sx={{
-                ".MuiInputLabel-root": {
-                  color: "rgba(0,0,0,9)",
-                },
-                fieldset: {
-                  borderColor: "rgba(0,0,0,0) !important",
-                },
-                ".MuiInputBase-input": {
-                  color: "#000 !important",
-                  WebkitTextFillColor: "#000 !important",
-                },
-              }}
-              disabled
-            />
-            <TextField
-              label={`聯絡人備註`}
-              name="factory_description"
-              value={data?.factory_description || " - - "}
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              sx={{
-                ".MuiInputLabel-root": {
-                  color: "rgba(0,0,0,9)",
-                },
-                fieldset: {
-                  borderColor: "rgba(0,0,0,0) !important",
-                },
-                ".MuiInputBase-input": {
-                  color: "#000 !important",
-                  WebkitTextFillColor: "#000 !important",
-                },
-              }}
-              disabled
-            />
             <Divider />
             {data?.customer_services.map((service, index) => (
               <Box key={service.id}>

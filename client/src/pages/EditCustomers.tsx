@@ -61,6 +61,12 @@ const EditCustomers = () => {
       ele_place_owner: data.ele_place_owner,
       customer_contacts: JSON.stringify(data.customer_contacts),
       customer_services: JSON.stringify(data.customer_services),
+      registration_member_number: data.registration_member_number,
+      ele_engineer: data.ele_engineer,
+      taiwan_power_company: data.taiwan_power_company,
+      government: data.government,
+      test: data.test,
+      other_description: data.other_description,
     };
     try {
       const res = await updateCustomer(updateData);
@@ -204,7 +210,7 @@ const EditCustomers = () => {
                 disabled
               />
               <TextField
-                label="客戶名稱"
+                label="客戶名稱(經濟部公司登記)"
                 name="name"
                 value={data?.name || ""}
                 size="small"
@@ -231,7 +237,7 @@ const EditCustomers = () => {
                 disabled
               />
               <TextField
-                label="客戶編號"
+                label="客戶編號(統一編號)"
                 name="customer_number"
                 value={data?.customer_number || ""}
                 size="small"
@@ -274,7 +280,59 @@ const EditCustomers = () => {
                 onChange={handleUpdateFiled}
               />
             </Box>
-            <Box>
+            <Box
+              sx={{
+                display: "flex",
+                gap: "1rem",
+              }}>
+              <TextField
+                label="電器技術人員登記執照編號"
+                name="registration_member_number"
+                value={data?.registration_member_number || ""}
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                onChange={handleUpdateFiled}
+              />
+              <TextField
+                label="專任電器技術人員"
+                name="ele_engineer"
+                value={data?.ele_engineer || ""}
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                onChange={handleUpdateFiled}
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                gap: "1rem",
+              }}>
+              <TextField
+                label="台電單位"
+                name="taiwan_power_company"
+                value={data?.taiwan_power_company || ""}
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                onChange={handleUpdateFiled}
+              />
+              <TextField
+                label="政府單位"
+                name="government"
+                value={data?.government || ""}
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                onChange={handleUpdateFiled}
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                gap: "1rem",
+              }}>
               <TextField
                 label="用電場所地址"
                 name="ele_place_address"
@@ -284,7 +342,96 @@ const EditCustomers = () => {
                 fullWidth
                 onChange={handleUpdateFiled}
               />
+              <TextField
+                label="檢測"
+                name="test"
+                value={data?.test || ""}
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                onChange={handleUpdateFiled}
+                sx={{
+                  width: "30%",
+                }}
+              />
             </Box>
+          </Box>
+
+          <Divider />
+          <Typography variant="h5">備註</Typography>
+          <TextField
+            label={`入廠說明`}
+            name="factory_description"
+            value={data?.factory_description || ""}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+            onChange={handleUpdateFiled}
+          />
+          <TextField
+            label={`驗收說明`}
+            name="acceptance_check_description"
+            value={data?.acceptance_check_description || ""}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+            onChange={handleUpdateFiled}
+          />
+          <TextField
+            label={`請款說明`}
+            name="tobill_description"
+            value={data?.tobill_description || ""}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+            onChange={handleUpdateFiled}
+          />
+          <TextField
+            label={`報價說明`}
+            name="invoice_description"
+            value={data?.invoice_description || ""}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+            onChange={handleUpdateFiled}
+          />
+          <TextField
+            label={`其他說明`}
+            name="other_description"
+            value={data?.other_description || ""}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+            onChange={handleUpdateFiled}
+          />
+          <Divider />
+          {data?.customer_services.map((service, index) => (
+            <Box key={service.id}>
+              <Box>
+                <Typography
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "0.9rem",
+                  }}>
+                  客服紀錄-{index + 1}：
+                </Typography>
+              </Box>
+              <Button
+                sx={{
+                  px: "0px",
+                }}
+                onClick={() => {
+                  navigate(`/services/${service.id}`);
+                }}>
+                {service.title} || 提醒日期：
+                {dayjs(service.notify_date).format("YYYY/MM/DD")}
+              </Button>
+            </Box>
+          ))}
+          <Box>
+            <Button startIcon={<AddIcon />} onClick={handleOpenCreateService}>
+              新增客服紀錄
+            </Button>
           </Box>
           <Divider />
           <Typography variant="h5">客戶聯絡人</Typography>
@@ -375,80 +522,13 @@ const EditCustomers = () => {
             </Button>
           </Box>
           <Divider />
-          <Typography variant="h5">備註</Typography>
-          <TextField
-            label={`入廠說明`}
-            name="factory_description"
-            value={data?.factory_description || ""}
-            size="small"
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-            onChange={handleUpdateFiled}
-          />
-          <TextField
-            label={`驗收說明`}
-            name="acceptance_check_description"
-            value={data?.acceptance_check_description || ""}
-            size="small"
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-            onChange={handleUpdateFiled}
-          />
-          <TextField
-            label={`請款說明`}
-            name="tobill_description"
-            value={data?.tobill_description || ""}
-            size="small"
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-            onChange={handleUpdateFiled}
-          />
-          <TextField
-            label={`報價說明`}
-            name="invoice_description"
-            value={data?.invoice_description || ""}
-            size="small"
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-            onChange={handleUpdateFiled}
-          />
-          <Divider />
-          {data?.customer_services.map((service, index) => (
-            <Box key={service.id}>
-              <Box>
-                <Typography
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "0.9rem",
-                  }}>
-                  客服紀錄-{index + 1}：
-                </Typography>
-              </Box>
-              <Button
-                sx={{
-                  px: "0px",
-                }}
-                onClick={() => {
-                  navigate(`/services/${service.id}`);
-                }}>
-                {service.title} || 提醒日期：
-                {dayjs(service.notify_date).format("YYYY/MM/DD")}
-              </Button>
-            </Box>
-          ))}
-          <Box>
-            <Button startIcon={<AddIcon />} onClick={handleOpenCreateService}>
-              新增客服紀錄
-            </Button>
-          </Box>
-          <Divider />
           <Box
             sx={{
               position: "sticky",
               bottom: "1rem",
               right: "1rem",
               display: "flex",
-              justifyContent: "flex-end",
+              justifyContent: "center",
               gap: "1rem",
             }}>
             <Button

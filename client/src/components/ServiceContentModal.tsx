@@ -299,7 +299,7 @@ const ViewServiceContent = ({
                       gap: "1rem",
                     }}>
                     <TextField
-                      label="客服紀錄標題"
+                      label="客服紀錄主旨"
                       name="name"
                       value={data?.title || ""}
                       size="small"
@@ -333,7 +333,7 @@ const ViewServiceContent = ({
                           gap: "1rem",
                         }}>
                         <TextField
-                          label={`客服紀錄內容-${
+                          label={`客服紀錄說明-${
                             customer_service.create_date
                               ? dayjs(customer_service.create_date).format(
                                   "MM/DD"

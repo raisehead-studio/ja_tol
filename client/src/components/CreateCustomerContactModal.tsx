@@ -111,7 +111,7 @@ const CreateCustomerContact = ({
                 gap: "1rem",
               }}>
               <TextField
-                label="聯絡窗口類型"
+                label="聯絡部門"
                 name="type"
                 value={type}
                 size="small"
@@ -122,7 +122,7 @@ const CreateCustomerContact = ({
                 }}
               />
               <TextField
-                label={`聯絡人`}
+                label={`聯絡人/職稱/分機#`}
                 name="name"
                 value={name}
                 size="small"
@@ -166,7 +166,7 @@ const CreateCustomerContact = ({
                 display: "flex",
                 gap: "1rem",
               }}>
-              <TextField
+              {/* <TextField
                 label="聯絡人職稱"
                 name="title"
                 value={title}
@@ -176,7 +176,7 @@ const CreateCustomerContact = ({
                 onChange={(e) => {
                   setTitle(e.target.value);
                 }}
-              />
+              /> */}
               <TextField
                 label={`聯絡電子信箱`}
                 name="email"

@@ -17,6 +17,7 @@ const Customer = seq.define("customer", {
   assignment_description: Sequelize.STRING,
   tobill_description: Sequelize.STRING,
   invoice_description: Sequelize.STRING,
+  other_description: Sequelize.STRING,
   is_del: Sequelize.BOOLEAN,
   update_member: Sequelize.STRING,
   create_member: Sequelize.STRING,

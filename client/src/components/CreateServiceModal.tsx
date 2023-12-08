@@ -27,7 +27,7 @@ const CreateService = ({
 }) => {
   const [cid, setCid] = useState<string>("");
   const [title, setTitle] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
+  const [status, setStatus] = useState<string>("not_started");
   const [type, setType] = useState<string>("");
   const [notifyDate, setNotifyDate] = useState<number | "">("");
   const [content, setContent] = useState<string>("");
@@ -184,7 +184,7 @@ const CreateService = ({
                 gap: "1rem",
               }}>
               <TextField
-                label="客服紀錄標題"
+                label="客服紀錄主旨"
                 name="title"
                 value={title}
                 size="small"

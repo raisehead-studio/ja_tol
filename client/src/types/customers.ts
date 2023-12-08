@@ -38,6 +38,12 @@ export type CustomerResponseType = {
   ele_place_address: string;
   ele_place_owner: string;
   customer_services: CustomerServiceDataType[];
+  registration_member_number?: string;
+  ele_engineer?: string;
+  taiwan_power_company?: string;
+  government?: string;
+  test?: string;
+  other_description?: string;
 };
 
 export type CustomerRequestDataType = {
@@ -69,4 +75,10 @@ export type UpdateCustomerRequestDataType = {
   ele_place_owner: string;
   customer_contacts: string;
   customer_services: string;
+  registration_member_number?: string;
+  ele_engineer?: string;
+  taiwan_power_company?: string;
+  government?: string;
+  test?: string;
+  other_description?: string;
 };

@@ -24,6 +24,8 @@ const EditCustomers = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  console.log(data);
+
   useEffect(() => {
     const handleGetCustomers = async (id: string) => {
       setLoading(true);
@@ -111,6 +113,7 @@ const EditCustomers = () => {
       type: data?.type || "",
       notify_date: data?.notify_date || "",
       update_member: data?.update_member || "",
+      create_date: data?.create_date || "",
       customer_service_contents: JSON.stringify(customer_service_contents),
     };
 
@@ -201,7 +204,7 @@ const EditCustomers = () => {
               <TextField
                 label="客服紀錄狀態"
                 name="status"
-                value={data?.status || ""}
+                value={data?.status}
                 size="small"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
@@ -242,9 +245,9 @@ const EditCustomers = () => {
                 onChange={handleUpdateFiled}
                 select>
                 <MenuItem value="報價需求">報價需求</MenuItem>
-                <MenuItem value="報價需求">合約內檢測報價</MenuItem>
-                <MenuItem value="報價需求">議價</MenuItem>
-                <MenuItem value="報價需求">其他</MenuItem>
+                <MenuItem value="合約內檢測報價">合約內檢測報價</MenuItem>
+                <MenuItem value="議價">議價</MenuItem>
+                <MenuItem value="其他">其他</MenuItem>
               </TextField>
               <DatePicker
                 format="YYYY/MM/DD"
@@ -268,7 +271,7 @@ const EditCustomers = () => {
                 gap: "1rem",
               }}>
               <TextField
-                label="客服紀錄標題"
+                label="客服紀錄主旨"
                 name="title"
                 value={data?.title || ""}
                 size="small"
@@ -294,7 +297,7 @@ const EditCustomers = () => {
                     gap: "1rem",
                   }}>
                   <TextField
-                    label={`客服紀錄內容-${
+                    label={`客服紀錄說明-${
                       customer_service.create_date
                         ? dayjs(customer_service.create_date).format("MM/DD")
                         : dayjs().format("MM/DD")
@@ -316,7 +319,7 @@ const EditCustomers = () => {
             ))}
           <Box>
             <Button startIcon={<AddIcon />} onClick={handleOpenModal}>
-              新增客服紀錄內容
+              新增客服紀錄說明
             </Button>
           </Box>
         </>
@@ -332,7 +335,7 @@ const EditCustomers = () => {
           bottom: "1rem",
           right: "1rem",
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: "center",
           gap: "1rem",
         }}>
         <Button

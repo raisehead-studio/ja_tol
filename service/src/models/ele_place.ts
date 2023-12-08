@@ -19,6 +19,11 @@ const ElePlace = seq.define("ele_place", {
   is_del: Sequelize.BOOLEAN,
   update_member: Sequelize.STRING,
   create_member: Sequelize.STRING,
+  registration_member_number: Sequelize.STRING,
+  ele_engineer: Sequelize.STRING,
+  taiwan_power_company: Sequelize.STRING,
+  government: Sequelize.STRING,
+  test: Sequelize.STRING,
 });
 
 export default ElePlace;

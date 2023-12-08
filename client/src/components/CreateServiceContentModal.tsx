@@ -91,7 +91,7 @@ const CreateServiceContent = ({
               gap: "1rem",
             }}>
             <TextField
-              label={`客服紀錄內容`}
+              label={`客服紀錄說明`}
               name="content"
               value={data}
               size="small"

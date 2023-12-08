@@ -563,7 +563,7 @@ const CreateCustomer = () => {
               bottom: "1rem",
               right: "1rem",
               display: "flex",
-              justifyContent: "flex-end",
+              justifyContent: "center",
               gap: "1rem",
             }}>
             <Button
