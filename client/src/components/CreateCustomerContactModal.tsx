@@ -215,14 +215,7 @@ const CreateCustomerContact = ({
               </Button>
               <Button
                 onClick={handleCreateCustomerContact}
-                disabled={
-                  !name ||
-                  !type ||
-                  !phone ||
-                  !title ||
-                  !email ||
-                  !jobDescription
-                }
+                disabled={!name || !type || !phone || !email || !jobDescription}
                 variant="contained">
                 儲存
               </Button>
