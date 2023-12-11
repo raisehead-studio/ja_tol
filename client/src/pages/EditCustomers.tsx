@@ -9,6 +9,7 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import UpdateIcon from "@mui/icons-material/Update";
 import CircularProgress from "@mui/material/CircularProgress";
 import MenuItem from "@mui/material/MenuItem";
+import TextField from "@mui/material/TextField";
 import dayjs from "dayjs";
 import { enqueueSnackbar } from "notistack";
 
@@ -20,7 +21,6 @@ import {
   CustomerResponseType,
   UpdateCustomerRequestDataType,
 } from "../types/customers";
-import { Menu, TextField } from "@mui/material";
 
 import CreateService from "../components/CreateServiceModal";
 import CreateCustomerContact from "../components/CreateCustomerContactModal";
