@@ -32,6 +32,7 @@ const Home = () => {
   const [woid, setWoid] = useState<string>("");
   const [cid, setCid] = useState<string>("");
   const [sort, setSort] = useState<"desc" | "asc" | undefined>("asc");
+  const [sortValue, setSortValue] = useState<string>("update_date");
   const { user } = useLayoutContext();
   const navigate = useNavigate();
 
@@ -53,20 +54,23 @@ const Home = () => {
     if (sort === "desc") {
       setData(
         data.sort(
-          (a, b) => dayjs(a.update_date).unix() - dayjs(b.update_date).unix()
+          (a: any, b: any) =>
+            dayjs(a[sortValue]).unix() - dayjs(b[sortValue]).unix()
         )
       );
     } else {
       setData(
         data.sort(
-          (a, b) => dayjs(b.update_date).unix() - dayjs(a.update_date).unix()
+          (a: any, b: any) =>
+            dayjs(b[sortValue]).unix() - dayjs(a[sortValue]).unix()
         )
       );
     }
-  }, [data, sort]);
+  }, [data, sort, sortValue]);
 
-  const handleToggleSort = () => {
+  const handleToggleSort = (value: string) => {
     setSort(sort === "asc" ? "desc" : "asc");
+    setSortValue(value);
   };
 
   const handleOpenWorkModal = (id: string) => {
@@ -147,7 +151,7 @@ const Home = () => {
                   }}>
                   <TableSortLabel
                     direction={sort}
-                    onClick={handleToggleSort}
+                    onClick={() => handleToggleSort("notify_date")}
                     sx={{
                       color: "white !important",
                       ".MuiTableSortLabel-icon": {
@@ -158,13 +162,111 @@ const Home = () => {
                     追蹤日期
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="left">客戶編號</TableCell>
-                <TableCell align="left">客戶簡稱</TableCell>
-                <TableCell align="left">工單編號/客服紀錄</TableCell>
-                <TableCell align="left">工程名稱/客服紀錄</TableCell>
-                <TableCell align="left">客服紀錄主旨（作業紀錄）</TableCell>
-                <TableCell align="left">最新編輯者</TableCell>
-                <TableCell align="left">最新編輯時間</TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("customer_number")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    客戶編號
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("short_name")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    客戶簡稱
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("work_order_number")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    工單編號/客服紀錄
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("item")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    工程名稱/客服紀錄
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("description")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    客服紀錄主旨（作業紀錄）
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("update_member")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    最新編輯者
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("update_date")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    最新編輯時間
+                  </TableSortLabel>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

@@ -95,7 +95,7 @@ const ViewCustomers = ({
                   gap: "1rem",
                 }}>
                 <TextField
-                  label="客戶統編"
+                  label="客戶編號"
                   name="customer_number"
                   value={""}
                   size="small"
@@ -161,9 +161,9 @@ const ViewCustomers = ({
                   disabled
                 />
                 <TextField
-                  label="客戶編號(統一編號)"
-                  name="customer_number"
-                  value={data?.customer_number || " - - "}
+                  label="統一編號"
+                  name="tax_id"
+                  value={data?.tax_id || " - - "}
                   size="small"
                   InputLabelProps={{ shrink: true }}
                   fullWidth
@@ -178,6 +178,35 @@ const ViewCustomers = ({
                       color: "#000 !important",
                       WebkitTextFillColor: "#000 !important",
                     },
+                  }}
+                  disabled
+                />
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "stretch",
+                  gap: "1rem",
+                }}>
+                <TextField
+                  label="電號"
+                  name="ele_number"
+                  value={data?.ele_number || " - - "}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  sx={{
+                    ".MuiInputLabel-root": {
+                      color: "rgba(0,0,0,9)",
+                    },
+                    fieldset: {
+                      borderColor: "rgba(0,0,0,0) !important",
+                    },
+                    ".MuiInputBase-input": {
+                      color: "#000 !important",
+                      WebkitTextFillColor: "#000 !important",
+                    },
+                    width: "50%",
                   }}
                   disabled
                 />

@@ -8,6 +8,7 @@ import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import UpdateIcon from "@mui/icons-material/Update";
 import CircularProgress from "@mui/material/CircularProgress";
+import MenuItem from "@mui/material/MenuItem";
 import dayjs from "dayjs";
 import { enqueueSnackbar } from "notistack";
 
@@ -19,7 +20,7 @@ import {
   CustomerResponseType,
   UpdateCustomerRequestDataType,
 } from "../types/customers";
-import { TextField } from "@mui/material";
+import { Menu, TextField } from "@mui/material";
 
 import CreateService from "../components/CreateServiceModal";
 import CreateCustomerContact from "../components/CreateCustomerContactModal";
@@ -200,7 +201,7 @@ const EditCustomers = () => {
                 gap: "1rem",
               }}>
               <TextField
-                label="客戶統編"
+                label="客戶編號"
                 name="customer_number"
                 value={data?.customer_number || ""}
                 size="small"
@@ -237,9 +238,9 @@ const EditCustomers = () => {
                 disabled
               />
               <TextField
-                label="客戶編號(統一編號)"
-                name="customer_number"
-                value={data?.customer_number || ""}
+                label="統一編號"
+                name="tax_id"
+                value={data?.tax_id || ""}
                 size="small"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
@@ -350,8 +351,39 @@ const EditCustomers = () => {
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 onChange={handleUpdateFiled}
+                select
                 sx={{
                   width: "30%",
+                }}>
+                <MenuItem value={"1月"}>1月</MenuItem>
+                <MenuItem value={"2月"}>2月</MenuItem>
+                <MenuItem value={"3月"}>3月</MenuItem>
+                <MenuItem value={"4月"}>4月</MenuItem>
+                <MenuItem value={"5月"}>5月</MenuItem>
+                <MenuItem value={"6月"}>6月</MenuItem>
+                <MenuItem value={"7月"}>7月</MenuItem>
+                <MenuItem value={"8月"}>8月</MenuItem>
+                <MenuItem value={"9月"}>9月</MenuItem>
+                <MenuItem value={"10月"}>10月</MenuItem>
+                <MenuItem value={"11月"}>11月</MenuItem>
+                <MenuItem value={"12月"}>12月</MenuItem>
+              </TextField>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                gap: "1rem",
+              }}>
+              <TextField
+                label="電號"
+                name="ele_number"
+                value={data?.ele_number || ""}
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                onChange={handleUpdateFiled}
+                sx={{
+                  width: "50%",
                 }}
               />
             </Box>

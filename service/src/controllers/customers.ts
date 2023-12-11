@@ -40,12 +40,12 @@ export const create_customer = (
           customer_number: customer_number,
           ele_number: ele_number,
           factory_description:
-            "進廠施工務必申請作業,,提供文件：勞保/團保/入廠證件/3H勞安證/動火申請/",
+            "系統內定，未編輯前 --> 進廠施工務必申請作業,,提供文件：勞保/團保/入廠證件/3H勞安證/動火申請/",
           acceptance_check_description:
-            "前/中/後  之施工相片／產品保固一年／／／",
-          tobill_description: "發票務必要註明P.O.編號",
+            "系統內定，未編輯前 --> 前/中/後  之施工相片／產品保固一年／／／",
+          tobill_description: "系統內定，未編輯前 --> 發票務必要註明P.O.編號",
           invoice_description:
-            "本客戶固定都會議價10%以上,,所以報價者注意要先提高報價金額／本客戶有不良記錄,欠公司20萬,,請款刁難／本客戶為優質客戶不議價,,要求品質...等等",
+            "系統內定，未編輯前 --> 本客戶固定都會議價10%以上,,所以報價者注意要先提高報價金額／本客戶有不良記錄,欠公司20萬,,請款刁難／本客戶為優質客戶不議價,,要求品質...等等",
           update_member: user?.uid,
           create_member: user?.uid,
           is_del: false,

@@ -227,6 +227,7 @@ const EditCustomers = () => {
                 onChange={(newValue) =>
                   handleUpdateDate(newValue, "create_date")
                 }
+                disabled
               />
             </Box>
             <Box

@@ -105,7 +105,7 @@ const CreateCustomer = ({
                   justifyContent: "stretch",
                   gap: "1rem",
                 }}>
-                <TextField
+                {/* <TextField
                   label="電號"
                   name="eleNumber"
                   value={eleNumber}
@@ -115,7 +115,7 @@ const CreateCustomer = ({
                   onChange={(e) => {
                     setEleNumber(e.target.value);
                   }}
-                />
+                /> */}
                 <TextField
                   label="客戶名稱"
                   name="name"
@@ -171,7 +171,7 @@ const CreateCustomer = ({
                 取消
               </Button>
               <Button
-                disabled={!customerNumber || !name || !shortName || !eleNumber}
+                disabled={!customerNumber || !name || !shortName}
                 variant="contained"
                 onClick={handleCreateCustomer}>
                 建立

@@ -44,6 +44,7 @@ export type CustomerResponseType = {
   government?: string;
   test?: string;
   other_description?: string;
+  tax_id?: string;
 };
 
 export type CustomerRequestDataType = {
