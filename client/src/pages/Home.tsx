@@ -51,26 +51,46 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    if (sort === "desc") {
-      setData(
-        data.sort(
-          (a: any, b: any) =>
-            dayjs(a[sortValue]).unix() - dayjs(b[sortValue]).unix()
-        )
-      );
+    if (sortValue === "notify_date" || sortValue === "update_date") {
+      if (sort === "desc") {
+        setData(
+          data.sort(
+            (a: any, b: any) =>
+              dayjs(a[sortValue]).unix() - dayjs(b[sortValue]).unix()
+          )
+        );
+      } else {
+        setData(
+          data.sort(
+            (a: any, b: any) =>
+              dayjs(b[sortValue]).unix() - dayjs(a[sortValue]).unix()
+          )
+        );
+      }
     } else {
-      setData(
-        data.sort(
-          (a: any, b: any) =>
-            dayjs(b[sortValue]).unix() - dayjs(a[sortValue]).unix()
-        )
-      );
+      if (sort === "desc") {
+        setData(
+          data.sort((a: any, b: any) => {
+            let a_val = a[sortValue];
+            let b_val = b[sortValue];
+            return a_val?.toString().localeCompare(b_val.toString());
+          })
+        );
+      } else {
+        setData(
+          data.sort((a: any, b: any) => {
+            let a_val = a[sortValue] || "";
+            let b_val = b[sortValue] || "";
+            return b_val?.toString().localeCompare(a_val.toString());
+          })
+        );
+      }
     }
   }, [data, sort, sortValue]);
 
   const handleToggleSort = (value: string) => {
-    setSort(sort === "asc" ? "desc" : "asc");
     setSortValue(value);
+    setSort(sort === "asc" ? "desc" : "asc");
   };
 
   const handleOpenWorkModal = (id: string) => {

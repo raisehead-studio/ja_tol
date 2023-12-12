@@ -18,6 +18,7 @@ import Tooltip from "@mui/material/Tooltip";
 import dayjs from "dayjs";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Swal from "sweetalert2";
+import TableSortLabel from "@mui/material/TableSortLabel";
 
 import { getServices, deleteServices } from "../api/services";
 import { ServiceResponseDataType } from "../types/services";
@@ -32,6 +33,8 @@ const Services = () => {
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedService, setSelectedService] = useState<string>("");
+  const [sort, setSort] = useState<"desc" | "asc" | undefined>("asc");
+  const [sortValue, setSortValue] = useState<string>("customer_number");
   const { user } = useLayoutContext();
   const navigate = useNavigate();
 
@@ -66,6 +69,53 @@ const Services = () => {
 
   //   handleGetCustomers();
   // }, []);
+
+  useEffect(() => {
+    if (
+      sortValue === "update_date" ||
+      sortValue === "notify_date" ||
+      sortValue === "update_date"
+    ) {
+      if (sort === "desc") {
+        setData(
+          data.sort(
+            (a: any, b: any) =>
+              dayjs(a[sortValue]).unix() - dayjs(b[sortValue]).unix()
+          )
+        );
+      } else {
+        setData(
+          data.sort(
+            (a: any, b: any) =>
+              dayjs(b[sortValue]).unix() - dayjs(a[sortValue]).unix()
+          )
+        );
+      }
+    } else {
+      if (sort === "desc") {
+        setData(
+          data.sort((a: any, b: any) => {
+            let a_val = a[sortValue];
+            let b_val = b[sortValue];
+            return a_val?.toString().localeCompare(b_val.toString());
+          })
+        );
+      } else {
+        setData(
+          data.sort((a: any, b: any) => {
+            let a_val = a[sortValue] || "";
+            let b_val = b[sortValue] || "";
+            return b_val?.toString().localeCompare(a_val.toString());
+          })
+        );
+      }
+    }
+  }, [data, sort, sortValue]);
+
+  const handleToggleSort = (value: string) => {
+    setSortValue(value);
+    setSort(sort === "asc" ? "desc" : "asc");
+  };
 
   const handleCloseModal = () => {
     setSelectedService("");
@@ -182,15 +232,141 @@ const Services = () => {
                   sx={{
                     width: "5%",
                   }}></TableCell>
-                <TableCell align="left">客戶編號</TableCell>
-                <TableCell align="left">客戶名稱</TableCell>
-                <TableCell align="left">建立日期</TableCell>
-                <TableCell align="left">客戶服務狀態</TableCell>
-                <TableCell align="left">客戶紀錄類別</TableCell>
-                <TableCell align="left">客戶紀錄類標題</TableCell>
-                <TableCell align="left">追蹤日期</TableCell>
-                <TableCell align="left">上次編輯者</TableCell>
-                <TableCell align="left">上次編輯日期</TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("customer_number")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    客戶編號
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("short_name")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    客戶名稱
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("update_date")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    建立日期
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("status")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    客戶服務狀態
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("type")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    客戶紀錄類別
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("title")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    客戶紀錄類標題
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("notify_date")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    追蹤日期
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("update_member")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    上次編輯者
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("update_date")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    上次編輯日期
+                  </TableSortLabel>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

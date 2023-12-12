@@ -174,7 +174,7 @@ export const get_service_detail = (
       data.notify_date = new Date(result.dataValues.notify_date).getTime();
       data.update_member = update_name;
       data.create_member = create_name;
-      data.create_date = new Date(result.dataValues.create_date).getTime();
+      data.create_date = new Date(result.dataValues.createdAt).getTime();
       data.customer_service_contents =
         result.dataValues.customer_service_contents.map((item: any) => {
           return {
@@ -243,7 +243,6 @@ export const update_service = (req: RequestWithUser, res: Response) => {
       status,
       type,
       notify_date,
-      create_date,
       customer_service_contents,
     } = req.body;
     const { user } = req;
@@ -258,7 +257,6 @@ export const update_service = (req: RequestWithUser, res: Response) => {
           service.type = type;
           service.notify_date = notify_date;
           service.update_member = user?.uid;
-          service.create_date = create_date;
 
           service.save();
           let update_customer_service_contents = JSON.parse(

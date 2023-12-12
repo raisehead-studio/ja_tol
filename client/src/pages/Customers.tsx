@@ -17,6 +17,7 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Swal from "sweetalert2";
+import TableSortLabel from "@mui/material/TableSortLabel";
 
 import { getCustomers, deleteCustomer } from "../api/customers";
 import { CustomersResponseType } from "../types/customers";
@@ -31,6 +32,8 @@ const Customers = () => {
   const [openCreateCustomerModal, setOpenCreateCustomerModal] =
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [sort, setSort] = useState<"desc" | "asc" | undefined>("asc");
+  const [sortValue, setSortValue] = useState<string>("customer_number");
   const { user } = useLayoutContext();
   const navigate = useNavigate();
 
@@ -65,6 +68,31 @@ const Customers = () => {
 
     handleGetCustomers();
   }, []);
+
+  useEffect(() => {
+    if (sort === "desc") {
+      setData(
+        data.sort((a: any, b: any) => {
+          let a_val = a[sortValue];
+          let b_val = b[sortValue];
+          return a_val?.toString().localeCompare(b_val.toString());
+        })
+      );
+    } else {
+      setData(
+        data.sort((a: any, b: any) => {
+          let a_val = a[sortValue] || "";
+          let b_val = b[sortValue] || "";
+          return b_val?.toString().localeCompare(a_val.toString());
+        })
+      );
+    }
+  }, [data, sort, sortValue]);
+
+  const handleToggleSort = (value: string) => {
+    setSortValue(value);
+    setSort(sort === "asc" ? "desc" : "asc");
+  };
 
   const handleCloseModal = () => {
     setSelectedCustomer("");
@@ -179,9 +207,51 @@ const Customers = () => {
                   sx={{
                     width: "5%",
                   }}></TableCell>
-                <TableCell align="left">客戶編號</TableCell>
-                <TableCell align="left">客戶名稱</TableCell>
-                <TableCell align="left">客戶簡稱</TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("customer_number")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    客戶編號
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("name")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    客戶名稱
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("short_name")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    客戶簡稱
+                  </TableSortLabel>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

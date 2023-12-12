@@ -22,15 +22,15 @@ const EditCustomers = () => {
   const [data, setData] = useState<ServiceDetailResponseDataType | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [lock, setLock] = useState<boolean>(false);
   const navigate = useNavigate();
-
-  console.log(data);
 
   useEffect(() => {
     const handleGetCustomers = async (id: string) => {
       setLoading(true);
       try {
         const customers = await getServiceDetail(id);
+        if (customers.status === "complete") setLock(true);
         setData(customers);
         setLoading(false);
       } catch (error: any) {
@@ -113,7 +113,6 @@ const EditCustomers = () => {
       type: data?.type || "",
       notify_date: data?.notify_date || "",
       update_member: data?.update_member || "",
-      create_date: data?.create_date || "",
       customer_service_contents: JSON.stringify(customer_service_contents),
     };
 
@@ -209,6 +208,7 @@ const EditCustomers = () => {
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 onChange={handleUpdateFiled}
+                disabled={lock}
                 select>
                 <MenuItem value="not_started">未處理</MenuItem>
                 <MenuItem value="in_progress">追蹤處理中</MenuItem>
@@ -244,6 +244,7 @@ const EditCustomers = () => {
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 onChange={handleUpdateFiled}
+                disabled={lock}
                 select>
                 <MenuItem value="報價需求">報價需求</MenuItem>
                 <MenuItem value="合約內檢測報價">合約內檢測報價</MenuItem>
@@ -260,6 +261,7 @@ const EditCustomers = () => {
                     size: "small",
                   },
                 }}
+                disabled={lock}
                 onChange={(newValue) =>
                   handleUpdateDate(newValue, "notify_date")
                 }
@@ -279,6 +281,7 @@ const EditCustomers = () => {
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 onChange={handleUpdateFiled}
+                disabled={lock}
               />
             </Box>
           </Box>
@@ -314,12 +317,16 @@ const EditCustomers = () => {
                     onChange={(e) =>
                       handleUpdateContent(e, customer_service.id)
                     }
+                    disabled={lock}
                   />
                 </Box>
               </Box>
             ))}
           <Box>
-            <Button startIcon={<AddIcon />} onClick={handleOpenModal}>
+            <Button
+              disabled={lock}
+              startIcon={<AddIcon />}
+              onClick={handleOpenModal}>
               新增客服紀錄說明
             </Button>
           </Box>
@@ -348,7 +355,8 @@ const EditCustomers = () => {
         <Button
           startIcon={<UpdateIcon />}
           variant="contained"
-          onClick={handleUpdate}>
+          onClick={handleUpdate}
+          disabled={lock}>
           儲存
         </Button>
       </Box>

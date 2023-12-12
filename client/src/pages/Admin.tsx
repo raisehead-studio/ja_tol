@@ -16,6 +16,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import TableSortLabel from "@mui/material/TableSortLabel";
 import Swal from "sweetalert2";
 
 import { useLayoutContext } from "../components/LayoutContext";
@@ -29,6 +30,8 @@ const Admin = () => {
   const [openCreateMemberModal, setOpenCreateMemberModal] =
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [sort, setSort] = useState<"desc" | "asc" | undefined>("asc");
+  const [sortValue, setSortValue] = useState<string>("account");
   const { user } = useLayoutContext();
   const navigate = useNavigate();
   let user_data = user;
@@ -63,6 +66,11 @@ const Admin = () => {
     });
   };
 
+  const handleToggleSort = (value: string) => {
+    setSortValue(value);
+    setSort(sort === "asc" ? "desc" : "asc");
+  };
+
   useEffect(() => {
     const handleGetUsers = async () => {
       try {
@@ -79,6 +87,26 @@ const Admin = () => {
       handleGetUsers();
     }
   }, [openCreateMemberModal]);
+
+  useEffect(() => {
+    if (sort === "desc") {
+      setData(
+        data.sort((a: any, b: any) => {
+          let a_val = a[sortValue];
+          let b_val = b[sortValue];
+          return a_val?.toString().localeCompare(b_val.toString());
+        })
+      );
+    } else {
+      setData(
+        data.sort((a: any, b: any) => {
+          let a_val = a[sortValue] || "";
+          let b_val = b[sortValue] || "";
+          return b_val?.toString().localeCompare(a_val.toString());
+        })
+      );
+    }
+  }, [data, sort, sortValue]);
 
   return (
     <Box
@@ -153,9 +181,50 @@ const Admin = () => {
                   sx={{
                     width: "5%",
                   }}></TableCell>
-                <TableCell align="left">人員帳號</TableCell>
-                <TableCell align="left">人員名稱</TableCell>
-                <TableCell align="left">人員權限</TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("account")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    人員帳號
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("name")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    人員名稱
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("role")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    人員權限
+                  </TableSortLabel>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
