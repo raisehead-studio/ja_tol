@@ -52,6 +52,7 @@ const WorkOrder = seq.define("work_order", {
   is_del: Sequelize.BOOLEAN,
   update_member: Sequelize.STRING,
   create_member: Sequelize.STRING,
+  price: Sequelize.INTEGER,
 });
 
 export default WorkOrder;

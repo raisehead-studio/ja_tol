@@ -27,13 +27,12 @@ export const create_customer = (
     where: {
       [Op.or]: {
         customer_number: customer_number,
-        ele_number: ele_number,
         name: name,
       },
     },
   })
-    .then((customer) => {
-      if (!customer) {
+    .then((customer: any) => {
+      if (!customer || (customer && customer.is_del)) {
         Customer.create({
           name: name,
           short_name: short_name,

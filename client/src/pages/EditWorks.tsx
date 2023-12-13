@@ -113,6 +113,7 @@ const EditWorks = () => {
         tobill_date: data.tobill_date,
         factory_date: data.factory_date,
         assignment_date: data.assignment_date,
+        price: data.price,
       };
 
       await updateWorkDetail(updateData);
@@ -392,14 +393,25 @@ const EditWorks = () => {
                 gap: "1rem",
               }}>
               <TextField
-                label="工單類型"
+                label="工單種類"
                 size="small"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
+                name="type"
                 value={data?.type || ""}
                 onChange={handleUpdateFiled}
-                name="type"
-              />
+                select>
+                <MenuItem value="電力">電力</MenuItem>
+                <MenuItem value="紅外線">紅外線</MenuItem>
+                <MenuItem value="工程">工程</MenuItem>
+                <MenuItem value="維修">維修</MenuItem>
+                <MenuItem value="竣工">竣工</MenuItem>
+                <MenuItem value="加油站檢測">加油站檢測</MenuItem>
+                <MenuItem value="接地檢測">接地檢測</MenuItem>
+                <MenuItem value="能源管理">能源管理</MenuItem>
+                <MenuItem value="營造開發">營造開發</MenuItem>
+                <MenuItem value="其它">其它</MenuItem>
+              </TextField>
               <TextField
                 label="採購PO (複選)"
                 size="small"
@@ -408,6 +420,15 @@ const EditWorks = () => {
                 value={data?.po || ""}
                 onChange={handleUpdateFiled}
                 name="po"
+              />
+              <TextField
+                label="成交金額(未稅)"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={data?.price || ""}
+                onChange={handleUpdateFiled}
+                name="price"
               />
             </Box>
             <Box
@@ -429,6 +450,7 @@ const EditWorks = () => {
                 onChange={(newValue) =>
                   handleUpdateDate(newValue, "assignment_date")
                 }
+                disabled
               />
               <DatePicker
                 format="YYYY/MM/DD"
@@ -443,6 +465,7 @@ const EditWorks = () => {
                 onChange={(newValue) =>
                   handleUpdateDate(newValue, "acceptance_check_date")
                 }
+                disabled
               />
               <DatePicker
                 format="YYYY/MM/DD"
@@ -457,6 +480,7 @@ const EditWorks = () => {
                 onChange={(newValue) =>
                   handleUpdateDate(newValue, "tobill_date")
                 }
+                disabled
               />
               <DatePicker
                 format="YYYY/MM/DD"
@@ -471,6 +495,7 @@ const EditWorks = () => {
                 onChange={(newValue) =>
                   handleUpdateDate(newValue, "factory_date")
                 }
+                disabled
               />
             </Box>
           </Box>

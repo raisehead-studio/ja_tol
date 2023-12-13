@@ -170,6 +170,7 @@ export type WorkOrderDetailResponseDataType = {
   assignment_date: string;
   createdAt: string;
   updatedAt: string;
+  price?: number;
 };
 
 export type FactoryDataType = {

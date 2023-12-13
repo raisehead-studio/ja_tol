@@ -7,8 +7,7 @@ import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
 import MenuItem from "@mui/material/MenuItem";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from "dayjs";
+import Autocomplete from "@mui/material/Autocomplete";
 import { enqueueSnackbar } from "notistack";
 
 import { createWork } from "../api/works";
@@ -24,6 +23,8 @@ const CreateWork = ({
 }) => {
   const { user } = useLayoutContext();
   const [cid, setCid] = useState<string>("");
+  const [customerNumber, setCustomerNumber] = useState<any>("");
+  const [customerName, setCustomerName] = useState<any>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
   const [type, setType] = useState<string>("");
@@ -32,7 +33,8 @@ const CreateWork = ({
   const [amount] = useState<string>("0");
   const [inquiryMember] = useState<string>("test");
   const [responsibleMember] = useState<string>("test");
-  const [po, setPo] = useState<string>("");
+  const [po, setPo] = useState<string>("無");
+  const [price, setPrice] = useState<number>(0);
   const [acceptanceCheckDate, setAcceptanceCheckDate] = useState<number | Date>(
     new Date().getTime()
   );
@@ -64,6 +66,7 @@ const CreateWork = ({
       assignment_date: assignmentDate,
       create_member: user?.uid,
       update_member: user?.uid,
+      price: price,
     };
     setLoading(true);
     try {
@@ -110,13 +113,38 @@ const CreateWork = ({
       setName("");
       setOrderNumber("");
       setType("");
-      setPo("");
+      setPo("無");
+      setPrice(0);
       setAcceptanceCheckDate(new Date().getTime());
       setToBillDate(new Date().getTime());
       setFactoryDate(new Date().getTime());
       setAssignmentDate(new Date().getTime());
     }
   }, [open]);
+
+  useEffect(() => {
+    if (customerNumber) {
+      const customer = customersOptions.find(
+        (option: any) => option.customer_number === customerNumber
+      );
+      if (customer) {
+        setCid(customer.cid);
+        setCustomerName(customer.name);
+      }
+    }
+  }, [customerNumber, customersOptions, cid]);
+
+  useEffect(() => {
+    if (customerName) {
+      const customer = customersOptions.find(
+        (option: any) => option.name === customerName
+      );
+      if (customer) {
+        setCid(customer.cid);
+        setCustomerNumber(customer.customer_number);
+      }
+    }
+  }, [customerName, customersOptions, cid]);
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -152,36 +180,56 @@ const CreateWork = ({
                 justifyContent: "stretch",
                 gap: "1rem",
               }}>
-              <TextField
-                label="客戶名稱"
-                name="cid"
-                value={cid}
-                size="small"
-                InputLabelProps={{ shrink: true }}
+              <Autocomplete
+                disablePortal
+                value={customerNumber}
+                options={customersOptions.map((option: any) => {
+                  return { label: option.customer_number, cid: option.cid };
+                })}
                 fullWidth
-                onChange={(e) => {
-                  setCid(e.target.value);
+                onChange={(
+                  event: any,
+                  newValue: { label: string; cid: string }
+                ) => {
+                  if (newValue) {
+                    setCustomerNumber(newValue.label);
+                  }
                 }}
-                select>
-                {customersOptions.map((option: any) => (
-                  <MenuItem key={option.cid} value={option.cid}>
-                    {option.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                label="客戶編號"
-                value={
-                  cid
-                    ? customersOptions.filter(
-                        (option: any) => option.cid === cid
-                      )[0].customer_number
-                    : ""
-                }
-                size="small"
-                InputLabelProps={{ shrink: true }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="客戶編號"
+                    value={cid}
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth></TextField>
+                )}
+              />
+              <Autocomplete
+                disablePortal
+                value={customerName}
+                options={customersOptions.map((option: any) => {
+                  return { label: option.name, cid: option.cid };
+                })}
                 fullWidth
-                disabled
+                onChange={(
+                  event: any,
+                  newValue: { label: string; cid: string }
+                ) => {
+                  if (newValue) {
+                    setCustomerName(newValue.label);
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="客戶名稱"
+                    value={cid}
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                  />
+                )}
               />
             </Box>
             <Box
@@ -216,14 +264,25 @@ const CreateWork = ({
                 gap: "1rem",
               }}>
               <TextField
-                label="工單類型"
+                label="工單種類"
                 size="small"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 name="type"
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-              />
+                select>
+                <MenuItem value="電力">電力</MenuItem>
+                <MenuItem value="紅外線">紅外線</MenuItem>
+                <MenuItem value="工程">工程</MenuItem>
+                <MenuItem value="維修">維修</MenuItem>
+                <MenuItem value="竣工">竣工</MenuItem>
+                <MenuItem value="加油站檢測">加油站檢測</MenuItem>
+                <MenuItem value="接地檢測">接地檢測</MenuItem>
+                <MenuItem value="能源管理">能源管理</MenuItem>
+                <MenuItem value="營造開發">營造開發</MenuItem>
+                <MenuItem value="其它">其它</MenuItem>
+              </TextField>
               <TextField
                 label="採購PO (複選)"
                 size="small"
@@ -235,6 +294,23 @@ const CreateWork = ({
               />
             </Box>
             <Box
+              sx={{
+                display: "flex",
+                justifyContent: "stretch",
+                gap: "1rem",
+              }}>
+              <TextField
+                label="成交金額(未稅)"
+                name="name"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={price}
+                type={"number"}
+                onChange={(e) => setPrice(+e.target.value)}
+              />
+            </Box>
+            {/* <Box
               sx={{
                 display: "flex",
                 justifyContent: "stretch",
@@ -304,7 +380,7 @@ const CreateWork = ({
                   }
                 }}
               />
-            </Box>
+            </Box> */}
           </>
         )}
         <Divider />
@@ -324,11 +400,7 @@ const CreateWork = ({
               !orderNumber ||
               !po ||
               !inquiryMember ||
-              !responsibleMember ||
-              !acceptanceCheckDate ||
-              !toBillDate ||
-              !factoryDate ||
-              !assignmentDate
+              !responsibleMember
             }
             variant="contained"
             onClick={handleCreateCustomer}>

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import e, { Request, Response, NextFunction } from "express";
 
 import WorkOrder from "../models/work_orders";
 import Customer from "../models/customer";
@@ -10,6 +10,7 @@ import Factorys from "../models/factorys";
 import FactoryOtherForm from "../models/factory_other_forms";
 import ToBill from "../models/tobill";
 import ToBillInvoice from "../models/tobill_invoce";
+import ElePlace from "../models/ele_place";
 import User from "../models/user";
 import {
   WorkOrderRequestDataType,
@@ -43,6 +44,7 @@ export const create_work_order = (
       tobill_date,
       factory_date,
       assignment_date,
+      price,
     } = req.body;
     const { user } = req;
 
@@ -60,6 +62,7 @@ export const create_work_order = (
       tobill_date,
       factory_date,
       assignment_date,
+      price,
       update_member: user?.uid,
       create_member: user?.uid,
       is_del: false,
@@ -106,7 +109,6 @@ export const create_work_order = (
             tracking_date,
             tracking_description,
             tracking_is_finished,
-            finished_date,
             update_member: user?.uid,
             create_membe: user?.uid,
             is_del: false,
@@ -143,7 +145,6 @@ export const create_work_order = (
             tracking_date,
             tracking_description,
             tracking_is_finished,
-            finished_date,
             wt_report_number,
             update_member: user?.uid,
             create_member: user?.uid,
@@ -178,7 +179,6 @@ export const create_work_order = (
             tracking_date,
             tracking_description,
             tracking_is_finished,
-            tracking_finished_date,
             update_member: user?.uid,
             create_member: user?.uid,
             is_del: false,
@@ -202,7 +202,6 @@ export const create_work_order = (
             tracking_date,
             tracking_description,
             tracking_is_finished,
-            finished_date,
             update_member: user?.uid,
             create_member: user?.uid,
             is_del: false,
@@ -408,12 +407,44 @@ export const get_work_order_detail = (
 ) => {
   const { woid } = req.params;
   try {
-    WorkOrder.findOne({ where: { woid: woid } })
-      .then((work_order) => {
+    WorkOrder.findOne({
+      where: { woid: woid },
+      include: [
+        {
+          model: Assignments,
+        },
+        {
+          model: AcceptanceCheck,
+        },
+        {
+          model: ToBill,
+        },
+        {
+          model: Factorys,
+        },
+      ],
+    })
+      .then(async (work_order: any) => {
+        const ele = await ElePlace.findOne({
+          where: { cid: work_order.dataValues.cid },
+        });
+        console.log(ele);
+        console.log(work_order);
         return res.json({
           code: 200,
           status: "success",
-          data: work_order,
+          data: {
+            assign_finished_date:
+              work_order?.dataValues.assignment?.dataValues.finished_date,
+            acceptance_check_finished_date:
+              work_order?.dataValues.acceptance_check?.dataValues.finished_date,
+            to_bill_finished_date:
+              work_order?.dataValues.to_bill?.dataValues.finished_date,
+            factory_finished_date:
+              work_order?.dataValues.factory?.dataValues.finished_date,
+            ele_name: ele?.dataValues.name,
+            ele_address: ele?.dataValues.address,
+          },
           message: "取得工單資料成功",
         });
       })
@@ -455,6 +486,7 @@ export const update_work_order_detail = (
       tobill_date,
       factory_date,
       assignment_date,
+      price,
     } = req.body;
     const { user } = req;
 
@@ -474,6 +506,7 @@ export const update_work_order_detail = (
           work.factory_date = factory_date;
           work.assignment_date = assignment_date;
           work.update_member = user?.uid;
+          work.price = price;
           work.save();
 
           return res.json({
@@ -1700,7 +1733,7 @@ export const get_tobill_detail = (req: Request, res: Response) => {
         return res.json({
           code: 200,
           status: "success",
-          data: null,
+          data: data,
           message: `取得請款資料成功。`,
         });
       })

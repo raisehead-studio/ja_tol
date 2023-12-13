@@ -290,57 +290,66 @@ const Home = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((i: TrackingDataType) => (
-                <TableRow
-                  hover
-                  key={i.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
-                  <TableCell align="left">
-                    <Tooltip title="檢視">
-                      <IconButton
-                        onClick={
-                          i.work_order_number === "客服紀錄"
-                            ? () => handleOpenCustomerModal(i.id)
-                            : () => handleOpenWorkModal(i.id)
-                        }
-                        disabled={!user?.permission.is_tracking_page_read}
-                        size="small">
-                        <VisibilityIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell align="left">
-                    <Tooltip title="編輯">
-                      <IconButton
-                        onClick={() => {
-                          navigate(
-                            `/${
-                              i.work_order_number === "客服紀錄"
-                                ? "services"
-                                : "works"
-                            }/${i.id}`
-                          );
-                        }}
-                        disabled={!user?.permission.is_tracking_page_update}
-                        size="small">
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {dayjs(i.notify_date).format("YYYY/MM/DD")}
-                  </TableCell>
-                  <TableCell align="left">{i.customer_number}</TableCell>
-                  <TableCell align="left">{i.short_name}</TableCell>
-                  <TableCell align="left">{i.work_order_number}</TableCell>
-                  <TableCell align="left">{i.item}</TableCell>
-                  <TableCell align="left">{i.description}</TableCell>
-                  <TableCell align="left">{i.update_member}</TableCell>
-                  <TableCell align="left">
-                    {dayjs(i.update_date).format("YYYY/MM/DD")}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {data.map((i: TrackingDataType) => {
+                let is_due = dayjs(i.notify_date).isAfter(dayjs(), "day");
+                return (
+                  <TableRow
+                    hover
+                    key={i.id}
+                    sx={(theme) => ({
+                      "&:last-child td, &:last-child th": { border: 0 },
+                      ".MuiTableCell-root": {
+                        color: is_due ? "black" : theme.palette.error.main,
+                        fontWeight: is_due ? "normal" : "bold",
+                      },
+                    })}>
+                    <TableCell align="left">
+                      <Tooltip title="檢視">
+                        <IconButton
+                          onClick={
+                            i.work_order_number === "客服紀錄"
+                              ? () => handleOpenCustomerModal(i.id)
+                              : () => handleOpenWorkModal(i.id)
+                          }
+                          disabled={!user?.permission.is_tracking_page_read}
+                          size="small">
+                          <VisibilityIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell align="left">
+                      <Tooltip title="編輯">
+                        <IconButton
+                          onClick={() => {
+                            navigate(
+                              `/${
+                                i.work_order_number === "客服紀錄"
+                                  ? "services"
+                                  : "works"
+                              }/${i.id}`
+                            );
+                          }}
+                          disabled={!user?.permission.is_tracking_page_update}
+                          size="small">
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {dayjs(i.notify_date).format("YYYY/MM/DD")}
+                    </TableCell>
+                    <TableCell align="left">{i.customer_number}</TableCell>
+                    <TableCell align="left">{i.short_name}</TableCell>
+                    <TableCell align="left">{i.work_order_number}</TableCell>
+                    <TableCell align="left">{i.item}</TableCell>
+                    <TableCell align="left">{i.description}</TableCell>
+                    <TableCell align="left">{i.update_member}</TableCell>
+                    <TableCell align="left">
+                      {dayjs(i.update_date).format("YYYY/MM/DD")}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>

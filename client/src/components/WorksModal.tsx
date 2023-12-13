@@ -122,7 +122,7 @@ const WorksModal = ({
               alignItems: "center",
               justifyContent: "space-between",
             }}>
-            <Typography variant="h5">編輯工單資料</Typography>
+            <Typography variant="h5">檢視工單資料</Typography>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
               <Tabs value={tab} onChange={handleTabChange}>
                 <Tab label="派工" />
@@ -190,13 +190,24 @@ const WorksModal = ({
                     gap: "1rem",
                   }}>
                   <TextField
-                    label="工單類型"
+                    label="工單種類"
                     size="small"
                     InputLabelProps={{ shrink: true }}
                     fullWidth
-                    value={data?.type || ""}
                     name="type"
-                  />
+                    value={data?.type || ""}
+                    select>
+                    <MenuItem value="電力">電力</MenuItem>
+                    <MenuItem value="紅外線">紅外線</MenuItem>
+                    <MenuItem value="工程">工程</MenuItem>
+                    <MenuItem value="維修">維修</MenuItem>
+                    <MenuItem value="竣工">竣工</MenuItem>
+                    <MenuItem value="加油站檢測">加油站檢測</MenuItem>
+                    <MenuItem value="接地檢測">接地檢測</MenuItem>
+                    <MenuItem value="能源管理">能源管理</MenuItem>
+                    <MenuItem value="營造開發">營造開發</MenuItem>
+                    <MenuItem value="其它">其它</MenuItem>
+                  </TextField>
                   <TextField
                     label="採購PO (複選)"
                     size="small"
@@ -204,6 +215,14 @@ const WorksModal = ({
                     fullWidth
                     value={data?.po || ""}
                     name="po"
+                  />
+                  <TextField
+                    label="成交金額(未稅)"
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                    value={data?.price || ""}
+                    name="price"
                   />
                 </Box>
                 <Box
