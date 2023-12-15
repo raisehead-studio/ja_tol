@@ -6,7 +6,6 @@ import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
 import CircularProgress from "@mui/material/CircularProgress";
 import { enqueueSnackbar } from "notistack";
@@ -109,8 +108,9 @@ const CreateManPowerSchedule = ({
                 justifyContent: "stretch",
                 gap: "1rem",
               }}>
-              <DateTimePicker
-                label="預計排程開始時間"
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="預計排程開始日期"
                 value={dayjs(startedTime) || ""}
                 slotProps={{
                   textField: {
@@ -124,8 +124,9 @@ const CreateManPowerSchedule = ({
                   }
                 }}
               />
-              <DateTimePicker
-                label="預計排程結束時間"
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="預計排程結束日期"
                 value={dayjs(finishedTime) || ""}
                 slotProps={{
                   textField: {
@@ -139,24 +140,8 @@ const CreateManPowerSchedule = ({
                   }
                 }}
               />
-              <DatePicker
-                format="YYYY/MM/DD"
-                label="實際施工日期"
-                value={dayjs(actualDate) || ""}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    size: "small",
-                  },
-                }}
-                onChange={(newValue: any) => {
-                  if (newValue) {
-                    setActualDate(new Date(newValue.$d).getTime());
-                  }
-                }}
-              />
               <TextField
-                label="備註"
+                label="注意事項"
                 name="name"
                 size="small"
                 value={note}

@@ -5,6 +5,7 @@ import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -112,7 +113,12 @@ const CreateManPowerStop = ({
                 fullWidth
                 value={area || ""}
                 onChange={(e) => setArea(e.target.value)}
-              />
+                select>
+                <MenuItem value="全廠">全廠</MenuItem>
+                <MenuItem value="部分">部分</MenuItem>
+                <MenuItem value="無">無</MenuItem>
+                <MenuItem value="其他">其他</MenuItem>
+              </TextField>
               <DateTimePicker
                 label="停電開始時間"
                 value={dayjs(startedTime) || ""}

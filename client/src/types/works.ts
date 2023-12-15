@@ -171,6 +171,12 @@ export type WorkOrderDetailResponseDataType = {
   createdAt: string;
   updatedAt: string;
   price?: number;
+  assign_finished_date: Date | null;
+  acceptance_check_finished_date: Date | null;
+  to_bill_finished_date: Date | null;
+  factory_finished_date: Date | null;
+  ele_name: string;
+  ele_address: string;
 };
 
 export type FactoryDataType = {

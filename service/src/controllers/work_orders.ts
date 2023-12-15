@@ -90,7 +90,7 @@ export const create_work_order = (
         let is_warranty = false;
         let wt_report_number = "";
         let manufacturing_address = "";
-        let manufacturing_status = "";
+        let manufacturing_status = "不需備料";
         let manufacturing_date = new Date();
         let power_stop_contact = "";
         let power_stop_phone1 = "";
@@ -428,22 +428,24 @@ export const get_work_order_detail = (
         const ele = await ElePlace.findOne({
           where: { cid: work_order.dataValues.cid },
         });
-        console.log(ele);
-        console.log(work_order);
+        let work_order_data: any;
+        work_order_data = work_order.dataValues;
+
         return res.json({
           code: 200,
           status: "success",
           data: {
+            ...work_order_data,
             assign_finished_date:
-              work_order?.dataValues.assignment?.dataValues.finished_date,
+              work_order?.dataValues.assignment?.dataValues
+                .tracking_finished_date || null,
             acceptance_check_finished_date:
-              work_order?.dataValues.acceptance_check?.dataValues.finished_date,
+              work_order?.dataValues.acceptance_check?.dataValues
+                .finished_date || null,
             to_bill_finished_date:
-              work_order?.dataValues.to_bill?.dataValues.finished_date,
+              work_order?.dataValues.to_bill?.dataValues.finished_date || null,
             factory_finished_date:
-              work_order?.dataValues.factory?.dataValues.finished_date,
-            ele_name: ele?.dataValues.name,
-            ele_address: ele?.dataValues.address,
+              work_order?.dataValues.factory?.dataValues.finished_date || null,
           },
           message: "取得工單資料成功",
         });

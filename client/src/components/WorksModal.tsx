@@ -54,15 +54,6 @@ const WorksModal = ({
     setTab(newValue);
   };
 
-  const handleUpdateDate = (value: any, name: string) => {
-    if (!data) return;
-    let updateDate = {
-      ...data,
-      [name]: new Date(value.$d).getTime(),
-    };
-    setData(updateDate);
-  };
-
   useEffect(() => {
     const handleGetWorks = async (woid: string) => {
       setLoading(true);
@@ -231,62 +222,102 @@ const WorksModal = ({
                     justifyContent: "stretch",
                     gap: "1rem",
                   }}>
-                  <DatePicker
-                    format="YYYY/MM/DD"
-                    label="派工作業完成日期"
-                    value={dayjs(data?.assignment_date) || ""}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        size: "small",
-                      },
-                    }}
-                    onChange={(newValue) =>
-                      handleUpdateDate(newValue, "assignment_date")
-                    }
-                  />
-                  <DatePicker
-                    format="YYYY/MM/DD"
-                    label="驗收作業完成日期"
-                    value={dayjs(data?.acceptance_check_date) || ""}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        size: "small",
-                      },
-                    }}
-                    onChange={(newValue) =>
-                      handleUpdateDate(newValue, "acceptance_check_date")
-                    }
-                  />
-                  <DatePicker
-                    format="YYYY/MM/DD"
-                    label="請款作業完成日期"
-                    value={dayjs(data?.tobill_date) || ""}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        size: "small",
-                      },
-                    }}
-                    onChange={(newValue) =>
-                      handleUpdateDate(newValue, "tobill_date")
-                    }
-                  />
-                  <DatePicker
-                    format="YYYY/MM/DD"
-                    label="入廠作業完成日期"
-                    value={dayjs(data?.factory_date) || ""}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        size: "small",
-                      },
-                    }}
-                    onChange={(newValue) =>
-                      handleUpdateDate(newValue, "factory_date")
-                    }
-                  />
+                  {data?.assign_finished_date ? (
+                    <DatePicker
+                      format="YYYY/MM/DD"
+                      label="派工作業完成日期"
+                      value={dayjs(data?.assign_finished_date) || ""}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                        },
+                      }}
+                      sx={{
+                        width: "25%",
+                      }}
+                    />
+                  ) : (
+                    <TextField
+                      size="small"
+                      sx={{
+                        opacity: 0,
+                        width: "25%",
+                      }}
+                    />
+                  )}
+                  {data?.factory_finished_date ? (
+                    <DatePicker
+                      format="YYYY/MM/DD"
+                      label="入廠作業完成日期"
+                      value={dayjs(data?.factory_finished_date) || ""}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                        },
+                      }}
+                      sx={{
+                        width: "25%",
+                      }}
+                    />
+                  ) : (
+                    <TextField
+                      size="small"
+                      sx={{
+                        opacity: 0,
+                        width: "25%",
+                      }}
+                    />
+                  )}
+                  {data?.acceptance_check_finished_date ? (
+                    <DatePicker
+                      format="YYYY/MM/DD"
+                      label="驗收作業完成日期"
+                      value={dayjs(data?.acceptance_check_finished_date) || ""}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                        },
+                      }}
+                      sx={{
+                        width: "25%",
+                      }}
+                    />
+                  ) : (
+                    <TextField
+                      size="small"
+                      sx={{
+                        opacity: 0,
+                        width: "25%",
+                      }}
+                    />
+                  )}
+                  {data?.to_bill_finished_date ? (
+                    <DatePicker
+                      format="YYYY/MM/DD"
+                      label="請款作業完成日期"
+                      value={dayjs(data?.to_bill_finished_date) || ""}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                        },
+                      }}
+                      sx={{
+                        width: "25%",
+                      }}
+                    />
+                  ) : (
+                    <TextField
+                      size="small"
+                      sx={{
+                        opacity: 0,
+                        width: "25%",
+                      }}
+                    />
+                  )}
                 </Box>
               </Box>
               <Divider />
@@ -380,7 +411,13 @@ const EditWorksAssignments = ({
           fullWidth
           value={data?.manufacturing_status || ""}
           name="manufacturing_status"
-        />
+          select>
+          <MenuItem value="不需備料">不需備料</MenuItem>
+          <MenuItem value="備料中">備料中</MenuItem>
+          <MenuItem value="已完成備料">已完成備料</MenuItem>
+          <MenuItem value="材料不符合待溝通">材料不符合待溝通</MenuItem>
+          <MenuItem value="其他">其他</MenuItem>
+        </TextField>
         <DatePicker
           format="YYYY/MM/DD"
           label="材料備妥日期"
@@ -404,7 +441,8 @@ const EditWorksAssignments = ({
               justifyContent: "stretch",
               gap: "1rem",
             }}>
-            <DateTimePicker
+            <DatePicker
+              format="YYYY/MM/DD"
               label="預計排程開始時間"
               value={dayjs(manpower?.started_time) || ""}
               slotProps={{
@@ -414,20 +452,10 @@ const EditWorksAssignments = ({
                 },
               }}
             />
-            <DateTimePicker
-              label="預計排程結束時間"
-              value={dayjs(manpower?.finished_time) || ""}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  size: "small",
-                },
-              }}
-            />
             <DatePicker
               format="YYYY/MM/DD"
-              label="實際施工日期"
-              value={dayjs(manpower?.actual_date) || ""}
+              label="預計排程結束時間"
+              value={dayjs(manpower?.finished_time) || ""}
               slotProps={{
                 textField: {
                   fullWidth: true,
@@ -474,7 +502,12 @@ const EditWorksAssignments = ({
               InputLabelProps={{ shrink: true }}
               fullWidth
               value={stop?.area || ""}
-            />
+              select>
+              <MenuItem value="全廠">全廠</MenuItem>
+              <MenuItem value="部分">部分</MenuItem>
+              <MenuItem value="無">無</MenuItem>
+              <MenuItem value="其他">其他</MenuItem>
+            </TextField>
             <DateTimePicker
               label="停電開始時間"
               value={dayjs(stop?.started_date) || ""}
