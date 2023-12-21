@@ -392,6 +392,17 @@ const EditCustomers = () => {
           <Divider />
           <Typography variant="h5">備註</Typography>
           <TextField
+            label={`派工說明`}
+            name="assignment_description"
+            value={data?.assignment_description || ""}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+            onChange={handleUpdateFiled}
+            multiline
+            rows={4}
+          />
+          <TextField
             label={`入廠說明`}
             name="factory_description"
             value={data?.factory_description || ""}
@@ -399,6 +410,8 @@ const EditCustomers = () => {
             InputLabelProps={{ shrink: true }}
             fullWidth
             onChange={handleUpdateFiled}
+            multiline
+            rows={4}
           />
           <TextField
             label={`驗收說明`}
@@ -408,6 +421,8 @@ const EditCustomers = () => {
             InputLabelProps={{ shrink: true }}
             fullWidth
             onChange={handleUpdateFiled}
+            multiline
+            rows={4}
           />
           <TextField
             label={`請款說明`}
@@ -417,6 +432,8 @@ const EditCustomers = () => {
             InputLabelProps={{ shrink: true }}
             fullWidth
             onChange={handleUpdateFiled}
+            multiline
+            rows={4}
           />
           <TextField
             label={`報價說明`}
@@ -426,6 +443,8 @@ const EditCustomers = () => {
             InputLabelProps={{ shrink: true }}
             fullWidth
             onChange={handleUpdateFiled}
+            multiline
+            rows={4}
           />
           <TextField
             label={`其他說明`}
@@ -435,6 +454,8 @@ const EditCustomers = () => {
             InputLabelProps={{ shrink: true }}
             fullWidth
             onChange={handleUpdateFiled}
+            multiline
+            rows={4}
           />
           <Divider />
           {data?.customer_services.map((service, index) => (

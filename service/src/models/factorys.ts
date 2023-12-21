@@ -25,6 +25,11 @@ const Factory = seq.define("factory", {
   is_del: Sequelize.BOOLEAN,
   update_member: Sequelize.STRING,
   create_member: Sequelize.STRING,
+  is_class: Sequelize.BOOLEAN,
+  is_group_insurance: Sequelize.BOOLEAN,
+  is_label_insurance: Sequelize.BOOLEAN,
+  is_bunny_shoe: Sequelize.BOOLEAN,
+  is_bunny_suit: Sequelize.BOOLEAN,
 });
 
 export default Factory;

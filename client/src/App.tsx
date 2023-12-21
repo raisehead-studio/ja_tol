@@ -72,9 +72,6 @@ function App() {
   };
 
   useEffect(() => {
-    console.log(user);
-    console.log(location);
-
     const pages = [
       {
         name: "追蹤列表",

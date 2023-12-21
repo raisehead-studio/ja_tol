@@ -24,7 +24,7 @@ interface RequestWithUser extends Request {
   };
 }
 
-export const create_work_order = (
+export const create_work_order = async (
   req: RequestWithUser,
   res: Response,
   next: NextFunction
@@ -47,6 +47,9 @@ export const create_work_order = (
       price,
     } = req.body;
     const { user } = req;
+    const ele = await ElePlace.findOne({
+      where: { cid: cid },
+    });
 
     WorkOrder.create({
       cid,
@@ -67,7 +70,7 @@ export const create_work_order = (
       create_member: user?.uid,
       is_del: false,
     })
-      .then(async (result) => {
+      .then((result) => {
         let executions: any = [];
         let woid = result.dataValues.woid;
         let description = "";
@@ -89,7 +92,7 @@ export const create_work_order = (
         let fom17_registration_ele_date = new Date();
         let is_warranty = false;
         let wt_report_number = "";
-        let manufacturing_address = "";
+        let manufacturing_address = ele?.dataValues.address;
         let manufacturing_status = "不需備料";
         let manufacturing_date = new Date();
         let power_stop_contact = "";
@@ -109,6 +112,11 @@ export const create_work_order = (
             tracking_date,
             tracking_description,
             tracking_is_finished,
+            is_class: false,
+            is_group_insurance: false,
+            is_label_insurance: false,
+            is_bunny_shoe: false,
+            is_bunny_suit: false,
             update_member: user?.uid,
             create_membe: user?.uid,
             is_del: false,
@@ -425,9 +433,6 @@ export const get_work_order_detail = (
       ],
     })
       .then(async (work_order: any) => {
-        const ele = await ElePlace.findOne({
-          where: { cid: work_order.dataValues.cid },
-        });
         let work_order_data: any;
         work_order_data = work_order.dataValues;
 
@@ -563,7 +568,19 @@ export const get_assignment_detail = (req: Request, res: Response) => {
         },
         {
           model: PowerStop,
-          attributes: ["psid", "area", "started_date", "finished_date"],
+          attributes: [
+            "psid",
+            "area",
+            "other_description",
+            "stop_shift",
+            "request_date",
+            "receive_date",
+            "engineer",
+            "customer",
+            "tai_power_area",
+            "tai_power_notify_date",
+            "is_holiday",
+          ],
         },
       ],
     })
@@ -582,12 +599,25 @@ export const get_assignment_detail = (req: Request, res: Response) => {
           include: [
             {
               model: Customer,
-              attributes: ["customer_number", "short_name"],
+              attributes: [
+                "customer_number",
+                "short_name",
+                "cid",
+                "assignment_description",
+              ],
             },
           ],
         })
-          .then((work_order: any) => {
+          .then(async (work_order: any) => {
+            const ele = await ElePlace.findOne({
+              where: {
+                cid: work_order.customer.dataValues.cid,
+              },
+            });
+
             let data: any = {};
+            data.description =
+              work_order.customer.dataValues.assignment_description;
             data.id = assignment?.dataValues.aid;
             data.manufacturing_address =
               assignment?.dataValues.manufacturing_address;
@@ -626,6 +656,11 @@ export const get_assignment_detail = (req: Request, res: Response) => {
             data.customer_name =
               work_order.dataValues.customer.dataValues.short_name;
             data.is_assign_manpower = assignment?.dataValues.is_assign_manpower;
+            data.is_adjusted =
+              ele?.dataValues.address ===
+              assignment?.dataValues.manufacturing_address
+                ? false
+                : true;
             data.manpower_schedule =
               assignment?.dataValues.manpower_schedules.map(
                 (manpower_schedule: any) => {
@@ -644,8 +679,16 @@ export const get_assignment_detail = (req: Request, res: Response) => {
                 return {
                   id: power_stop.dataValues.psid,
                   area: power_stop.dataValues.area,
-                  started_date: power_stop.dataValues.started_date,
-                  finished_date: power_stop.dataValues.finished_date,
+                  stop_shift: power_stop.dataValues.stop_shift,
+                  other_description: power_stop.dataValues.other_description,
+                  request_date: power_stop.dataValues.request_date,
+                  receive_date: power_stop.dataValues.receive_date,
+                  engineer: power_stop.dataValues.engineer,
+                  customer: power_stop.dataValues.customer,
+                  tai_power_area: power_stop.dataValues.tai_power_area,
+                  tai_power_notify_date:
+                    power_stop.dataValues.tai_power_notify_date,
+                  is_holiday: power_stop.dataValues.is_holiday,
                 };
               }
             );
@@ -785,6 +828,17 @@ export const update_assignment = (
                 power_stop.area = power_stop_item.area;
                 power_stop.started_date = power_stop_item.started_date;
                 power_stop.finished_date = power_stop_item.finished_date;
+                power_stop.other_description =
+                  power_stop_item.other_description;
+                power_stop.stop_shift = power_stop_item.stop_shift;
+                power_stop.request_date = power_stop_item.request_date;
+                power_stop.receive_date = power_stop_item.receive_date;
+                power_stop.engineer = power_stop_item.engineer;
+                power_stop.customer = power_stop_item.customer;
+                power_stop.tai_power_area = power_stop_item.tai_power_area;
+                power_stop.tai_power_notify_date =
+                  power_stop_item.tai_power_notify_date;
+                power_stop.is_holiday = power_stop_item.is_holiday;
                 power_stop.update_member = user?.uid;
                 power_stop.save();
               })
@@ -966,14 +1020,33 @@ export const create_power_stop = (
   next: NextFunction
 ) => {
   try {
-    const { aid, area, started_date, finished_date } = req.body;
+    const {
+      aid,
+      area,
+      other_description,
+      stop_shift,
+      request_date,
+      receive_date,
+      engineer,
+      customer,
+      tai_power_area,
+      tai_power_notify_date,
+      is_holiday,
+    } = req.body;
     const { user } = req;
 
     PowerStop.create({
       aid,
       area,
-      started_date,
-      finished_date,
+      other_description,
+      stop_shift,
+      request_date,
+      receive_date,
+      engineer,
+      customer,
+      tai_power_area,
+      tai_power_notify_date,
+      is_holiday,
       update_member: user?.uid,
       create_member: user?.uid,
       is_del: false,
@@ -1108,7 +1181,11 @@ export const get_acceptance_check_detail = (req: Request, res: Response) => {
           include: [
             {
               model: Customer,
-              attributes: ["customer_number", "short_name"],
+              attributes: [
+                "customer_number",
+                "short_name",
+                "acceptance_check_description",
+              ],
             },
           ],
         },
@@ -1117,7 +1194,8 @@ export const get_acceptance_check_detail = (req: Request, res: Response) => {
       .then((acceptance_check) => {
         let data: any = {};
         data.id = acceptance_check?.dataValues.acid;
-        data.description = acceptance_check?.dataValues.description;
+        data.description =
+          acceptance_check?.dataValues.work_order.dataValues.customer.dataValues.acceptance_check_description;
         data.is_photo_before = acceptance_check?.dataValues.is_photo_before;
         data.is_photo_during = acceptance_check?.dataValues.is_photo_during;
         data.is_photo_after = acceptance_check?.dataValues.is_photo_after;
@@ -1281,7 +1359,11 @@ export const get_factory_detail = (req: Request, res: Response) => {
           include: [
             {
               model: Customer,
-              attributes: ["customer_number", "short_name"],
+              attributes: [
+                "customer_number",
+                "short_name",
+                "factory_description",
+              ],
             },
           ],
         },
@@ -1293,11 +1375,18 @@ export const get_factory_detail = (req: Request, res: Response) => {
       .then((factory) => {
         let data: any = {};
         data.id = factory?.dataValues.fid;
-        data.description = factory?.dataValues.description;
+        data.description =
+          factory?.dataValues.work_order.dataValues.customer.dataValues.factory_description;
         data.tracking_date = factory?.dataValues.tracking_date;
         data.tracking_description = factory?.dataValues.tracking_description;
         data.tracking_is_finished = factory?.dataValues.tracking_is_finished;
         data.finished_date = factory?.dataValues.finished_date;
+        data.is_class = factory?.dataValues.is_class;
+        data.is_bunny_shoe = factory?.dataValues.is_bunny_shoe;
+        data.is_bunny_suit = factory?.dataValues.is_bunny_suit;
+        data.is_group_insurance = factory?.dataValues.is_group_insurance;
+        data.is_label_insurance = factory?.dataValues.is_label_insurance;
+        data.other_form = factory?.dataValues.other_form;
         // data.wt_report_number = factory?.dataValues.wt_report_number;
         // data.work_order_name = factory?.dataValues.work_order.dataValues.name;
         // data.work_order_type = factory?.dataValues.work_order.dataValues.type;
@@ -1363,6 +1452,12 @@ export const update_factory = (req: RequestWithUser, res: Response) => {
       tracking_description,
       tracking_is_finished,
       finished_date,
+      is_class,
+      is_bunny_shoe,
+      is_bunny_suit,
+      is_group_insurance,
+      is_label_insurance,
+
       // wt_report_number,
       // work_order_name,
       // work_order_type,
@@ -1371,6 +1466,7 @@ export const update_factory = (req: RequestWithUser, res: Response) => {
       // tobill_date,
       // factory_date,
       // assignment_date,
+
       factory_other_form,
     } = req.body;
     const { user } = req;
@@ -1384,6 +1480,11 @@ export const update_factory = (req: RequestWithUser, res: Response) => {
         factory.tracking_description = tracking_description;
         factory.tracking_is_finished = tracking_is_finished;
         factory.finished_date = finished_date;
+        factory.is_class = is_class;
+        factory.is_bunny_shoe = is_bunny_shoe;
+        factory.is_bunny_suit = is_bunny_suit;
+        factory.is_group_insurance = is_group_insurance;
+        factory.is_label_insurance = is_label_insurance;
         factory.update_member = user?.uid;
         factory.save();
 
@@ -1464,6 +1565,11 @@ export const create_factory = (req: RequestWithUser, res: Response) => {
     const {
       woid,
       description,
+      is_class,
+      is_bunny_shoe,
+      is_bunny_suit,
+      is_group_insurance,
+      is_label_insurance,
       tracking_date,
       tracking_description,
       tracking_is_finished,
@@ -1478,6 +1584,11 @@ export const create_factory = (req: RequestWithUser, res: Response) => {
       tracking_description,
       tracking_is_finished,
       finished_date,
+      is_class,
+      is_bunny_shoe,
+      is_bunny_suit,
+      is_group_insurance,
+      is_label_insurance,
       update_member: user?.uid,
       create_member: user?.uid,
       is_del: false,
@@ -1679,7 +1790,11 @@ export const get_tobill_detail = (req: Request, res: Response) => {
           include: [
             {
               model: Customer,
-              attributes: ["customer_number", "short_name"],
+              attributes: [
+                "customer_number",
+                "short_name",
+                "tobill_description",
+              ],
             },
           ],
         },
@@ -1691,7 +1806,8 @@ export const get_tobill_detail = (req: Request, res: Response) => {
       .then((tobill) => {
         let data: any = {};
         data.id = tobill?.dataValues.tbid;
-        data.description = tobill?.dataValues.description;
+        data.description =
+          tobill?.dataValues.work_order.dataValues.customer.dataValues.tobill_description;
         data.tracking_date = tobill?.dataValues.tracking_date;
         data.tracking_description = tobill?.dataValues.tracking_description;
         data.tracking_is_finished = tobill?.dataValues.tracking_is_finished;

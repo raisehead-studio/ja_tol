@@ -5,7 +5,6 @@ import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
-import MenuItem from "@mui/material/MenuItem";
 import CircularProgress from "@mui/material/CircularProgress";
 import { enqueueSnackbar } from "notistack";
 
@@ -101,7 +100,7 @@ const CreateOtherForm = ({
         ) : (
           <>
             <Typography variant="h5">建立其他表格</Typography>
-            <Box
+            {/* <Box
               sx={{
                 display: "flex",
                 justifyContent: "stretch",
@@ -167,7 +166,7 @@ const CreateOtherForm = ({
                 <MenuItem value={0}>是</MenuItem>
                 <MenuItem value={1}>否</MenuItem>
               </TextField>
-            </Box>
+            </Box> */}
             <Box
               sx={{
                 display: "flex",

@@ -15,7 +15,6 @@ import Checkbox from "@mui/material/Checkbox";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import CircularProgress from "@mui/material/CircularProgress";
 import dayjs from "dayjs";
 import { enqueueSnackbar } from "notistack";
@@ -178,6 +177,11 @@ const EditWorks = () => {
         tracking_description: factory?.tracking_description,
         tracking_is_finished: factory?.tracking_is_finished || false,
         finished_date: factory?.finished_date,
+        is_class: factory?.is_class || false,
+        is_bunny_shoe: factory?.is_bunny_shoe || false,
+        is_bunny_suit: factory?.is_bunny_suit || false,
+        is_group_insurance: factory?.is_group_insurance || false,
+        is_label_insurance: factory?.is_label_insurance || false,
         factory_other_form: JSON.stringify(factory?.factory_other_form) || "[]",
       };
 
@@ -729,6 +733,27 @@ const EditWorksAssignments = ({
         flexDirection: "column",
         gap: "1rem",
       }}>
+      <Typography variant="h5">派工說明</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "stretch",
+          gap: "1rem",
+        }}>
+        <TextField
+          label="派工說明"
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          multiline
+          rows={4}
+          value={""}
+          onChange={handleUpdateFiled}
+          name="description"
+          disabled
+        />
+      </Box>
+      <Divider />
       <Typography variant="h5">施工地址及材料準備</Typography>
       <Box
         sx={{
@@ -737,12 +762,23 @@ const EditWorksAssignments = ({
           gap: "1rem",
         }}>
         <TextField
-          label="施工地址"
+          label={data?.is_adjusted ? "施工地址 (已修改 🚧)" : "施工地址"}
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
           value={data?.manufacturing_address || ""}
           onChange={handleUpdateFiled}
+          sx={
+            data?.is_adjusted
+              ? {
+                  ".MuiInputBase-root": {
+                    ".MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(255, 152, 0, 0.5)",
+                    },
+                  },
+                }
+              : {}
+          }
           name="manufacturing_address"
         />
       </Box>
@@ -811,6 +847,7 @@ const EditWorksAssignments = ({
                   "started_time"
                 )
               }
+              disabled
             />
             <DatePicker
               format="YYYY/MM/DD"
@@ -830,6 +867,7 @@ const EditWorksAssignments = ({
                   "finished_time"
                 )
               }
+              disabled
             />
 
             <TextField
@@ -842,6 +880,7 @@ const EditWorksAssignments = ({
               onChange={(e) =>
                 handleUpdateRowData(e, manpower.id, "manpower_schedule")
               }
+              disabled
             />
           </Box>
         ))}
@@ -866,74 +905,199 @@ const EditWorksAssignments = ({
         />
       </FormGroup>
       <Divider />
-      <Typography variant="h5">停電狀況</Typography>
+      <Typography variant="h5">停電追蹤狀況</Typography>
       {data &&
         data.power_stop.map((stop) => (
           <Box
             sx={{
               display: "flex",
+              flexDirection: "column",
               justifyContent: "stretch",
               gap: "1rem",
             }}>
-            <TextField
-              label="停電區域"
-              name="area"
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              value={stop?.area || ""}
-              onChange={(e) => handleUpdateRowData(e, stop.id, "power_stop")}
-              select>
-              <MenuItem value="全廠">全廠</MenuItem>
-              <MenuItem value="部分">部分</MenuItem>
-              <MenuItem value="無">無</MenuItem>
-              <MenuItem value="其他">其他</MenuItem>
-            </TextField>
-            <DateTimePicker
-              label="停電開始時間"
-              value={dayjs(stop?.started_date) || ""}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  size: "small",
-                },
+            <Typography variant="h6">停電狀況</Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "stretch",
+                gap: "1rem",
+              }}>
+              <TextField
+                label="停電區域"
+                name="area"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.area || ""}
+                onChange={(e) => handleUpdateRowData(e, stop.id, "power_stop")}
+                select>
+                <MenuItem value="全廠">全廠</MenuItem>
+                <MenuItem value="部分">部分</MenuItem>
+                <MenuItem value="無">無</MenuItem>
+                <MenuItem value="其他">其他</MenuItem>
+              </TextField>
+              <TextField
+                label="停電時間"
+                name="stop_shift"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.stop_shift || ""}
+                onChange={(e) => handleUpdateRowData(e, stop.id, "power_stop")}
+                select>
+                <MenuItem value="全廠">上午</MenuItem>
+                <MenuItem value="部分">下午</MenuItem>
+                <MenuItem value="無">全天</MenuItem>
+                <MenuItem value="其他">其他</MenuItem>
+              </TextField>
+              <TextField
+                label="假日/平日"
+                name="is_holiday"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.is_holiday || ""}
+                onChange={(e) => handleUpdateRowData(e, stop.id, "power_stop")}
+                select>
+                <MenuItem value="假日">假日</MenuItem>
+                <MenuItem value="平日">平日</MenuItem>
+              </TextField>
+              <TextField
+                label="其他說明"
+                name="other_description"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.other_description || ""}
+                onChange={(e) => handleUpdateRowData(e, stop.id, "power_stop")}
+              />
+            </Box>
+            <Typography variant="h6">外部聯絡單</Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "stretch",
+                gap: "1rem",
+              }}>
+              <TextField
+                label="客戶聯絡人"
+                name="customer"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.customer || ""}
+                onChange={(e) => handleUpdateRowData(e, stop.id, "power_stop")}
+              />
+              <TextField
+                label="工程師聯絡人"
+                name="engineer"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.engineer || ""}
+                onChange={(e) => handleUpdateRowData(e, stop.id, "power_stop")}
+              />
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="發函日期"
+                value={dayjs(stop?.request_date) || ""}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    size: "small",
+                  },
+                }}
+                onChange={(newValue) =>
+                  handleUpdateRowDate(
+                    newValue,
+                    stop.id,
+                    "power_stop",
+                    "request_date"
+                  )
+                }
+              />
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="回函日期"
+                value={dayjs(stop?.receive_date) || ""}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    size: "small",
+                  },
+                }}
+                onChange={(newValue) =>
+                  handleUpdateRowDate(
+                    newValue,
+                    stop.id,
+                    "power_stop",
+                    "receive_date"
+                  )
+                }
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "stretch",
+                gap: "1rem",
+              }}>
+              <TextField
+                label="台電區域"
+                name="tai_power_area"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.tai_power_area || ""}
+                onChange={(e) => handleUpdateRowData(e, stop.id, "power_stop")}
+                sx={{
+                  width: "25%",
+                }}
+                select>
+                <MenuItem value="桃園台電西區 03-1234567">
+                  桃園台電西區 03-1234567
+                </MenuItem>
+                <MenuItem value="桃園台電北區 03-0123456">
+                  桃園台電北區 03-0123456
+                </MenuItem>
+              </TextField>
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="通知台電日期"
+                value={dayjs(stop?.tai_power_notify_date) || ""}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    size: "small",
+                  },
+                }}
+                onChange={(newValue) =>
+                  handleUpdateRowDate(
+                    newValue,
+                    stop.id,
+                    "power_stop",
+                    "tai_power_notify_date"
+                  )
+                }
+                sx={{
+                  width: "25%",
+                }}
+              />
+            </Box>
+            <Divider
+              sx={{
+                borderBlockStyle: "dashed",
               }}
-              onChange={(newValue) =>
-                handleUpdateRowDate(
-                  newValue,
-                  stop.id,
-                  "power_stop",
-                  "started_date"
-                )
-              }
-            />
-            <DateTimePicker
-              label="停電結束時間"
-              value={dayjs(stop?.finished_date) || ""}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  size: "small",
-                },
-              }}
-              onChange={(newValue) =>
-                handleUpdateRowDate(
-                  newValue,
-                  stop.id,
-                  "finished_date",
-                  "finished_time"
-                )
-              }
             />
           </Box>
         ))}
       <Box>
         <Button startIcon={<AddIcon />} onClick={handleOpenPowerStopModal}>
-          新增停電狀況
+          新增停電追蹤狀況
         </Button>
       </Box>
       <Divider />
-      <Typography variant="h5">外部聯絡單</Typography>
+      {/* <Typography variant="h5">外部聯絡單</Typography>
       <FormGroup
         sx={{
           flexDirection: "row",
@@ -991,8 +1155,7 @@ const EditWorksAssignments = ({
           }}
           onChange={(newValue) => handleUpdateDate(newValue, "actual_date")}
         />
-      </Box>
-      <Divider />
+      </Box> */}
       <Typography variant="h5">派工-追蹤事項</Typography>
       <Box
         sx={{
@@ -1113,12 +1276,25 @@ const EditWorksFactory = ({
     }
   }, [woid, openOtherForm]);
 
+  console.log(data);
+
   const handleUpdateFiled = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     if (!data) return;
     let updateDate = {
       ...data,
       [name]: type === "checkbox" ? checked : value,
+    };
+    setData(updateDate);
+  };
+
+  const handleUpdateBolSelection = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    if (!data) return;
+    let updateDate = {
+      ...data,
+      [name]: +value === 0 ? true : false,
     };
     setData(updateDate);
   };
@@ -1140,8 +1316,6 @@ const EditWorksFactory = ({
     if (!data || !id) return;
 
     const { name, value } = e.target;
-
-    console.log(name, value, id, type);
 
     let update_val: string | boolean;
     if (type !== "select") {
@@ -1199,80 +1373,83 @@ const EditWorksFactory = ({
           value={data?.description || ""}
           onChange={handleUpdateFiled}
           name="description"
+          disabled
         />
       </Box>
+      <Divider />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "stretch",
+          gap: "1rem",
+        }}>
+        <TextField
+          label="當天上課"
+          size="small"
+          name={"is_class"}
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          value={data?.is_class ? 0 : 1}
+          select
+          type="bol_select"
+          onChange={handleUpdateBolSelection}>
+          <MenuItem value={0}>是</MenuItem>
+          <MenuItem value={1}>否</MenuItem>
+        </TextField>
+        <TextField
+          label="團險證明"
+          size="small"
+          value={data?.is_group_insurance ? 0 : 1}
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          select
+          name="is_group_insurance"
+          onChange={handleUpdateBolSelection}>
+          <MenuItem value={0}>是</MenuItem>
+          <MenuItem value={1}>否</MenuItem>
+        </TextField>
+        <TextField
+          label="勞保證明"
+          value={data?.is_label_insurance ? 0 : 1}
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          select
+          name="is_label_insurance"
+          onChange={handleUpdateBolSelection}>
+          <MenuItem value={0}>是</MenuItem>
+          <MenuItem value={1}>否</MenuItem>
+        </TextField>
+        <TextField
+          label="無塵鞋套"
+          value={data?.is_bunny_shoe ? 0 : 1}
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          select
+          name="is_bunny_shoe"
+          onChange={handleUpdateBolSelection}>
+          <MenuItem value={0}>是</MenuItem>
+          <MenuItem value={1}>否</MenuItem>
+        </TextField>
+        <TextField
+          label="無塵服"
+          value={data?.is_bunny_suit ? 0 : 1}
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          select
+          name="is_bunny_suit"
+          onChange={handleUpdateBolSelection}>
+          <MenuItem value={0}>是</MenuItem>
+          <MenuItem value={1}>否</MenuItem>
+        </TextField>
+      </Box>
+      <Divider />
       <Typography variant="h5">其他表格</Typography>
       {data &&
         data.factory_other_form.map((form) => (
           <>
-            <Box
-              key={form.id}
-              sx={{
-                display: "flex",
-                justifyContent: "stretch",
-                gap: "1rem",
-              }}>
-              <TextField
-                label="當天上課"
-                size="small"
-                name={"is_class"}
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                value={form?.is_class ? 0 : 1}
-                select
-                onChange={(e) => handleUpdateRowData(e, form.id, "select")}>
-                <MenuItem value={0}>是</MenuItem>
-                <MenuItem value={1}>否</MenuItem>
-              </TextField>
-              <TextField
-                label="團險證明"
-                size="small"
-                value={form?.is_group_insurance ? 0 : 1}
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                select
-                name="is_group_insurance"
-                onChange={(e) => handleUpdateRowData(e, form.id, "select")}>
-                <MenuItem value={0}>是</MenuItem>
-                <MenuItem value={1}>否</MenuItem>
-              </TextField>
-              <TextField
-                label="勞保證明"
-                value={form?.is_label_insurance ? 0 : 1}
-                size="small"
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                select
-                name="is_label_insurance"
-                onChange={(e) => handleUpdateRowData(e, form.id, "select")}>
-                <MenuItem value={0}>是</MenuItem>
-                <MenuItem value={1}>否</MenuItem>
-              </TextField>
-              <TextField
-                label="無塵鞋套"
-                value={form?.is_bunny_shoe ? 0 : 1}
-                size="small"
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                select
-                name="is_bunny_shoe"
-                onChange={(e) => handleUpdateRowData(e, form.id, "select")}>
-                <MenuItem value={0}>是</MenuItem>
-                <MenuItem value={1}>否</MenuItem>
-              </TextField>
-              <TextField
-                label="無塵服"
-                value={form?.is_bunny_suit ? 0 : 1}
-                size="small"
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                select
-                name="is_bunny_suit"
-                onChange={(e) => handleUpdateRowData(e, form.id, "select")}>
-                <MenuItem value={0}>是</MenuItem>
-                <MenuItem value={1}>否</MenuItem>
-              </TextField>
-            </Box>
             <Box
               sx={{
                 display: "flex",
@@ -1469,6 +1646,7 @@ const EditWorksAcceptanceCheck = ({
           value={data?.description || ""}
           onChange={handleUpdateFiled}
           name="description"
+          disabled
         />
       </Box>
       <Divider />
@@ -1885,6 +2063,7 @@ const EditWorksTobill = ({
           value={data?.description || ""}
           onChange={handleUpdateFiled}
           name="description"
+          disabled
         />
       </Box>
       <Divider />

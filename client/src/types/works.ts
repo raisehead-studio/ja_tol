@@ -71,6 +71,7 @@ export type AssignmentResponseDataType = {
   customer_name: string;
   manpower_schedule: AssignmentPowerScheduleDataType[];
   power_stop: AssignmentPowerStopDataType[];
+  is_adjusted: boolean;
 };
 
 export type AssignmentPowerScheduleDataType = {
@@ -87,8 +88,17 @@ export type AssignmentPowerStopDataType = {
   id?: string;
   aid?: string;
   area: string;
-  started_date: string | Date | number;
-  finished_date: string | Date | number;
+  started_date?: string | Date | number;
+  finished_date?: string | Date | number;
+  other_description?: string;
+  stop_shift?: string;
+  request_date?: string | Date | number;
+  receive_date?: string | Date | number;
+  engineer?: string;
+  customer?: string;
+  tai_power_area?: string;
+  tai_power_notify_date?: string | Date | number;
+  is_holiday?: string;
 };
 
 export type AssignmentDataType = {
@@ -187,6 +197,11 @@ export type FactoryDataType = {
   tracking_is_finished: boolean;
   finished_date: Date;
   factory_other_form: FactoryOtherFormType[];
+  is_class: boolean;
+  is_bunny_shoe: boolean;
+  is_bunny_suit: boolean;
+  is_group_insurance: boolean;
+  is_label_insurance: boolean;
 };
 
 export type FactoryRequestDataType = {

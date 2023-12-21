@@ -13,7 +13,6 @@ import Checkbox from "@mui/material/Checkbox";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import CircularProgress from "@mui/material/CircularProgress";
 import dayjs from "dayjs";
 import { enqueueSnackbar } from "notistack";
@@ -382,6 +381,24 @@ const EditWorksAssignments = ({
         flexDirection: "column",
         gap: "1rem",
       }}>
+      <Typography variant="h5">派工說明</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "stretch",
+          gap: "1rem",
+        }}>
+        <TextField
+          label="派工說明"
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          multiline
+          rows={4}
+          value={""}
+          name="description"
+        />
+      </Box>
       <Typography variant="h5">施工地址及材料準備</Typography>
       <Box
         sx={{
@@ -486,106 +503,161 @@ const EditWorksAssignments = ({
         />
       </FormGroup>
       <Divider />
-      <Typography variant="h5">停電狀況</Typography>
+      <Typography variant="h5">停電追蹤狀況</Typography>
       {data &&
         data.power_stop.map((stop) => (
           <Box
             sx={{
               display: "flex",
+              flexDirection: "column",
               justifyContent: "stretch",
               gap: "1rem",
             }}>
-            <TextField
-              label="停電區域"
-              name="name"
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              value={stop?.area || ""}
-              select>
-              <MenuItem value="全廠">全廠</MenuItem>
-              <MenuItem value="部分">部分</MenuItem>
-              <MenuItem value="無">無</MenuItem>
-              <MenuItem value="其他">其他</MenuItem>
-            </TextField>
-            <DateTimePicker
-              label="停電開始時間"
-              value={dayjs(stop?.started_date) || ""}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  size: "small",
-                },
-              }}
-            />
-            <DateTimePicker
-              label="停電結束時間"
-              value={dayjs(stop?.finished_date) || ""}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  size: "small",
-                },
+            <Typography variant="h6">停電狀況</Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "stretch",
+                gap: "1rem",
+              }}>
+              <TextField
+                label="停電區域"
+                name="area"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.area || ""}
+                select>
+                <MenuItem value="全廠">全廠</MenuItem>
+                <MenuItem value="部分">部分</MenuItem>
+                <MenuItem value="無">無</MenuItem>
+                <MenuItem value="其他">其他</MenuItem>
+              </TextField>
+              <TextField
+                label="停電時間"
+                name="stop_shift"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.stop_shift || ""}
+                select>
+                <MenuItem value="全廠">上午</MenuItem>
+                <MenuItem value="部分">下午</MenuItem>
+                <MenuItem value="無">全天</MenuItem>
+                <MenuItem value="其他">其他</MenuItem>
+              </TextField>
+              <TextField
+                label="假日/平日"
+                name="is_holiday"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.is_holiday || ""}
+                select>
+                <MenuItem value="假日">假日</MenuItem>
+                <MenuItem value="平日">平日</MenuItem>
+              </TextField>
+              <TextField
+                label="其他說明"
+                name="other_description"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.other_description || ""}
+              />
+            </Box>
+            <Typography variant="h6">外部聯絡單</Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "stretch",
+                gap: "1rem",
+              }}>
+              <TextField
+                label="客戶聯絡人"
+                name="customer"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.customer || ""}
+              />
+              <TextField
+                label="工程師聯絡人"
+                name="engineer"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.engineer || ""}
+              />
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="發函日期"
+                value={dayjs(stop?.request_date) || ""}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    size: "small",
+                  },
+                }}
+              />
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="回函日期"
+                value={dayjs(stop?.receive_date) || ""}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    size: "small",
+                  },
+                }}
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "stretch",
+                gap: "1rem",
+              }}>
+              <TextField
+                label="台電區域"
+                name="tai_power_area"
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={stop?.tai_power_area || ""}
+                sx={{
+                  width: "25%",
+                }}
+                select>
+                <MenuItem value="桃園台電西區 03-1234567">
+                  桃園台電西區 03-1234567
+                </MenuItem>
+                <MenuItem value="桃園台電北區 03-0123456">
+                  桃園台電北區 03-0123456
+                </MenuItem>
+              </TextField>
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="通知台電日期"
+                value={dayjs(stop?.tai_power_notify_date) || ""}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    size: "small",
+                  },
+                }}
+                sx={{
+                  width: "25%",
+                }}
+              />
+            </Box>
+            <Divider
+              sx={{
+                borderBlockStyle: "dashed",
               }}
             />
           </Box>
         ))}
-      <Divider />
-      <Typography variant="h5">外部聯絡單</Typography>
-      <FormGroup
-        sx={{
-          flexDirection: "row",
-        }}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              size="small"
-              checked={data?.external_contact_is_holiday || false}
-              name="external_contact_is_holiday"
-            />
-          }
-          label="假日"
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              size="small"
-              checked={data?.external_contact_is_power_stop || false}
-              name="external_contact_is_power_stop"
-            />
-          }
-          label="停電"
-        />
-      </FormGroup>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "stretch",
-          gap: "1rem",
-        }}>
-        <DatePicker
-          format="YYYY/MM/DD"
-          label="發送日"
-          value={dayjs(data?.external_contact_request_date) || ""}
-          slotProps={{
-            textField: {
-              fullWidth: true,
-              size: "small",
-            },
-          }}
-        />
-        <DatePicker
-          format="YYYY/MM/DD"
-          label="回傳日"
-          value={dayjs(data?.external_contact_receive_date) || ""}
-          slotProps={{
-            textField: {
-              fullWidth: true,
-              size: "small",
-            },
-          }}
-        />
-      </Box>
       <Divider />
       <Typography variant="h5">派工-追蹤事項</Typography>
       <Box
@@ -706,73 +778,74 @@ const EditWorksFactory = ({
           name="description"
         />
       </Box>
+      <Divider />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "stretch",
+          gap: "1rem",
+        }}>
+        <TextField
+          label="當天上課"
+          size="small"
+          name={"is_class"}
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          value={data?.is_class ? 0 : 1}
+          select>
+          <MenuItem value={0}>是</MenuItem>
+          <MenuItem value={1}>否</MenuItem>
+        </TextField>
+        <TextField
+          label="團險證明"
+          size="small"
+          value={data?.is_group_insurance ? 0 : 1}
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          select
+          name="is_group_insurance">
+          <MenuItem value={0}>是</MenuItem>
+          <MenuItem value={1}>否</MenuItem>
+        </TextField>
+        <TextField
+          label="勞保證明"
+          value={data?.is_label_insurance ? 0 : 1}
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          select
+          name="is_label_insurance">
+          <MenuItem value={0}>是</MenuItem>
+          <MenuItem value={1}>否</MenuItem>
+        </TextField>
+        <TextField
+          label="無塵鞋套"
+          value={data?.is_bunny_shoe ? 0 : 1}
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          select
+          name="is_bunny_shoe">
+          <MenuItem value={0}>是</MenuItem>
+          <MenuItem value={1}>否</MenuItem>
+        </TextField>
+        <TextField
+          label="無塵服"
+          value={data?.is_bunny_suit ? 0 : 1}
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          select
+          name="is_bunny_suit">
+          <MenuItem value={0}>是</MenuItem>
+          <MenuItem value={1}>否</MenuItem>
+        </TextField>
+      </Box>
+      <Divider />
       <Typography variant="h5">其他表格</Typography>
       {data &&
         data.factory_other_form.map((form) => (
           <>
-            <Box
-              key={form.id}
-              sx={{
-                display: "flex",
-                justifyContent: "stretch",
-                gap: "1rem",
-              }}>
-              <TextField
-                label="當天上課"
-                size="small"
-                name={"is_class"}
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                value={form?.is_class ? 0 : 1}
-                select>
-                <MenuItem value={0}>是</MenuItem>
-                <MenuItem value={1}>否</MenuItem>
-              </TextField>
-              <TextField
-                label="團險證明"
-                size="small"
-                value={form?.is_group_insurance ? 0 : 1}
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                select
-                name="is_group_insurance">
-                <MenuItem value={0}>是</MenuItem>
-                <MenuItem value={1}>否</MenuItem>
-              </TextField>
-              <TextField
-                label="勞保證明"
-                value={form?.is_label_insurance ? 0 : 1}
-                size="small"
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                select
-                name="is_label_insurance">
-                <MenuItem value={0}>是</MenuItem>
-                <MenuItem value={1}>否</MenuItem>
-              </TextField>
-              <TextField
-                label="無塵鞋套"
-                value={form?.is_bunny_shoe ? 0 : 1}
-                size="small"
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                select
-                name="is_bunny_shoe">
-                <MenuItem value={0}>是</MenuItem>
-                <MenuItem value={1}>否</MenuItem>
-              </TextField>
-              <TextField
-                label="無塵服"
-                value={form?.is_bunny_suit ? 0 : 1}
-                size="small"
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                select
-                name="is_bunny_suit">
-                <MenuItem value={0}>是</MenuItem>
-                <MenuItem value={1}>否</MenuItem>
-              </TextField>
-            </Box>
             <Box
               sx={{
                 display: "flex",
