@@ -3,6 +3,26 @@ export type CustomersResponseType = {
   name: string;
   short_name: string;
   customer_number: string;
+  ele_number: string;
+  updatedAt: string;
+  update_member: string;
+  ele_place: {
+    address?: string;
+    cid?: string;
+    create_member?: string;
+    createdAt?: string;
+    ele_engineer?: string;
+    epid?: string;
+    government?: string;
+    is_del?: boolean;
+    name?: string;
+    owner?: string;
+    registration_member_number?: string;
+    taiwan_power_company?: string;
+    test?: string;
+    update_member?: string;
+    updatedAt?: string;
+  };
 };
 
 export type CustomerContactDataType = {

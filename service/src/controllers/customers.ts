@@ -5,6 +5,7 @@ import Customer from "../models/customer";
 import CustomerContact from "../models/customer_contact";
 import ElePlace from "../models/ele_place";
 import CustomerService from "../models/service";
+import User from "../models/user";
 
 import { CustomerDataType, CustomerContactDataType } from "../types/customers";
 
@@ -87,16 +88,30 @@ export const create_customer = (
     });
 };
 
-export const get_customers_list = (
+export const get_customers_list = async (
   req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
+  const users: any = await User.findAll({ where: { is_del: false } });
+
   Customer.findAll({
     where: { is_del: false },
-    attributes: ["cid", "short_name", "customer_number", "name"],
+    attributes: [
+      "cid",
+      "short_name",
+      "customer_number",
+      "name",
+      "ele_number",
+      "update_member",
+      "updatedAt",
+    ],
+    include: {
+      model: ElePlace,
+      attributes: ["name", "address"],
+    },
   })
-    .then((result) => {
+    .then((result: any) => {
       return res.json({
         code: 200,
         status: "success",

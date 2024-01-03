@@ -344,7 +344,7 @@ const EditCustomers = () => {
                 onChange={handleUpdateFiled}
               />
               <TextField
-                label="檢測"
+                label="檢測期別"
                 name="test"
                 value={data?.test || ""}
                 size="small"
@@ -355,18 +355,13 @@ const EditCustomers = () => {
                 sx={{
                   width: "30%",
                 }}>
-                <MenuItem value={"1月"}>1月</MenuItem>
-                <MenuItem value={"2月"}>2月</MenuItem>
-                <MenuItem value={"3月"}>3月</MenuItem>
-                <MenuItem value={"4月"}>4月</MenuItem>
-                <MenuItem value={"5月"}>5月</MenuItem>
-                <MenuItem value={"6月"}>6月</MenuItem>
-                <MenuItem value={"7月"}>7月</MenuItem>
-                <MenuItem value={"8月"}>8月</MenuItem>
-                <MenuItem value={"9月"}>9月</MenuItem>
-                <MenuItem value={"10月"}>10月</MenuItem>
-                <MenuItem value={"11月"}>11月</MenuItem>
-                <MenuItem value={"12月"}>12月</MenuItem>
+                <MenuItem value={"1月、7月"}>1月、7月</MenuItem>
+                <MenuItem value={"2月、8月"}>2月、8月</MenuItem>
+                <MenuItem value={"3月、9月"}>3月、9月</MenuItem>
+                <MenuItem value={"4月、10月"}>4月、10月</MenuItem>
+                <MenuItem value={"5月、11月"}>5月、11月</MenuItem>
+                <MenuItem value={"6月、12月"}>6月、12月</MenuItem>
+                <MenuItem value={"無"}>無</MenuItem>
               </TextField>
             </Box>
             <Box

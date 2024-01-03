@@ -391,7 +391,7 @@ const ViewCustomers = ({
                   disabled
                 />
                 <TextField
-                  label="檢測"
+                  label="檢測期別"
                   name="test"
                   value={data?.test || " - - "}
                   size="small"

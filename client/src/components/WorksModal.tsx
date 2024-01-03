@@ -480,6 +480,17 @@ const EditWorksAssignments = ({
                 },
               }}
             />
+            <DatePicker
+              format="YYYY/MM/DD"
+              label="實際排程日期"
+              value={dayjs(manpower?.actual_date) || ""}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  size: "small",
+                },
+              }}
+            />
             <TextField
               label="備註"
               name="name"
@@ -1022,8 +1033,34 @@ const EditWorksAcceptanceCheck = ({
           label="施工後"
         />
       </FormGroup>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "stretch",
+          gap: "1rem",
+        }}>
+        <TextField
+          label="施工照片"
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          value={data?.photo_download || ""}
+          name="defect_agreement"
+        />
+        <DatePicker
+          format="YYYY/MM/DD"
+          label="施工照片下載日"
+          value={dayjs(data?.photo_download_date) || ""}
+          slotProps={{
+            textField: {
+              fullWidth: true,
+              size: "small",
+            },
+          }}
+        />
+      </Box>
       <Divider />
-      <Typography variant="h5">停電/活電檢驗</Typography>
+      <Typography variant="h5">報告書製作進度</Typography>
       <Box
         sx={{
           display: "flex",
@@ -1032,7 +1069,7 @@ const EditWorksAcceptanceCheck = ({
         }}>
         <DatePicker
           format="YYYY/MM/DD"
-          label="4-1完成日期"
+          label="4-1製作者完成日"
           value={dayjs(data?.power_switch_date1) || ""}
           slotProps={{
             textField: {
@@ -1043,7 +1080,7 @@ const EditWorksAcceptanceCheck = ({
         />
         <DatePicker
           format="YYYY/MM/DD"
-          label="4-2完成日期"
+          label="4-2檢測執行者審核日"
           value={dayjs(data?.power_switch_date2) || ""}
           slotProps={{
             textField: {
@@ -1054,7 +1091,7 @@ const EditWorksAcceptanceCheck = ({
         />
         <DatePicker
           format="YYYY/MM/DD"
-          label="4-3完成日期"
+          label="4-3檢測責任者審核日"
           value={dayjs(data?.power_switch_date3) || ""}
           slotProps={{
             textField: {
@@ -1065,7 +1102,7 @@ const EditWorksAcceptanceCheck = ({
         />
         <DatePicker
           format="YYYY/MM/DD"
-          label="4-4完成日期"
+          label="4-4總經理核准日"
           value={dayjs(data?.power_switch_date4) || ""}
           slotProps={{
             textField: {
@@ -1075,7 +1112,7 @@ const EditWorksAcceptanceCheck = ({
           }}
         />
         <TextField
-          label="缺失同意書"
+          label="缺失同意書(張)"
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth

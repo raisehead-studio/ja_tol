@@ -18,6 +18,7 @@ import Tooltip from "@mui/material/Tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Swal from "sweetalert2";
 import TableSortLabel from "@mui/material/TableSortLabel";
+import dayjs from "dayjs";
 
 import { getCustomers, deleteCustomer } from "../api/customers";
 import { CustomersResponseType } from "../types/customers";
@@ -135,6 +136,8 @@ const Customers = () => {
     });
   };
 
+  console.log(data);
+
   return (
     <Box
       sx={{
@@ -219,39 +222,14 @@ const Customers = () => {
                       },
                     }}
                     active={true}>
-                    客戶編號
+                    客戶編號/客戶簡稱
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="left">
-                  {" "}
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("name")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    客戶名稱
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  {" "}
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("short_name")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    客戶簡稱
-                  </TableSortLabel>
-                </TableCell>
+                <TableCell align="left">用電場所名稱</TableCell>
+                <TableCell align="left">用電場所地址</TableCell>
+                <TableCell align="left">電號</TableCell>
+                <TableCell align="left">執照編號</TableCell>
+                <TableCell align="left">最新編輯者/最新編輯日期</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -293,10 +271,24 @@ const Customers = () => {
                     </Tooltip>
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {customer.customer_number}
+                    {customer.customer_number} / {customer.short_name}
                   </TableCell>
-                  <TableCell align="left">{customer.name}</TableCell>
-                  <TableCell align="left">{customer.short_name}</TableCell>
+                  <TableCell component="th" scope="row">
+                    {customer?.ele_place?.name}{" "}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {customer?.ele_place?.address}{" "}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {customer?.ele_number}{" "}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {customer?.ele_place?.registration_member_number}{" "}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {customer.update_member} /{" "}
+                    {dayjs(customer.updatedAt).format("YYYY/MM/DD")}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -81,10 +81,10 @@ export const create_work_order = async (
         let is_photo_before = false;
         let is_photo_during = false;
         let is_photo_after = false;
-        let power_switch_date1 = new Date();
-        let power_switch_date2 = new Date();
-        let power_switch_date3 = new Date();
-        let power_switch_date4 = new Date();
+        let power_switch_date1 = null;
+        let power_switch_date2 = null;
+        let power_switch_date3 = null;
+        let power_switch_date4 = null;
         let defect_agreement = false;
         let report_type = "";
         let ew06_registration = false;
@@ -157,6 +157,8 @@ export const create_work_order = async (
             update_member: user?.uid,
             create_member: user?.uid,
             is_del: false,
+            photo_download: "",
+            photo_download_date: null,
           })
             .then(() => {})
             .catch((err) => {
@@ -429,6 +431,10 @@ export const get_work_order_detail = (
         },
         {
           model: Factorys,
+        },
+        {
+          model: Customer,
+          attributes: ["customer_number", "short_name", "cid"],
         },
       ],
     })
@@ -1112,6 +1118,8 @@ export const update_acceptance_check = (
       // assignment_date,
       is_inspection_report_retrieved_date,
       is_inspection_report_retrieved,
+      photo_download,
+      photo_download_date,
     } = req.body;
     const { user } = req;
 
@@ -1119,6 +1127,8 @@ export const update_acceptance_check = (
       where: { woid: woid },
     })
       .then((acceptance_check: any) => {
+        acceptance_check.photo_download = photo_download;
+        acceptance_check.photo_download_date = photo_download_date;
         acceptance_check.description = description;
         acceptance_check.is_photo_before = is_photo_before;
         acceptance_check.is_photo_during = is_photo_during;
@@ -1225,6 +1235,9 @@ export const get_acceptance_check_detail = (req: Request, res: Response) => {
           acceptance_check?.dataValues.is_inspection_report_retrieved;
         data.is_inspection_report_retrieved_date =
           acceptance_check?.dataValues.is_inspection_report_retrieved_date;
+        data.photo_download = acceptance_check?.dataValues.photo_download;
+        data.photo_download_date =
+          acceptance_check?.dataValues.photo_download_date;
         // data.wt_report_number = acceptance_check?.dataValues.wt_report_number;
         // data.work_order_name =
         //   acceptance_check?.dataValues.work_order.dataValues.name;
@@ -1295,6 +1308,8 @@ export const create_acceptance_check = (
       tracking_is_finished,
       finished_date,
       wt_report_number,
+      photo_download,
+      photo_download_date,
     } = req.body;
     const { user } = req;
 
@@ -1319,6 +1334,8 @@ export const create_acceptance_check = (
       tracking_is_finished,
       finished_date,
       wt_report_number,
+      photo_download,
+      photo_download_date,
       update_member: user?.uid,
       create_member: user?.uid,
       is_del: false,

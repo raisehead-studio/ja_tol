@@ -236,6 +236,21 @@ const Services = () => {
                   {" "}
                   <TableSortLabel
                     direction={sort}
+                    onClick={() => handleToggleSort("notify_date")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    追蹤日期
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
                     onClick={() => handleToggleSort("customer_number")}
                     sx={{
                       color: "white !important",
@@ -259,7 +274,52 @@ const Services = () => {
                       },
                     }}
                     active={true}>
-                    客戶名稱
+                    客戶簡稱
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("status")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    狀態
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("type")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    類型
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sort}
+                    onClick={() => handleToggleSort("title")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    主旨
                   </TableSortLabel>
                 </TableCell>
                 <TableCell align="left">
@@ -281,66 +341,6 @@ const Services = () => {
                   {" "}
                   <TableSortLabel
                     direction={sort}
-                    onClick={() => handleToggleSort("status")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    客戶服務狀態
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  {" "}
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("type")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    客戶紀錄類別
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  {" "}
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("title")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    客戶紀錄類標題
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  {" "}
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("notify_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    追蹤日期
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  {" "}
-                  <TableSortLabel
-                    direction={sort}
                     onClick={() => handleToggleSort("update_member")}
                     sx={{
                       color: "white !important",
@@ -349,7 +349,7 @@ const Services = () => {
                       },
                     }}
                     active={true}>
-                    上次編輯者
+                    最新編輯者
                   </TableSortLabel>
                 </TableCell>
                 <TableCell align="left">
@@ -364,7 +364,7 @@ const Services = () => {
                       },
                     }}
                     active={true}>
-                    上次編輯日期
+                    最新編輯日期
                   </TableSortLabel>
                 </TableCell>
               </TableRow>
@@ -428,18 +428,18 @@ const Services = () => {
                         </IconButton>
                       </Tooltip>
                     </TableCell>
+                    <TableCell align="left">
+                      {dayjs(service.notify_date).format("YYYY/MM/DD")}
+                    </TableCell>
                     <TableCell component="th" scope="row">
                       {service.customer_number}
                     </TableCell>
                     <TableCell align="left">{service.short_name}</TableCell>
-                    <TableCell align="left">
-                      {dayjs(service.update_date).format("YYYY/MM/DD")}
-                    </TableCell>
                     <TableCell align="left">{customer_status}</TableCell>
                     <TableCell align="left">{service.type}</TableCell>
                     <TableCell align="left">{service.title}</TableCell>
                     <TableCell align="left">
-                      {dayjs(service.notify_date).format("YYYY/MM/DD")}
+                      {dayjs(service.update_date).format("YYYY/MM/DD")}
                     </TableCell>
                     <TableCell align="left">{service.update_member}</TableCell>
                     <TableCell align="left">

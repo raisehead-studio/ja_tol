@@ -187,6 +187,11 @@ export type WorkOrderDetailResponseDataType = {
   factory_finished_date: Date | null;
   ele_name: string;
   ele_address: string;
+  customer?: {
+    cid?: string;
+    customer_number?: string;
+    short_name?: string;
+  };
 };
 
 export type FactoryDataType = {
@@ -248,6 +253,8 @@ export type AcceptanceCheckDataType = {
   wt_report_number?: string;
   is_inspection_report_retrieved?: boolean;
   is_inspection_report_retrieved_date?: Date;
+  photo_download?: string;
+  photo_download_date?: Date;
 };
 
 export type AcceptanceCheckRequestDataType = {

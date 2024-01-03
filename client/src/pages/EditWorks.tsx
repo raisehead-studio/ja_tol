@@ -226,6 +226,8 @@ const EditWorks = () => {
         is_inspection_report_retrieved: check?.is_inspection_report_retrieved,
         is_inspection_report_retrieved_date:
           check?.is_inspection_report_retrieved_date,
+        photo_download: check?.photo_download,
+        photo_download_date: check?.photo_download_date,
       };
 
       await updateWorksDetailAcceptanceCheck(updateDta);
@@ -356,11 +358,12 @@ const EditWorks = () => {
               }}>
               <TextField
                 label="客戶名稱"
-                value={data?.name || ""}
+                value={data?.customer?.short_name || ""}
                 size="small"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 disabled
+                name="short_name"
               />
               <TextField
                 label="工單編號"
@@ -377,7 +380,7 @@ const EditWorks = () => {
                 size="small"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
-                value={data?.order_number || ""}
+                value={data?.name || ""}
                 disabled
               />
             </Box>
@@ -869,7 +872,26 @@ const EditWorksAssignments = ({
               }
               disabled
             />
-
+            <DatePicker
+              format="YYYY/MM/DD"
+              label="實際排程日期"
+              value={dayjs(manpower?.actual_date) || ""}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  size: "small",
+                },
+              }}
+              onChange={(newValue) =>
+                handleUpdateRowDate(
+                  newValue,
+                  manpower.id,
+                  "manpower_schedule",
+                  "actual_date"
+                )
+              }
+              disabled
+            />
             <TextField
               label="備註"
               name="name"
@@ -1689,8 +1711,43 @@ const EditWorksAcceptanceCheck = ({
           label="施工後"
         />
       </FormGroup>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "stretch",
+          gap: "1rem",
+        }}>
+        <TextField
+          label="施工照片"
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          value={data?.photo_download || ""}
+          name="photo_download"
+          onChange={handleUpdateFiled}
+          select>
+          <MenuItem value={"尚未儲存"}>尚未儲存</MenuItem>
+          <MenuItem value={"照片已下載"}>照片已下載</MenuItem>
+          <MenuItem value={"無照片"}>無照片</MenuItem>
+        </TextField>
+        <DatePicker
+          format="YYYY/MM/DD"
+          label="施工照片下載日"
+          value={dayjs(data?.photo_download_date) || ""}
+          slotProps={{
+            textField: {
+              fullWidth: true,
+              size: "small",
+            },
+          }}
+          disabled={data?.photo_download === "照片已下載" ? false : true}
+          onChange={(newValue) =>
+            handleUpdateDate(newValue, "photo_download_date")
+          }
+        />
+      </Box>
       <Divider />
-      <Typography variant="h5">停電/活電檢驗</Typography>
+      <Typography variant="h5">報告書製作進度</Typography>
       <Box
         sx={{
           display: "flex",
@@ -1699,7 +1756,7 @@ const EditWorksAcceptanceCheck = ({
         }}>
         <DatePicker
           format="YYYY/MM/DD"
-          label="4-1完成日期"
+          label="4-1製作者完成日"
           value={dayjs(data?.power_switch_date1) || ""}
           slotProps={{
             textField: {
@@ -1713,7 +1770,7 @@ const EditWorksAcceptanceCheck = ({
         />
         <DatePicker
           format="YYYY/MM/DD"
-          label="4-2完成日期"
+          label="4-2檢測執行者審核日"
           value={dayjs(data?.power_switch_date2) || ""}
           slotProps={{
             textField: {
@@ -1721,13 +1778,14 @@ const EditWorksAcceptanceCheck = ({
               size: "small",
             },
           }}
+          disabled={!data?.power_switch_date1}
           onChange={(newValue) =>
             handleUpdateDate(newValue, "power_switch_date2")
           }
         />
         <DatePicker
           format="YYYY/MM/DD"
-          label="4-3完成日期"
+          label="4-3檢測責任者審核日"
           value={dayjs(data?.power_switch_date3) || ""}
           slotProps={{
             textField: {
@@ -1735,13 +1793,14 @@ const EditWorksAcceptanceCheck = ({
               size: "small",
             },
           }}
+          disabled={!data?.power_switch_date2}
           onChange={(newValue) =>
             handleUpdateDate(newValue, "power_switch_date3")
           }
         />
         <DatePicker
           format="YYYY/MM/DD"
-          label="4-4完成日期"
+          label="4-4總經理核准日"
           value={dayjs(data?.power_switch_date4) || ""}
           slotProps={{
             textField: {
@@ -1749,12 +1808,13 @@ const EditWorksAcceptanceCheck = ({
               size: "small",
             },
           }}
+          disabled={!data?.power_switch_date3}
           onChange={(newValue) =>
             handleUpdateDate(newValue, "power_switch_date4")
           }
         />
         <TextField
-          label="缺失同意書"
+          label="缺失同意書(張)"
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth

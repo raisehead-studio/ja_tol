@@ -227,6 +227,20 @@ const Works = () => {
                 <TableCell align="left">
                   <TableSortLabel
                     direction={sort}
+                    onClick={() => handleToggleSort("notify_date")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    追蹤日期
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={sort}
                     onClick={() => handleToggleSort("customer_number")}
                     sx={{
                       color: "white !important",
@@ -249,7 +263,7 @@ const Works = () => {
                       },
                     }}
                     active={true}>
-                    客戶名稱
+                    客戶簡稱
                   </TableSortLabel>
                 </TableCell>
                 <TableCell align="left">
@@ -394,20 +408,7 @@ const Works = () => {
                     工作單狀態
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="left">
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("notify_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    提醒日期
-                  </TableSortLabel>
-                </TableCell>
+
                 <TableCell align="left">
                   <TableSortLabel
                     direction={sort}
@@ -478,6 +479,9 @@ const Works = () => {
                       </IconButton>
                     </Tooltip>
                   </TableCell>
+                  <TableCell align="left">
+                    {dayjs(work.notify_date).format("YYYY/MM/DD")}
+                  </TableCell>
                   <TableCell component="th" scope="row">
                     {work.customer_number}
                   </TableCell>
@@ -507,9 +511,7 @@ const Works = () => {
                   </TableCell>
                   <TableCell align="left">--</TableCell>
                   <TableCell align="left">{work.item_data}</TableCell>
-                  <TableCell align="left">
-                    {dayjs(work.notify_date).format("YYYY/MM/DD")}
-                  </TableCell>
+
                   <TableCell align="left">{work.update_member}</TableCell>
                   <TableCell align="left">
                     {dayjs(work.update_date).format("YYYY/MM/DD")}

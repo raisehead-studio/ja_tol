@@ -58,6 +58,8 @@ const AcceptanceCheck = seq.define("acceptance_check", {
   is_del: Sequelize.BOOLEAN,
   update_member: Sequelize.STRING,
   create_member: Sequelize.STRING,
+  photo_download: Sequelize.STRING,
+  photo_download_date: Sequelize.DATE,
 });
 
 export default AcceptanceCheck;

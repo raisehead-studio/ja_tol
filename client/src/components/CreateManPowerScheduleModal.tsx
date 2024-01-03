@@ -140,8 +140,24 @@ const CreateManPowerSchedule = ({
                   }
                 }}
               />
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="實際排程期"
+                value={dayjs(actualDate) || ""}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    size: "small",
+                  },
+                }}
+                onChange={(newValue: any) => {
+                  if (newValue) {
+                    setActualDate(new Date(newValue.$d).getTime());
+                  }
+                }}
+              />
               <TextField
-                label="注意事項"
+                label="備註"
                 name="name"
                 size="small"
                 value={note}
@@ -163,7 +179,7 @@ const CreateManPowerSchedule = ({
                 取消
               </Button>
               <Button
-                disabled={!startedTime || !finishedTime || !actualDate || !note}
+                disabled={!startedTime || !finishedTime || !actualDate}
                 variant="contained"
                 onClick={handleCreateManPowerSchedule}>
                 建立
