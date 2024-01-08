@@ -247,7 +247,8 @@ const Services = () => {
                     追蹤日期
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="left">
+                <TableCell align="left">客戶編號 / 客戶簡稱</TableCell>
+                {/* <TableCell align="left">
                   {" "}
                   <TableSortLabel
                     direction={sort}
@@ -259,7 +260,7 @@ const Services = () => {
                       },
                     }}
                     active={true}>
-                    客戶編號
+                    客戶編號/客戶簡稱
                   </TableSortLabel>
                 </TableCell>
                 <TableCell align="left">
@@ -276,7 +277,7 @@ const Services = () => {
                     active={true}>
                     客戶簡稱
                   </TableSortLabel>
-                </TableCell>
+                </TableCell> */}
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
@@ -337,7 +338,9 @@ const Services = () => {
                     建立日期
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="left">
+                <TableCell align="left">最新編輯者 / 最新編輯日期</TableCell>
+
+                {/* <TableCell align="left">
                   {" "}
                   <TableSortLabel
                     direction={sort}
@@ -366,7 +369,7 @@ const Services = () => {
                     active={true}>
                     最新編輯日期
                   </TableSortLabel>
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -431,18 +434,15 @@ const Services = () => {
                     <TableCell align="left">
                       {dayjs(service.notify_date).format("YYYY/MM/DD")}
                     </TableCell>
-                    <TableCell component="th" scope="row">
-                      {service.customer_number}
+                    <TableCell align="left">
+                      {service.customer_number} / {service.short_name}
                     </TableCell>
-                    <TableCell align="left">{service.short_name}</TableCell>
                     <TableCell align="left">{customer_status}</TableCell>
                     <TableCell align="left">{service.type}</TableCell>
                     <TableCell align="left">{service.title}</TableCell>
-                    <TableCell align="left">
-                      {dayjs(service.update_date).format("YYYY/MM/DD")}
-                    </TableCell>
                     <TableCell align="left">{service.update_member}</TableCell>
                     <TableCell align="left">
+                      {service.update_member} /{" "}
                       {dayjs(service.update_date).format("YYYY/MM/DD")}
                     </TableCell>
                   </TableRow>

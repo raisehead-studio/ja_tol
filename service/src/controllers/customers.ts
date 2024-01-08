@@ -95,6 +95,8 @@ export const get_customers_list = async (
 ) => {
   const users: any = await User.findAll({ where: { is_del: false } });
 
+  console.log(users);
+
   Customer.findAll({
     where: { is_del: false },
     attributes: [
@@ -108,14 +110,29 @@ export const get_customers_list = async (
     ],
     include: {
       model: ElePlace,
-      attributes: ["name", "address"],
+      attributes: ["name", "address", "registration_member_number"],
     },
   })
     .then((result: any) => {
       return res.json({
         code: 200,
         status: "success",
-        data: result,
+        data: result.map((item: any) => {
+          return {
+            cid: item.cid,
+            customer_number: item.customer_number,
+            short_name: item.short_name,
+            ele_place_name: item.ele_place?.name || "",
+            ele_place_address: item.ele_place?.address || "",
+            ele_number: item.ele_number,
+            registration_member_number:
+              item.ele_place?.registration_member_number,
+            update_member: users.filter(
+              (user: any) => user.uid === item.update_member
+            )[0].name,
+            update_date: item.updatedAt,
+          };
+        }),
         message: `取得客戶列表成功。`,
       });
     })

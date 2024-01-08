@@ -274,20 +274,20 @@ const Customers = () => {
                     {customer.customer_number} / {customer.short_name}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {customer?.ele_place?.name}{" "}
+                    {customer.ele_place_name}{" "}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {customer?.ele_place?.address}{" "}
+                    {customer?.ele_place_address}{" "}
                   </TableCell>
                   <TableCell component="th" scope="row">
                     {customer?.ele_number}{" "}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {customer?.ele_place?.registration_member_number}{" "}
+                    {customer?.registration_member_number}
                   </TableCell>
                   <TableCell component="th" scope="row">
                     {customer.update_member} /{" "}
-                    {dayjs(customer.updatedAt).format("YYYY/MM/DD")}
+                    {dayjs(customer.update_date).format("YYYY/MM/DD")}
                   </TableCell>
                 </TableRow>
               ))}

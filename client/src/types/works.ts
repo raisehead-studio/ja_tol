@@ -1,19 +1,23 @@
 export type WorkResponseDataType = {
-  customer_name: string;
-  customer_number: string;
   id: string;
-  invoice_number: string;
+  customer_number: string;
+  customer_name: string;
+  notify_date: Date;
   order_number: string;
-  update_date: string;
   work_order_name: string;
-  update_member?: string;
-  status?: string;
-  notify_date?: string;
-  manufacturing_date?: Date;
-  is_inspection_report_retrieved_date?: Date;
-  started_time?: Date;
-  item_data?: string;
+  manufacturing_date: Date | string;
+  manpower_schedule_started_time: Date | string | null;
+  manpower_schedule_actual_date: Date | string | null;
+  receive_date: Date | string | null;
+  tai_power_notify_date: Date | string | null;
   is_assign_manpower: boolean;
+  factory_tracking_date: Date | string | null;
+  report_status: string;
+  photo_download: string;
+  acceptance_check_tracking_date: Date | string | null;
+  tobill_tracking_date: Date | string | null;
+  update_member: string;
+  update_date: Date | string | null;
 };
 
 export type WorkRequestDataType = {

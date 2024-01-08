@@ -297,7 +297,7 @@ export const get_work_orders_list = async (
           include: [
             {
               model: ManpowerSchedule,
-              attributes: ["started_time"],
+              attributes: ["started_time", "actual_date"],
               order: [["started_time", "ASC"]],
               limit: 1,
             },
@@ -326,7 +326,14 @@ export const get_work_orders_list = async (
           code: 200,
           status: "success",
           data: work_orders.map((worker_order) => {
+            const {
+              power_switch_date1,
+              power_switch_date2,
+              power_switch_date3,
+              power_switch_date4,
+            } = worker_order.dataValues.acceptance_check.dataValues;
             let item_data;
+            let report_status;
 
             if (
               !worker_order.dataValues.assignment.dataValues
@@ -355,36 +362,78 @@ export const get_work_orders_list = async (
               }
             }
 
+            switch (report_status) {
+              case power_switch_date4:
+                report_status = power_switch_date4;
+                break;
+              case power_switch_date3:
+                report_status = power_switch_date3;
+                break;
+              case power_switch_date2:
+                report_status = power_switch_date2;
+                break;
+              case power_switch_date1:
+                report_status = power_switch_date1;
+                break;
+              default:
+                report_status = null;
+                break;
+            }
+
             return {
               id: worker_order.dataValues.woid,
-              work_order_name: worker_order.dataValues.name,
-              invoice_number: worker_order.dataValues.invoice_number,
-              order_number: worker_order.dataValues.order_number,
-              update_date: worker_order.dataValues.updatedAt,
+              notify_date: new Date(),
               customer_number:
                 worker_order.dataValues.customer.dataValues.customer_number,
               customer_name:
                 worker_order.dataValues.customer.dataValues.short_name,
-              notify_date: new Date(),
+              order_number: worker_order.dataValues.order_number,
+              work_order_name: worker_order.dataValues.name,
+              manufacturing_date:
+                worker_order.dataValues.assignment.manufacturing_date,
+              manpower_schedule_started_time:
+                worker_order.dataValues.assignment.manpower_schedules.length > 0
+                  ? worker_order.dataValues.assignment.manpower_schedules.sort(
+                      (a: any, b: any) => b.started_time - a.started_time
+                    )[0].started_time
+                  : null,
+              manpower_schedule_actual_date:
+                worker_order.dataValues.assignment.manpower_schedules.length > 0
+                  ? worker_order.dataValues.assignment.manpower_schedules.sort(
+                      (a: any, b: any) => b.started_time - a.started_time
+                    )[0].actual_date
+                  : null,
+              receive_date: worker_order.dataValues.assignment.receive_date,
+              tai_power_notify_date:
+                worker_order.dataValues.assignment.tai_power_notify_date,
+              is_assign_manpower:
+                worker_order.dataValues.assignment.dataValues
+                  .is_assign_manpower,
+              factory_tracking_date:
+                worker_order.dataValues.factory.tracking_date,
+              report_status: report_status,
+              photo_download:
+                worker_order.dataValues.acceptance_check.photo_download,
+              acceptance_check_tracking_date:
+                worker_order.dataValues.acceptance_check.tracking_date,
+              tobill_tracking_date:
+                worker_order.dataValues.tobill.tracking_date,
               update_member: users.filter(
                 (user: any) =>
                   worker_order.dataValues.update_member === user.uid
               )[0].name,
-              manufacturing_date:
-                worker_order.dataValues.assignment.manufacturing_date,
-              started_time:
-                worker_order.dataValues.assignment.manpower_schedules.length > 0
-                  ? worker_order.dataValues.assignment.manpower_schedules[0]
-                      .dataValues.started_time
-                  : null,
-              status: [""],
-              is_inspection_report_retrieved_date:
-                worker_order.dataValues.acceptance_check.dataValues
-                  .is_inspection_report_retrieved_date,
-              item_data: item_data || null,
-              is_assign_manpower:
-                worker_order.dataValues.assignment.dataValues
-                  .is_assign_manpower,
+              update_date: worker_order.dataValues.updatedAt,
+
+              // started_time:
+              //   worker_order.dataValues.assignment.manpower_schedules.length > 0
+              //     ? worker_order.dataValues.assignment.manpower_schedules[0]
+              //         .dataValues.started_time
+              //     : null,
+              // status: [""],
+              // is_inspection_report_retrieved_date:
+              //   worker_order.dataValues.acceptance_check.dataValues
+              //     .is_inspection_report_retrieved_date,
+              // item_data: item_data || null,
             };
           }),
           message: "取得工單資料列表成功",
