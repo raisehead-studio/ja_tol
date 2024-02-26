@@ -259,6 +259,9 @@ export type AcceptanceCheckDataType = {
   is_inspection_report_retrieved_date?: Date;
   photo_download?: string;
   photo_download_date?: Date;
+  warranty_number?: string;
+  warranty_started_date?: Date;
+  warranty_end_date?: Date;
 };
 
 export type AcceptanceCheckRequestDataType = {

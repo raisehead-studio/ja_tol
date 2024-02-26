@@ -1155,25 +1155,62 @@ const EditWorksAcceptanceCheck = ({
             },
           }}
         />
-        <TextField
+        <DatePicker
+          format="YYYY/MM/DD"
           label="一七申報(台電)郵寄日期"
-          size="small"
-          InputLabelProps={{ shrink: true }}
-          fullWidth
-          value={data?.report_type || ""}
-          name="report_type"
+          value={dayjs(data?.report_type) || ""}
+          slotProps={{
+            textField: {
+              error: false,
+              fullWidth: true,
+              size: "small",
+            },
+          }}
         />
+      </Box>
+      <Divider />
+      <Typography variant="h5">保固書</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "stretch",
+          gap: "1rem",
+        }}>
         <TextField
-          label="保固書"
+          label="保固書字號"
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
-          value={data?.is_warranty ? 0 : 1}
-          name="is_warranty"
-          select>
-          <MenuItem value={0}>有</MenuItem>
-          <MenuItem value={1}>無</MenuItem>
-        </TextField>
+          value={data?.warranty_number}
+          name="warranty_number"
+          disabled
+        />
+        <DatePicker
+          format="YYYY/MM/DD"
+          label="保固書起始時間"
+          value={dayjs(data?.warranty_started_date) || ""}
+          slotProps={{
+            textField: {
+              error: false,
+              fullWidth: true,
+              size: "small",
+            },
+          }}
+          disabled
+        />
+        <DatePicker
+          format="YYYY/MM/DD"
+          label="保固書結束日期"
+          value={dayjs(data?.warranty_end_date) || ""}
+          slotProps={{
+            textField: {
+              error: false,
+              fullWidth: true,
+              size: "small",
+            },
+          }}
+          disabled
+        />
       </Box>
       <Divider />
       <Typography variant="h5">驗收-追蹤事項</Typography>

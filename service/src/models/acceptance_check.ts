@@ -35,7 +35,7 @@ const AcceptanceCheck = seq.define("acceptance_check", {
   power_switch_date3: Sequelize.DATE,
   power_switch_date4: Sequelize.DATE,
   defect_agreement: Sequelize.STRING,
-  report_type: Sequelize.STRING,
+  report_type: Sequelize.DATE,
   ew06_registration: Sequelize.STRING,
   fom17_registration_government_date: Sequelize.DATE,
   fom17_registration_ele_date: Sequelize.DATE,
@@ -46,6 +46,9 @@ const AcceptanceCheck = seq.define("acceptance_check", {
     allowNull: false,
     defaultValue: false,
   },
+  warranty_number: Sequelize.STRING,
+  warranty_started_date: Sequelize.DATE,
+  warranty_end_date: Sequelize.DATE,
   tracking_date: Sequelize.DATE,
   tracking_description: Sequelize.STRING,
   tracking_is_finished: {

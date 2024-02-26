@@ -91,6 +91,9 @@ export const create_work_order = async (
         let fom17_registration_government_date = new Date();
         let fom17_registration_ele_date = new Date();
         let is_warranty = false;
+        let warranty_number = "";
+        let warranty_started_date = null;
+        let warranty_end_date = null;
         let wt_report_number = "";
         let manufacturing_address = ele?.dataValues.address;
         let manufacturing_status = "不需備料";
@@ -150,6 +153,9 @@ export const create_work_order = async (
             fom17_registration_government_date,
             fom17_registration_ele_date,
             is_warranty,
+            warranty_number,
+            warranty_started_date,
+            warranty_end_date,
             tracking_date,
             tracking_description,
             tracking_is_finished,
@@ -1153,6 +1159,9 @@ export const update_acceptance_check = (
       fom17_registration_government_date,
       fom17_registration_ele_date,
       is_warranty,
+      warranty_number,
+      warranty_started_date,
+      warranty_end_date,
       tracking_date,
       tracking_description,
       tracking_is_finished,
@@ -1194,6 +1203,9 @@ export const update_acceptance_check = (
         acceptance_check.fom17_registration_ele_date =
           fom17_registration_ele_date;
         acceptance_check.is_warranty = is_warranty;
+        acceptance_check.warranty_number = warranty_number;
+        acceptance_check.warranty_started_date = warranty_started_date;
+        acceptance_check.warranty_end_date = warranty_end_date;
         acceptance_check.tracking_date = tracking_date;
         acceptance_check.tracking_description = tracking_description;
         acceptance_check.tracking_is_finished = tracking_is_finished;
@@ -1274,6 +1286,10 @@ export const get_acceptance_check_detail = (req: Request, res: Response) => {
         data.fom17_registration_ele_date =
           acceptance_check?.dataValues.fom17_registration_ele_date;
         data.is_warranty = acceptance_check?.dataValues.is_warranty;
+        data.warranty_number = acceptance_check?.dataValues.warranty_number;
+        data.warranty_started_date =
+          acceptance_check?.dataValues.warranty_started_date;
+        data.warranty_end_date = acceptance_check?.dataValues.warranty_end_date;
         data.tracking_date = acceptance_check?.dataValues.tracking_date;
         data.tracking_description =
           acceptance_check?.dataValues.tracking_description;
@@ -1352,6 +1368,9 @@ export const create_acceptance_check = (
       fom17_registration_government_date,
       fom17_registration_ele_date,
       is_warranty,
+      warranty_number,
+      warranty_started_date,
+      warranty_end_date,
       tracking_date,
       tracking_description,
       tracking_is_finished,
@@ -1378,6 +1397,9 @@ export const create_acceptance_check = (
       fom17_registration_government_date,
       fom17_registration_ele_date,
       is_warranty,
+      warranty_number,
+      warranty_started_date,
+      warranty_end_date,
       tracking_date,
       tracking_description,
       tracking_is_finished,

@@ -218,6 +218,9 @@ const EditWorks = () => {
           check?.fom17_registration_government_date,
         fom17_registration_ele_date: check?.fom17_registration_ele_date,
         is_warranty: check?.is_warranty,
+        warranty_number: check?.warranty_number,
+        warranty_started_date: check?.warranty_started_date,
+        warranty_end_date: check?.warranty_end_date,
         tracking_date: check?.tracking_date,
         tracking_description: check?.tracking_description,
         tracking_is_finished: check?.tracking_is_finished,
@@ -1828,7 +1831,7 @@ const EditWorksAcceptanceCheck = ({
           gap: "1rem",
         }}>
         <TextField
-          label="取回檢驗總表2張"
+          label="報告書備註"
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
@@ -1845,6 +1848,7 @@ const EditWorksAcceptanceCheck = ({
           value={dayjs(data?.is_inspection_report_retrieved_date) || ""}
           slotProps={{
             textField: {
+              error: false,
               fullWidth: true,
               size: "small",
             },
@@ -1868,8 +1872,12 @@ const EditWorksAcceptanceCheck = ({
           fullWidth
           value={data?.report_type || ""}
           name="report_type"
-          onChange={handleUpdateFiled}
-        />
+          onChange={handleUpdateSelection}
+          select>
+          <MenuItem value="良好">良好</MenuItem>
+          <MenuItem value="不良">不良</MenuItem>
+          <MenuItem value="無">無</MenuItem>
+        </TextField>
         <TextField
           label="登入EW60"
           size="small"
@@ -1877,8 +1885,12 @@ const EditWorksAcceptanceCheck = ({
           fullWidth
           value={data?.ew06_registration || ""}
           name="ew06_registration"
-          onChange={handleUpdateFiled}
-        />
+          onChange={handleUpdateSelection}
+          select>
+          <MenuItem value="已登入">已登入</MenuItem>
+          <MenuItem value="未登入">未登入</MenuItem>
+          <MenuItem value="無">無</MenuItem>
+        </TextField>
         <DatePicker
           format="YYYY/MM/DD"
           label="一七申報(縣市政府)郵寄日期"
@@ -1893,27 +1905,67 @@ const EditWorksAcceptanceCheck = ({
             handleUpdateDate(newValue, "fom17_registration_government_date")
           }
         />
-        <TextField
+        <DatePicker
+          format="YYYY/MM/DD"
           label="一七申報(台電)郵寄日期"
+          value={dayjs(data?.report_type) || ""}
+          slotProps={{
+            textField: {
+              error: false,
+              fullWidth: true,
+              size: "small",
+            },
+          }}
+          onChange={(newValue) => handleUpdateDate(newValue, "report_type")}
+        />
+      </Box>
+      <Divider />
+      <Typography variant="h5">保固書</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "stretch",
+          gap: "1rem",
+        }}>
+        <TextField
+          label="保固書字號"
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
-          value={data?.report_type || ""}
-          name="report_type"
+          value={data?.warranty_number}
+          name="warranty_number"
           onChange={handleUpdateFiled}
         />
-        <TextField
-          label="保固書"
-          size="small"
-          InputLabelProps={{ shrink: true }}
-          fullWidth
-          value={data?.is_warranty ? 0 : 1}
-          name="is_warranty"
-          onChange={handleUpdateSelection}
-          select>
-          <MenuItem value={0}>有</MenuItem>
-          <MenuItem value={1}>無</MenuItem>
-        </TextField>
+        <DatePicker
+          format="YYYY/MM/DD"
+          label="保固書起始時間"
+          value={dayjs(data?.warranty_started_date) || ""}
+          slotProps={{
+            textField: {
+              error: false,
+              fullWidth: true,
+              size: "small",
+            },
+          }}
+          onChange={(newValue) =>
+            handleUpdateDate(newValue, "warranty_started_date")
+          }
+        />
+        <DatePicker
+          format="YYYY/MM/DD"
+          label="保固書結束日期"
+          value={dayjs(data?.warranty_end_date) || ""}
+          slotProps={{
+            textField: {
+              error: false,
+              fullWidth: true,
+              size: "small",
+            },
+          }}
+          onChange={(newValue) =>
+            handleUpdateDate(newValue, "warranty_end_date")
+          }
+        />
       </Box>
       <Divider />
       <Typography variant="h5">驗收-追蹤事項</Typography>
