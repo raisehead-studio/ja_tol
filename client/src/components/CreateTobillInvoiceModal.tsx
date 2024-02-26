@@ -23,16 +23,19 @@ const CreateTobillInvoice = ({
 }) => {
   const [invoiceNumber, setInvoiceNumber] = useState<string>("");
   const [date, setDate] = useState<Date | number>(new Date().getTime());
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<string | number>(0);
   const [percentage, setPercentage] = useState<string>("0%");
   const [note, setNote] = useState<string>("");
   const [sentDate, setSentDate] = useState<Date | number>(new Date());
-  const [numbersInvoices, setNumbersInvoices] = useState<number>(0);
-  const [numbersEnvelope, setNumbersEnvelope] = useState<number>(0);
-  const [numbersReports, setNumbersReports] = useState<number>(0);
-  const [numbersGeneralForms, setNumbersGeneralForms] = useState<number>(0);
-  const [numbersInqualifyAgreements, setNumbersInqualifyAgreements] =
-    useState<number>(0);
+  const [numbersInvoices, setNumbersInvoices] = useState<string | number>(0);
+  const [numbersEnvelope, setNumbersEnvelope] = useState<string | number>(0);
+  const [numbersReports, setNumbersReports] = useState<string | number>(0);
+  const [numbersGeneralForms, setNumbersGeneralForms] = useState<
+    string | number
+  >(0);
+  const [numbersInqualifyAgreements, setNumbersInqualifyAgreements] = useState<
+    string | number
+  >(0);
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleCreateManPowerStop = async () => {
@@ -156,7 +159,7 @@ const CreateTobillInvoice = ({
                 fullWidth
                 value={amount}
                 name="amount"
-                onChange={(e) => setAmount(+e.target.value)}
+                onChange={(e) => setAmount(e.target.value)}
               />
               <TextField
                 label="發票號碼"
@@ -206,7 +209,7 @@ const CreateTobillInvoice = ({
                 fullWidth
                 value={numbersInvoices}
                 name="numbers_invoices"
-                onChange={(e) => setNumbersInvoices(+e.target.value)}
+                onChange={(e) => setNumbersInvoices(e.target.value)}
               />
               <TextField
                 label="回郵信封"
@@ -215,7 +218,7 @@ const CreateTobillInvoice = ({
                 fullWidth
                 value={numbersEnvelope}
                 name="numbers_envelope"
-                onChange={(e) => setNumbersEnvelope(+e.target.value)}
+                onChange={(e) => setNumbersEnvelope(e.target.value)}
               />
               <TextField
                 label="報告書"
@@ -224,7 +227,7 @@ const CreateTobillInvoice = ({
                 fullWidth
                 value={numbersReports}
                 name="numbers_reports"
-                onChange={(e) => setNumbersReports(+e.target.value)}
+                onChange={(e) => setNumbersReports(e.target.value)}
               />
               <TextField
                 label="檢驗總表"
@@ -233,7 +236,7 @@ const CreateTobillInvoice = ({
                 fullWidth
                 value={numbersGeneralForms}
                 name="numbers_general_forms"
-                onChange={(e) => setNumbersGeneralForms(+e.target.value)}
+                onChange={(e) => setNumbersGeneralForms(e.target.value)}
               />
               <TextField
                 label="檢驗不良同意書"
@@ -242,7 +245,7 @@ const CreateTobillInvoice = ({
                 fullWidth
                 value={numbersInqualifyAgreements}
                 name="numbers_inqualify_agreements"
-                onChange={(e) => setNumbersInqualifyAgreements(+e.target.value)}
+                onChange={(e) => setNumbersInqualifyAgreements(e.target.value)}
               />
             </Box>
             <Divider />
@@ -257,22 +260,7 @@ const CreateTobillInvoice = ({
                 onClick={handleClose}>
                 取消
               </Button>
-              <Button
-                disabled={
-                  !percentage ||
-                  !date ||
-                  !amount ||
-                  !invoiceNumber ||
-                  !note ||
-                  !sentDate ||
-                  !numbersInvoices ||
-                  !numbersEnvelope ||
-                  !numbersReports ||
-                  !numbersGeneralForms ||
-                  !numbersInqualifyAgreements
-                }
-                variant="contained"
-                onClick={handleCreateManPowerStop}>
+              <Button variant="contained" onClick={handleCreateManPowerStop}>
                 建立
               </Button>
             </Box>

@@ -299,14 +299,14 @@ export type TobillInvoiceDataType = {
   id?: string;
   percentage: string;
   date: Date | number;
-  amount: number;
+  amount: string | number;
   sent_date: Date | number;
   note: string;
-  numbers_invoices: number;
-  numbers_reports: number;
-  numbers_general_forms: number;
-  numbers_inqualify_agreements: number;
-  numbers_envelope: number;
+  numbers_invoices: string | number;
+  numbers_reports: string | number;
+  numbers_general_forms: string | number;
+  numbers_inqualify_agreements: string | number;
+  numbers_envelope: string | number;
   invoice_number: string;
 };
 
