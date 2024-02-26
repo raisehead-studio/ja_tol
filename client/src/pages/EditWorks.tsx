@@ -1718,24 +1718,21 @@ const EditWorksAcceptanceCheck = ({
           gap: "1rem",
         }}>
         <TextField
-          label="施工照片"
+          label="施工照片備註"
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
           value={data?.photo_download || ""}
           name="photo_download"
           onChange={handleUpdateFiled}
-          select>
-          <MenuItem value={"尚未儲存"}>尚未儲存</MenuItem>
-          <MenuItem value={"照片已下載"}>照片已下載</MenuItem>
-          <MenuItem value={"無照片"}>無照片</MenuItem>
-        </TextField>
+        />
         <DatePicker
           format="YYYY/MM/DD"
           label="施工照片下載日"
           value={dayjs(data?.photo_download_date) || ""}
           slotProps={{
             textField: {
+              error: false,
               fullWidth: true,
               size: "small",
             },

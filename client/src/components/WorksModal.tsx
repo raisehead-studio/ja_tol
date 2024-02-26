@@ -1040,7 +1040,7 @@ const EditWorksAcceptanceCheck = ({
           gap: "1rem",
         }}>
         <TextField
-          label="施工照片"
+          label="施工照片備註"
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
@@ -1053,6 +1053,7 @@ const EditWorksAcceptanceCheck = ({
           value={dayjs(data?.photo_download_date) || ""}
           slotProps={{
             textField: {
+              error: false,
               fullWidth: true,
               size: "small",
             },
