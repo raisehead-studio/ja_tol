@@ -855,25 +855,32 @@ const EditWorksFactory = ({
       <Divider />
       <Typography variant="h5">其他表格</Typography>
       {data &&
-        data.factory_other_form.map((form) => (
-          <>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "stretch",
-                gap: "1rem",
-              }}>
-              <TextField
-                label="其他表格"
-                value={form?.other_form || ""}
-                size="small"
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                name="other_form"
-              />
-            </Box>
-          </>
-        ))}
+        data.factory_other_form
+          .sort((a, b) => {
+            let fa = a.update_date || 0;
+            let fb = b.update_date || 0;
+
+            return +new Date(fa).getTime() - +new Date(fb).getTime();
+          })
+          .map((form) => (
+            <>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "stretch",
+                  gap: "1rem",
+                }}>
+                <TextField
+                  label="其他表格"
+                  value={form?.other_form || ""}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  name="other_form"
+                />
+              </Box>
+            </>
+          ))}
 
       <Divider />
       <Typography variant="h5">入廠-追蹤事項</Typography>

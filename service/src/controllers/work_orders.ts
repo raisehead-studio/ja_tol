@@ -1502,6 +1502,7 @@ export const get_factory_detail = (req: Request, res: Response) => {
               is_label_insurance:
                 factory_other_form.dataValues.is_label_insurance,
               other_form: factory_other_form.dataValues.other_form,
+              update_date: factory_other_form.dataValues.updatedAt,
             };
           }
         );

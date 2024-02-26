@@ -232,6 +232,7 @@ export type FactoryOtherFormType = {
   is_group_insurance: boolean;
   is_label_insurance: boolean;
   other_form: string;
+  update_date?: Date;
 };
 
 export type AcceptanceCheckDataType = {
