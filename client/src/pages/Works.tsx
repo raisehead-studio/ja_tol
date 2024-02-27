@@ -59,7 +59,7 @@ const Works = () => {
     const handleGetWorks = async () => {
       try {
         setLoading(true);
-        const customers = await getWorks();
+        const customers = await getWorks("notify_date", "asc");
         setData(customers);
         setLoading(false);
       } catch (error) {
@@ -73,53 +73,22 @@ const Works = () => {
     }
   }, [openCreateWorkModal]);
 
-  useEffect(() => {
-    if (
-      sortValue === "manufacturing_date" ||
-      sortValue === "started_time" ||
-      sortValue === "is_inspection_report_retrieved_date" ||
-      sortValue === "notify_date" ||
-      sortValue === "update_date"
-    ) {
-      if (sort === "desc") {
-        setData(
-          data.sort(
-            (a: any, b: any) =>
-              dayjs(a[sortValue]).unix() - dayjs(b[sortValue]).unix()
-          )
-        );
-      } else {
-        setData(
-          data.sort(
-            (a: any, b: any) =>
-              dayjs(b[sortValue]).unix() - dayjs(a[sortValue]).unix()
-          )
-        );
-      }
-    } else {
-      if (sort === "desc") {
-        setData(
-          data.sort((a: any, b: any) => {
-            let a_val = a[sortValue];
-            let b_val = b[sortValue];
-            return a_val?.toString().localeCompare(b_val.toString());
-          })
-        );
-      } else {
-        setData(
-          data.sort((a: any, b: any) => {
-            let a_val = a[sortValue] || "";
-            let b_val = b[sortValue] || "";
-            return b_val?.toString().localeCompare(a_val.toString());
-          })
-        );
-      }
+  const handleGetWorks = async (orderBy: string, orderType: string) => {
+    try {
+      setLoading(true);
+      const customers = await getWorks(orderBy, orderType);
+      setData(customers);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
     }
-  }, [data, sort, sortValue]);
+  };
 
   const handleToggleSort = (value: string) => {
     setSortValue(value);
     setSort(sort === "asc" ? "desc" : "asc");
+    handleGetWorks(value, sort === "asc" ? "desc" : "asc");
   };
 
   const handleCloseModal = () => {
@@ -154,7 +123,7 @@ const Works = () => {
           setLoading(true);
           const response = await deleteWorks(id);
           if (response.code === 200) {
-            const works = await getWorks();
+            const works = await getWorks("notify_date", "asc");
             setData(works);
             setLoading(false);
           }
@@ -226,7 +195,7 @@ const Works = () => {
                 <TableCell align="left"></TableCell>
                 <TableCell align="left">
                   <TableSortLabel
-                    direction={sort}
+                    direction={sortValue === "notify_date" ? sort : "asc"}
                     onClick={() => handleToggleSort("notify_date")}
                     sx={{
                       color: "white !important",
@@ -238,166 +207,9 @@ const Works = () => {
                     追蹤日期
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="left">客戶編號 / 客戶簡稱</TableCell>
-                <TableCell align="left">工單編號 / 工程名稱</TableCell>
-                <TableCell align="left">檢測期別</TableCell>
                 <TableCell align="left">
                   <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("manufacturing_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    備料完成日
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("manufacturing_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    預計排程日
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("manufacturing_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    實際排程日
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("manufacturing_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    外部聯絡單回覆日
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("manufacturing_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    通知台電日
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("manufacturing_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    人力安排
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("manufacturing_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    入廠資料完成
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("manufacturing_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    報告書追蹤
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("manufacturing_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    施工照片
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("manufacturing_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    驗收資料完成日
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="left">
-                  <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("manufacturing_date")}
-                    sx={{
-                      color: "white !important",
-                      ".MuiTableSortLabel-icon": {
-                        color: "white !important",
-                      },
-                    }}
-                    active={true}>
-                    請款狀態
-                  </TableSortLabel>
-                </TableCell>
-                {/* <TableCell align="left">
-                  <TableSortLabel
-                    direction={sort}
+                    direction={sortValue === "customer_number" ? sort : "asc"}
                     onClick={() => handleToggleSort("customer_number")}
                     sx={{
                       color: "white !important",
@@ -411,7 +223,7 @@ const Works = () => {
                 </TableCell>
                 <TableCell align="left">
                   <TableSortLabel
-                    direction={sort}
+                    direction={sortValue === "customer_name" ? sort : "asc"}
                     onClick={() => handleToggleSort("customer_name")}
                     sx={{
                       color: "white !important",
@@ -422,8 +234,234 @@ const Works = () => {
                     active={true}>
                     客戶簡稱
                   </TableSortLabel>
-                </TableCell> */}
-
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={sortValue === "order_number" ? sort : "asc"}
+                    onClick={() => handleToggleSort("order_number")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    工單編號
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={sortValue === "work_order_name" ? sort : "asc"}
+                    onClick={() => handleToggleSort("work_order_name")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    工程名稱
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">檢測期別</TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={
+                      sortValue === "manpower_schedule_started_time"
+                        ? sort
+                        : "asc"
+                    }
+                    onClick={() =>
+                      handleToggleSort("manpower_schedule_started_time")
+                    }
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    備料完成日
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={
+                      sortValue === "manpower_schedule_actual_date"
+                        ? sort
+                        : "asc"
+                    }
+                    onClick={() =>
+                      handleToggleSort("manpower_schedule_actual_date")
+                    }
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    預計排程日
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={
+                      sortValue === "manufacturing_date" ? sort : "asc"
+                    }
+                    onClick={() => handleToggleSort("manufacturing_date")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    實際排程日
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={sortValue === "receive_date" ? sort : "asc"}
+                    onClick={() => handleToggleSort("receive_date")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    外部聯絡單回覆日
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={
+                      sortValue === "tai_power_notify_date" ? sort : "asc"
+                    }
+                    onClick={() => handleToggleSort("tai_power_notify_date")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    通知台電日
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={
+                      sortValue === "is_assign_manpower" ? sort : "asc"
+                    }
+                    onClick={() => handleToggleSort("is_assign_manpower")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    人力安排
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={
+                      sortValue === "factory_tracking_date" ? sort : "asc"
+                    }
+                    onClick={() => handleToggleSort("factory_tracking_date")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    入廠資料完成
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={sortValue === "report_status" ? sort : "asc"}
+                    onClick={() => handleToggleSort("report_status")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    報告書追蹤
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={sortValue === "photo_download" ? sort : "asc"}
+                    onClick={() => handleToggleSort("photo_download")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    施工照片
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={
+                      sortValue === "manufacturing_date" ? sort : "asc"
+                    }
+                    onClick={() => handleToggleSort("manufacturing_date")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    驗收資料完成日
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={
+                      sortValue === "acceptance_check_tracking_date"
+                        ? sort
+                        : "asc"
+                    }
+                    onClick={() =>
+                      handleToggleSort("acceptance_check_tracking_date")
+                    }
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    請款狀態
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={
+                      sortValue === "tobill_tracking_date" ? sort : "asc"
+                    }
+                    onClick={() => handleToggleSort("tobill_tracking_date")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    工單狀態
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell align="left">
                   <TableSortLabel
                     direction={sort}
@@ -498,12 +536,13 @@ const Works = () => {
                     {dayjs(work.notify_date).format("YYYY/MM/DD")}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {work.customer_number}/{work.customer_name}
+                    {work.customer_number}
                   </TableCell>
-
-                  <TableCell align="left">
-                    {work.order_number}/{work.work_order_name}
+                  <TableCell component="th" scope="row">
+                    {work.customer_name}
                   </TableCell>
+                  <TableCell align="left">{work.order_number}</TableCell>
+                  <TableCell align="left">{work.work_order_name}</TableCell>
                   <TableCell align="left">{"--"}</TableCell>
                   <TableCell align="left">
                     {dayjs(work.manufacturing_date).format("YYYY/MM/DD")}
@@ -554,6 +593,7 @@ const Works = () => {
                       ? dayjs(work.tobill_tracking_date).format("YYYY/MM/DD")
                       : "暫無資料"}
                   </TableCell>
+                  <TableCell align="left">xxx</TableCell>
                   <TableCell align="left">{work.update_member}</TableCell>
                   <TableCell align="left">
                     {dayjs(work.update_date).format("YYYY/MM/DD")}

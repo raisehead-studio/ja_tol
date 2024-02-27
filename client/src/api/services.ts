@@ -2,8 +2,10 @@ import request from "./requests";
 
 import { ServiceRequestDataType } from "../types/services";
 
-export const getServices = async () => {
-  return request("/api/v1/service").then((res) => res.data);
+export const getServices = async (orderBy: string, orderType: string) => {
+  return request(
+    `/api/v1/service?orderBy=${orderBy}&orderType=${orderType}`
+  ).then((res) => res.data);
 };
 
 export const createServices = async (data: ServiceRequestDataType) => {

@@ -1,5 +1,7 @@
 import request from "./requests";
 
-export const getTrackings = async () => {
-  return request("/api/v1/tracking").then((res) => res.data);
+export const getTrackings = async (orderBy: string, orderType: string) => {
+  return request(
+    `/api/v1/tracking?orderBy=${orderBy}&orderType=${orderType}`
+  ).then((res) => res.data);
 };

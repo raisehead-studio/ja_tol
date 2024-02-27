@@ -278,6 +278,8 @@ export const get_work_orders_list = async (
   res: Response,
   next: NextFunction
 ) => {
+  const { orderBy, orderType } = req.query;
+
   const users: any = await User.findAll({ where: { is_del: false } });
   try {
     WorkOrder.findAll({
@@ -328,120 +330,154 @@ export const get_work_orders_list = async (
       ],
     })
       .then((work_orders) => {
-        return res.json({
-          code: 200,
-          status: "success",
-          data: work_orders.map((worker_order) => {
-            const {
-              power_switch_date1,
-              power_switch_date2,
-              power_switch_date3,
-              power_switch_date4,
-            } = worker_order.dataValues.acceptance_check.dataValues;
-            let item_data;
-            let report_status;
+        let data;
+        data = work_orders.map((worker_order) => {
+          const {
+            power_switch_date1,
+            power_switch_date2,
+            power_switch_date3,
+            power_switch_date4,
+          } = worker_order.dataValues.acceptance_check.dataValues;
+          let item_data;
+          let report_status;
 
+          if (
+            !worker_order.dataValues.assignment.dataValues.tracking_is_finished
+          ) {
+            item_data = "112WT0268派工";
+          } else {
             if (
-              !worker_order.dataValues.assignment.dataValues
-                .tracking_is_finished
+              !worker_order.dataValues.factory.dataValues.tracking_is_finished
             ) {
-              item_data = "112WT0268派工";
+              item_data = "112WT0187入廠";
             } else {
               if (
-                !worker_order.dataValues.factory.dataValues.tracking_is_finished
+                !worker_order.dataValues.acceptance_check.dataValues
+                  .tracking_is_finished
               ) {
-                item_data = "112WT0187入廠";
+                item_data = "112WT0268驗收";
               } else {
                 if (
-                  !worker_order.dataValues.acceptance_check.dataValues
+                  !worker_order.dataValues.tobill.dataValues
                     .tracking_is_finished
                 ) {
-                  item_data = "112WT0268驗收";
-                } else {
-                  if (
-                    !worker_order.dataValues.tobill.dataValues
-                      .tracking_is_finished
-                  ) {
-                    item_data = "112WT0551請款";
-                  }
+                  item_data = "112WT0551請款";
                 }
               }
             }
+          }
 
-            switch (report_status) {
-              case power_switch_date4:
-                report_status = power_switch_date4;
-                break;
-              case power_switch_date3:
-                report_status = power_switch_date3;
-                break;
-              case power_switch_date2:
-                report_status = power_switch_date2;
-                break;
-              case power_switch_date1:
-                report_status = power_switch_date1;
-                break;
-              default:
-                report_status = null;
-                break;
-            }
+          switch (report_status) {
+            case power_switch_date4:
+              report_status = power_switch_date4;
+              break;
+            case power_switch_date3:
+              report_status = power_switch_date3;
+              break;
+            case power_switch_date2:
+              report_status = power_switch_date2;
+              break;
+            case power_switch_date1:
+              report_status = power_switch_date1;
+              break;
+            default:
+              report_status = null;
+              break;
+          }
 
-            return {
-              id: worker_order.dataValues.woid,
-              notify_date: new Date(),
-              customer_number:
-                worker_order.dataValues.customer.dataValues.customer_number,
-              customer_name:
-                worker_order.dataValues.customer.dataValues.short_name,
-              order_number: worker_order.dataValues.order_number,
-              work_order_name: worker_order.dataValues.name,
-              manufacturing_date:
-                worker_order.dataValues.assignment.manufacturing_date,
-              manpower_schedule_started_time:
-                worker_order.dataValues.assignment.manpower_schedules.length > 0
-                  ? worker_order.dataValues.assignment.manpower_schedules.sort(
-                      (a: any, b: any) => b.started_time - a.started_time
-                    )[0].started_time
-                  : null,
-              manpower_schedule_actual_date:
-                worker_order.dataValues.assignment.manpower_schedules.length > 0
-                  ? worker_order.dataValues.assignment.manpower_schedules.sort(
-                      (a: any, b: any) => b.started_time - a.started_time
-                    )[0].actual_date
-                  : null,
-              receive_date: worker_order.dataValues.assignment.receive_date,
-              tai_power_notify_date:
-                worker_order.dataValues.assignment.tai_power_notify_date,
-              is_assign_manpower:
-                worker_order.dataValues.assignment.dataValues
-                  .is_assign_manpower,
-              factory_tracking_date:
-                worker_order.dataValues.factory.tracking_date,
-              report_status: report_status,
-              photo_download:
-                worker_order.dataValues.acceptance_check.photo_download,
-              acceptance_check_tracking_date:
-                worker_order.dataValues.acceptance_check.tracking_date,
-              tobill_tracking_date:
-                worker_order.dataValues.tobill.tracking_date,
-              update_member: users.filter(
-                (user: any) =>
-                  worker_order.dataValues.update_member === user.uid
-              )[0].name,
-              update_date: worker_order.dataValues.updatedAt,
+          return {
+            id: worker_order.dataValues.woid,
+            notify_date: new Date(),
+            customer_number:
+              worker_order.dataValues.customer.dataValues.customer_number,
+            customer_name:
+              worker_order.dataValues.customer.dataValues.short_name,
+            order_number: worker_order.dataValues.order_number,
+            work_order_name: worker_order.dataValues.name,
+            manufacturing_date:
+              worker_order.dataValues.assignment.manufacturing_date,
+            manpower_schedule_started_time:
+              worker_order.dataValues.assignment.manpower_schedules.length > 0
+                ? worker_order.dataValues.assignment.manpower_schedules.sort(
+                    (a: any, b: any) => b.started_time - a.started_time
+                  )[0].started_time
+                : null,
+            manpower_schedule_actual_date:
+              worker_order.dataValues.assignment.manpower_schedules.length > 0
+                ? worker_order.dataValues.assignment.manpower_schedules.sort(
+                    (a: any, b: any) => b.started_time - a.started_time
+                  )[0].actual_date
+                : null,
+            receive_date: worker_order.dataValues.assignment.receive_date,
+            tai_power_notify_date:
+              worker_order.dataValues.assignment.tai_power_notify_date,
+            is_assign_manpower:
+              worker_order.dataValues.assignment.dataValues.is_assign_manpower,
+            factory_tracking_date:
+              worker_order.dataValues.factory.tracking_date,
+            report_status: report_status,
+            photo_download:
+              worker_order.dataValues.acceptance_check.photo_download,
+            acceptance_check_tracking_date:
+              worker_order.dataValues.acceptance_check.tracking_date,
+            tobill_tracking_date: worker_order.dataValues.tobill.tracking_date,
+            update_member: users.filter(
+              (user: any) => worker_order.dataValues.update_member === user.uid
+            )[0].name,
+            update_date: worker_order.dataValues.updatedAt,
 
-              // started_time:
-              //   worker_order.dataValues.assignment.manpower_schedules.length > 0
-              //     ? worker_order.dataValues.assignment.manpower_schedules[0]
-              //         .dataValues.started_time
-              //     : null,
-              // status: [""],
-              // is_inspection_report_retrieved_date:
-              //   worker_order.dataValues.acceptance_check.dataValues
-              //     .is_inspection_report_retrieved_date,
-              // item_data: item_data || null,
-            };
-          }),
+            // started_time:
+            //   worker_order.dataValues.assignment.manpower_schedules.length > 0
+            //     ? worker_order.dataValues.assignment.manpower_schedules[0]
+            //         .dataValues.started_time
+            //     : null,
+            // status: [""],
+            // is_inspection_report_retrieved_date:
+            //   worker_order.dataValues.acceptance_check.dataValues
+            //     .is_inspection_report_retrieved_date,
+            // item_data: item_data || null,
+          };
+        });
+
+        if (orderBy && orderType) {
+          if (
+            orderBy === "update_date" ||
+            orderBy === "notify_date" ||
+            orderBy === "manufacturing_date" ||
+            orderBy === "manpower_schedule_started_time" ||
+            orderBy === "manpower_schedule_actual_date" ||
+            orderBy === "receive_date" ||
+            orderBy === "tai_power_notify_date" ||
+            orderBy === "factory_tracking_date" ||
+            orderBy === "acceptance_check_tracking_date" ||
+            orderBy === "tobill_tracking_date"
+          ) {
+            data.sort((a: any, b: any) => {
+              if (orderType === "asc") {
+                return a[orderBy.toString()] - b[orderBy.toString()];
+              } else {
+                return b[orderBy.toString()] - a[orderBy.toString()];
+              }
+            });
+          } else {
+            data.sort((a: any, b: any) => {
+              if (orderType === "asc") {
+                return a[orderBy.toString()].localeCompare(
+                  b[orderBy.toString()]
+                );
+              } else {
+                return b[orderBy.toString()].localeCompare(
+                  a[orderBy.toString()]
+                );
+              }
+            });
+          }
+        }
+
+        return res.json({
+          code: 200,
+          status: "success",
+          data: data,
           message: "取得工單資料列表成功",
         });
       })

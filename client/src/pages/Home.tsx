@@ -31,8 +31,9 @@ const Home = () => {
   const [openCustomerModal, setOpenCustomerModal] = useState<boolean>(false);
   const [woid, setWoid] = useState<string>("");
   const [cid, setCid] = useState<string>("");
-  const [sort, setSort] = useState<"desc" | "asc" | undefined>("asc");
-  const [sortValue, setSortValue] = useState<string>("update_date");
+  const [orderType, setOrderType] = useState<"asc" | "desc">("desc");
+  const [orderBy, setOrderBy] = useState<string>("notify_date");
+
   const { user } = useLayoutContext();
   const navigate = useNavigate();
 
@@ -40,7 +41,7 @@ const Home = () => {
     const handleGetTrackings = async () => {
       try {
         setLoading(true);
-        const data = await getTrackings();
+        const data = await getTrackings("notify_date", "desc");
         setData(data);
         setLoading(false);
       } catch (error) {
@@ -49,49 +50,6 @@ const Home = () => {
     };
     handleGetTrackings();
   }, []);
-
-  useEffect(() => {
-    if (sortValue === "notify_date" || sortValue === "update_date") {
-      if (sort === "desc") {
-        setData(
-          data.sort(
-            (a: any, b: any) =>
-              dayjs(a[sortValue]).unix() - dayjs(b[sortValue]).unix()
-          )
-        );
-      } else {
-        setData(
-          data.sort(
-            (a: any, b: any) =>
-              dayjs(b[sortValue]).unix() - dayjs(a[sortValue]).unix()
-          )
-        );
-      }
-    } else {
-      if (sort === "desc") {
-        setData(
-          data.sort((a: any, b: any) => {
-            let a_val = a[sortValue];
-            let b_val = b[sortValue];
-            return a_val?.toString().localeCompare(b_val.toString());
-          })
-        );
-      } else {
-        setData(
-          data.sort((a: any, b: any) => {
-            let a_val = a[sortValue] || "";
-            let b_val = b[sortValue] || "";
-            return b_val?.toString().localeCompare(a_val.toString());
-          })
-        );
-      }
-    }
-  }, [data, sort, sortValue]);
-
-  const handleToggleSort = (value: string) => {
-    setSortValue(value);
-    setSort(sort === "asc" ? "desc" : "asc");
-  };
 
   const handleOpenWorkModal = (id: string) => {
     setWoid(id);
@@ -106,6 +64,25 @@ const Home = () => {
   };
 
   const handleCloseCustomerModal = () => setOpenCustomerModal(false);
+
+  const handleGetSortData = async (orderBy: string) => {
+    setOrderBy(orderBy);
+
+    if (orderType === "asc") {
+      setOrderType("desc");
+    } else {
+      setOrderType("asc");
+    }
+
+    try {
+      setLoading(true);
+      const data = await getTrackings(orderBy, orderType);
+      setData(data);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
 
   return (
     <Box
@@ -170,8 +147,8 @@ const Home = () => {
                     width: "8%",
                   }}>
                   <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("notify_date")}
+                    direction={orderBy === "notify_date" ? orderType : "desc"}
+                    onClick={() => handleGetSortData("notify_date")}
                     sx={{
                       color: "white !important",
                       ".MuiTableSortLabel-icon": {
@@ -185,8 +162,10 @@ const Home = () => {
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("customer_number")}
+                    direction={
+                      orderBy === "customer_number" ? orderType : "desc"
+                    }
+                    onClick={() => handleGetSortData("customer_number")}
                     sx={{
                       color: "white !important",
                       ".MuiTableSortLabel-icon": {
@@ -200,8 +179,8 @@ const Home = () => {
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("short_name")}
+                    direction={orderBy === "short_name" ? orderType : "desc"}
+                    onClick={() => handleGetSortData("short_name")}
                     sx={{
                       color: "white !important",
                       ".MuiTableSortLabel-icon": {
@@ -215,8 +194,10 @@ const Home = () => {
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("work_order_number")}
+                    direction={
+                      orderBy === "work_order_number" ? orderType : "desc"
+                    }
+                    onClick={() => handleGetSortData("work_order_number")}
                     sx={{
                       color: "white !important",
                       ".MuiTableSortLabel-icon": {
@@ -230,8 +211,8 @@ const Home = () => {
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("item")}
+                    direction={orderBy === "item" ? orderType : "desc"}
+                    onClick={() => handleGetSortData("item")}
                     sx={{
                       color: "white !important",
                       ".MuiTableSortLabel-icon": {
@@ -245,8 +226,8 @@ const Home = () => {
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("description")}
+                    direction={orderBy === "description" ? orderType : "desc"}
+                    onClick={() => handleGetSortData("description")}
                     sx={{
                       color: "white !important",
                       ".MuiTableSortLabel-icon": {
@@ -260,8 +241,8 @@ const Home = () => {
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("update_member")}
+                    direction={orderBy === "update_member" ? orderType : "desc"}
+                    onClick={() => handleGetSortData("update_member")}
                     sx={{
                       color: "white !important",
                       ".MuiTableSortLabel-icon": {
@@ -275,8 +256,8 @@ const Home = () => {
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
-                    onClick={() => handleToggleSort("update_date")}
+                    direction={orderBy === "update_date" ? orderType : "desc"}
+                    onClick={() => handleGetSortData("update_date")}
                     sx={{
                       color: "white !important",
                       ".MuiTableSortLabel-icon": {
@@ -342,7 +323,13 @@ const Home = () => {
                     <TableCell align="left">{i.short_name}</TableCell>
                     <TableCell align="left">{i.work_order_number}</TableCell>
                     <TableCell align="left">{i.item}</TableCell>
-                    <TableCell align="left">{i.description}</TableCell>
+                    <TableCell
+                      align="left"
+                      sx={{
+                        width: "20%",
+                      }}>
+                      {i.description}
+                    </TableCell>
                     <TableCell align="left">{i.update_member}</TableCell>
                     <TableCell align="left">
                       {dayjs(i.update_date).format("YYYY/MM/DD")}

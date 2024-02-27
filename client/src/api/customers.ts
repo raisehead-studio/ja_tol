@@ -6,8 +6,10 @@ import {
   UpdateCustomerRequestDataType,
 } from "../types/customers";
 
-export const getCustomers = async () => {
-  return request("/api/v1/customers").then((res) => res.data);
+export const getCustomers = async (orderBy: string, orderType: string) => {
+  return request(
+    `/api/v1/customers?orderBy=${orderBy}&orderType=${orderType}`
+  ).then((res) => res.data);
 };
 
 export const getCustomer = async (id: string) => {

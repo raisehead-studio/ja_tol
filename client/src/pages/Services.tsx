@@ -42,7 +42,7 @@ const Services = () => {
     const handleGetCustomers = async () => {
       try {
         setLoading(true);
-        const services = await getServices();
+        const services = await getServices("customer_number", "asc");
         setData(services);
         setLoading(false);
       } catch (error) {
@@ -54,67 +54,22 @@ const Services = () => {
     if (!openCreateServiceModal) handleGetCustomers();
   }, [openCreateServiceModal]);
 
-  // useEffect(() => {
-  //   const handleGetCustomers = async () => {
-  //     try {
-  //       const customers = await getCustomers();
-  //       setLoading(true);
-  //       setData(customers);
-  //       setLoading(false);
-  //     } catch (error) {
-  //       console.log(error);
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   handleGetCustomers();
-  // }, []);
-
-  useEffect(() => {
-    if (
-      sortValue === "update_date" ||
-      sortValue === "notify_date" ||
-      sortValue === "update_date"
-    ) {
-      if (sort === "desc") {
-        setData(
-          data.sort(
-            (a: any, b: any) =>
-              dayjs(a[sortValue]).unix() - dayjs(b[sortValue]).unix()
-          )
-        );
-      } else {
-        setData(
-          data.sort(
-            (a: any, b: any) =>
-              dayjs(b[sortValue]).unix() - dayjs(a[sortValue]).unix()
-          )
-        );
-      }
-    } else {
-      if (sort === "desc") {
-        setData(
-          data.sort((a: any, b: any) => {
-            let a_val = a[sortValue];
-            let b_val = b[sortValue];
-            return a_val?.toString().localeCompare(b_val.toString());
-          })
-        );
-      } else {
-        setData(
-          data.sort((a: any, b: any) => {
-            let a_val = a[sortValue] || "";
-            let b_val = b[sortValue] || "";
-            return b_val?.toString().localeCompare(a_val.toString());
-          })
-        );
-      }
+  const handleGetCustomers = async (orderBy: string, orderType: string) => {
+    try {
+      setLoading(true);
+      const services = await getServices(orderBy, orderType);
+      setData(services);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
     }
-  }, [data, sort, sortValue]);
+  };
 
   const handleToggleSort = (value: string) => {
     setSortValue(value);
     setSort(sort === "asc" ? "desc" : "asc");
+    handleGetCustomers(value, sort === "asc" ? "desc" : "asc");
   };
 
   const handleCloseModal = () => {
@@ -149,7 +104,7 @@ const Services = () => {
           setLoading(true);
           const response = await deleteServices(id);
           if (response.code === 200) {
-            const services = await getServices();
+            const services = await getServices("customer_number", "asc");
             setLoading(false);
             setData(services);
           }
@@ -235,7 +190,7 @@ const Services = () => {
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
+                    direction={sortValue === "notify_date" ? sort : "asc"}
                     onClick={() => handleToggleSort("notify_date")}
                     sx={{
                       color: "white !important",
@@ -247,11 +202,10 @@ const Services = () => {
                     追蹤日期
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="left">客戶編號 / 客戶簡稱</TableCell>
-                {/* <TableCell align="left">
+                <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
+                    direction={sortValue === "customer_number" ? sort : "asc"}
                     onClick={() => handleToggleSort("customer_number")}
                     sx={{
                       color: "white !important",
@@ -260,13 +214,13 @@ const Services = () => {
                       },
                     }}
                     active={true}>
-                    客戶編號/客戶簡稱
+                    客戶編號
                   </TableSortLabel>
                 </TableCell>
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
+                    direction={sortValue === "customer_number" ? sort : "asc"}
                     onClick={() => handleToggleSort("short_name")}
                     sx={{
                       color: "white !important",
@@ -277,11 +231,11 @@ const Services = () => {
                     active={true}>
                     客戶簡稱
                   </TableSortLabel>
-                </TableCell> */}
+                </TableCell>
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
+                    direction={sortValue === "status" ? sort : "asc"}
                     onClick={() => handleToggleSort("status")}
                     sx={{
                       color: "white !important",
@@ -296,7 +250,7 @@ const Services = () => {
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
+                    direction={sortValue === "type" ? sort : "asc"}
                     onClick={() => handleToggleSort("type")}
                     sx={{
                       color: "white !important",
@@ -311,7 +265,7 @@ const Services = () => {
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
+                    direction={sortValue === "title" ? sort : "asc"}
                     onClick={() => handleToggleSort("title")}
                     sx={{
                       color: "white !important",
@@ -326,7 +280,7 @@ const Services = () => {
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
+                    direction={sortValue === "update_date" ? sort : "asc"}
                     onClick={() => handleToggleSort("update_date")}
                     sx={{
                       color: "white !important",
@@ -379,7 +333,7 @@ const Services = () => {
                   case "in_progress":
                     customer_status = "進行中";
                     break;
-                  case "done":
+                  case "complete":
                     customer_status = "已完成";
                     break;
                   case "closed":
@@ -435,8 +389,9 @@ const Services = () => {
                       {dayjs(service.notify_date).format("YYYY/MM/DD")}
                     </TableCell>
                     <TableCell align="left">
-                      {service.customer_number} / {service.short_name}
-                    </TableCell>
+                      {service.customer_number}
+                    </TableCell>{" "}
+                    <TableCell align="left">{service.short_name}</TableCell>
                     <TableCell align="left">{customer_status}</TableCell>
                     <TableCell align="left">{service.type}</TableCell>
                     <TableCell align="left">{service.title}</TableCell>

@@ -42,7 +42,7 @@ const Customers = () => {
     const handleGetCustomers = async () => {
       try {
         setLoading(true);
-        const customers = await getCustomers();
+        const customers = await getCustomers("customer_number", "asc");
         setData(customers);
         setLoading(false);
       } catch (error) {
@@ -57,7 +57,7 @@ const Customers = () => {
   useEffect(() => {
     const handleGetCustomers = async () => {
       try {
-        const customers = await getCustomers();
+        const customers = await getCustomers("customer_number", "asc");
         setLoading(true);
         setData(customers);
         setLoading(false);
@@ -70,29 +70,23 @@ const Customers = () => {
     handleGetCustomers();
   }, []);
 
-  useEffect(() => {
-    if (sort === "desc") {
-      setData(
-        data.sort((a: any, b: any) => {
-          let a_val = a[sortValue];
-          let b_val = b[sortValue];
-          return a_val?.toString().localeCompare(b_val.toString());
-        })
-      );
-    } else {
-      setData(
-        data.sort((a: any, b: any) => {
-          let a_val = a[sortValue] || "";
-          let b_val = b[sortValue] || "";
-          return b_val?.toString().localeCompare(a_val.toString());
-        })
-      );
-    }
-  }, [data, sort, sortValue]);
+  const handleGetCustomers = async (value: string, sort: string) => {
+    setLoading(true);
 
-  const handleToggleSort = (value: string) => {
+    try {
+      const customers = await getCustomers(value, sort);
+      setData(customers);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
+
+  const handleToggleSort = async (value: string) => {
     setSortValue(value);
     setSort(sort === "asc" ? "desc" : "asc");
+    handleGetCustomers(value, sort === "asc" ? "desc" : "asc");
   };
 
   const handleCloseModal = () => {
@@ -126,7 +120,7 @@ const Customers = () => {
         try {
           setLoading(true);
           await deleteCustomer(cid);
-          const customers = await getCustomers();
+          const customers = await getCustomers("customer_number", "asc");
           setData(customers);
           setLoading(false);
         } catch (er) {
@@ -136,7 +130,7 @@ const Customers = () => {
     });
   };
 
-  console.log(data);
+  console.log(loading);
 
   return (
     <Box
@@ -213,7 +207,7 @@ const Customers = () => {
                 <TableCell align="left">
                   {" "}
                   <TableSortLabel
-                    direction={sort}
+                    direction={sortValue === "customer_number" ? sort : "asc"}
                     onClick={() => handleToggleSort("customer_number")}
                     sx={{
                       color: "white !important",
@@ -222,7 +216,22 @@ const Customers = () => {
                       },
                     }}
                     active={true}>
-                    客戶編號/客戶簡稱
+                    客戶編號
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="left">
+                  {" "}
+                  <TableSortLabel
+                    direction={sortValue === "short_name" ? sort : "asc"}
+                    onClick={() => handleToggleSort("short_name")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    客戶簡稱
                   </TableSortLabel>
                 </TableCell>
                 <TableCell align="left">用電場所名稱</TableCell>
@@ -271,7 +280,10 @@ const Customers = () => {
                     </Tooltip>
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {customer.customer_number} / {customer.short_name}
+                    {customer.customer_number}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {customer.short_name}
                   </TableCell>
                   <TableCell component="th" scope="row">
                     {customer.ele_place_name}{" "}

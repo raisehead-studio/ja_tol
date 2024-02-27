@@ -77,7 +77,7 @@ const CreateService = ({
     const handleGetCustomers = async () => {
       try {
         setLoading(true);
-        const customers = await getCustomers();
+        const customers = await getCustomers("customer_number", "asc");
         setCustomersOptions(customers);
         setLoading(false);
       } catch (error) {

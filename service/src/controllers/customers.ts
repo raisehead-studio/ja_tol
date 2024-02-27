@@ -93,9 +93,11 @@ export const get_customers_list = async (
   res: Response,
   next: NextFunction
 ) => {
-  const users: any = await User.findAll({ where: { is_del: false } });
+  const { orderBy, orderType } = req.query;
 
-  console.log(users);
+  const users: any = await User.findAll({
+    where: { is_del: false },
+  });
 
   Customer.findAll({
     where: { is_del: false },
@@ -114,6 +116,26 @@ export const get_customers_list = async (
     },
   })
     .then((result: any) => {
+      if (orderBy && orderType) {
+        if (orderBy === "notify_date" || orderBy === "update_date") {
+          result.sort((a: any, b: any) => {
+            if (orderType === "asc") {
+              return a[orderBy.toString()] - b[orderBy.toString()];
+            } else {
+              return b[orderBy.toString()] - a[orderBy.toString()];
+            }
+          });
+        } else {
+          result.sort((a: any, b: any) => {
+            if (orderType === "asc") {
+              return a[orderBy.toString()].localeCompare(b[orderBy.toString()]);
+            } else {
+              return b[orderBy.toString()].localeCompare(a[orderBy.toString()]);
+            }
+          });
+        }
+      }
+
       return res.json({
         code: 200,
         status: "success",
