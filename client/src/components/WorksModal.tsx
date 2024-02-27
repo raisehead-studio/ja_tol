@@ -84,6 +84,8 @@ const WorksModal = ({
     }
   }, [open]);
 
+  console.log(data);
+
   return (
     <Modal open={open} onClose={handleClose}>
       <Box

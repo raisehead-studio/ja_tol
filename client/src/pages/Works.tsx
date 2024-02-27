@@ -593,7 +593,9 @@ const Works = () => {
                       ? dayjs(work.tobill_tracking_date).format("YYYY/MM/DD")
                       : "暫無資料"}
                   </TableCell>
-                  <TableCell align="left">xxx</TableCell>
+                  <TableCell align="left">
+                    {work.tobill_tracking_date ? "已結案" : "未結案"}
+                  </TableCell>
                   <TableCell align="left">{work.update_member}</TableCell>
                   <TableCell align="left">
                     {dayjs(work.update_date).format("YYYY/MM/DD")}

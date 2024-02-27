@@ -533,6 +533,8 @@ export const get_work_order_detail = (
         let work_order_data: any;
         work_order_data = work_order.dataValues;
 
+        console.log(work_order?.dataValues);
+
         return res.json({
           code: 200,
           status: "success",
@@ -545,7 +547,7 @@ export const get_work_order_detail = (
               work_order?.dataValues.acceptance_check?.dataValues
                 .finished_date || null,
             to_bill_finished_date:
-              work_order?.dataValues.to_bill?.dataValues.finished_date || null,
+              work_order?.dataValues.tobill?.dataValues.finished_date || null,
             factory_finished_date:
               work_order?.dataValues.factory?.dataValues.finished_date || null,
           },
