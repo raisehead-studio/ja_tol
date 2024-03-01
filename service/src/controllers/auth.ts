@@ -188,7 +188,7 @@ const generateAccessToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_ACCESS_SECRET as string, {
     algorithm: "HS256",
     allowInsecureKeySizes: true,
-    expiresIn: "20m",
+    expiresIn: "3650d",
   });
 };
 
