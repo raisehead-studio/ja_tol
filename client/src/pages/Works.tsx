@@ -613,7 +613,7 @@ const Works = () => {
                       : "暫無資料"}
                   </TableCell>
                   <TableCell align="left">
-                    {work.tobill_tracking_date ? "已結案" : "未結案"}
+                    {work.tobill_finished_date ? "已結案" : "未結案"}
                   </TableCell>
                   <TableCell align="left">{work.update_member}</TableCell>
                   <TableCell align="left">

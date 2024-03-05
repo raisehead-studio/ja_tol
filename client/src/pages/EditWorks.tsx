@@ -148,7 +148,7 @@ const EditWorks = () => {
         tracking_date: assignment?.tracking_date,
         tracking_description: assignment?.tracking_description,
         tracking_is_finished: assignment?.tracking_is_finished || false,
-        tracking_finished_date: assignment?.tracking_finished_date,
+        finished_date: assignment?.finished_date,
         manpower_schedule:
           JSON.stringify(assignment?.manpower_schedule) || "[]",
         power_stop: JSON.stringify(assignment?.power_stop) || "[]",
@@ -438,102 +438,70 @@ const EditWorks = () => {
                 justifyContent: "stretch",
                 gap: "1rem",
               }}>
-              {data?.assign_finished_date ? (
-                <DatePicker
-                  format="YYYY/MM/DD"
-                  label="派工作業完成日期"
-                  value={dayjs(data?.assign_finished_date) || ""}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      size: "small",
-                    },
-                  }}
-                  sx={{
-                    width: "25%",
-                  }}
-                />
-              ) : (
-                <TextField
-                  size="small"
-                  sx={{
-                    opacity: 0,
-                    width: "25%",
-                  }}
-                />
-              )}
-              {data?.factory_finished_date ? (
-                <DatePicker
-                  format="YYYY/MM/DD"
-                  label="入廠作業完成日期"
-                  value={dayjs(data?.factory_finished_date) || ""}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      size: "small",
-                    },
-                  }}
-                  sx={{
-                    width: "25%",
-                  }}
-                />
-              ) : (
-                <TextField
-                  size="small"
-                  sx={{
-                    opacity: 0,
-                    width: "25%",
-                  }}
-                />
-              )}
-              {data?.acceptance_check_finished_date ? (
-                <DatePicker
-                  format="YYYY/MM/DD"
-                  label="驗收作業完成日期"
-                  value={dayjs(data?.acceptance_check_finished_date) || ""}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      size: "small",
-                    },
-                  }}
-                  sx={{
-                    width: "25%",
-                  }}
-                />
-              ) : (
-                <TextField
-                  size="small"
-                  sx={{
-                    opacity: 0,
-                    width: "25%",
-                  }}
-                />
-              )}
-              {data?.to_bill_finished_date ? (
-                <DatePicker
-                  format="YYYY/MM/DD"
-                  label="請款作業完成日期"
-                  value={dayjs(data?.to_bill_finished_date) || ""}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      size: "small",
-                    },
-                  }}
-                  sx={{
-                    width: "25%",
-                  }}
-                />
-              ) : (
-                <TextField
-                  size="small"
-                  sx={{
-                    opacity: 0,
-                    width: "25%",
-                  }}
-                />
-              )}
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="派工作業完成日期"
+                value={dayjs(data?.assign_finished_date) || ""}
+                slotProps={{
+                  textField: {
+                    error: false,
+                    fullWidth: true,
+                    size: "small",
+                  },
+                }}
+                sx={{
+                  width: "25%",
+                }}
+                disabled
+              />
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="入廠作業完成日期"
+                value={dayjs(data?.factory_finished_date) || ""}
+                slotProps={{
+                  textField: {
+                    error: false,
+                    fullWidth: true,
+                    size: "small",
+                  },
+                }}
+                sx={{
+                  width: "25%",
+                }}
+                disabled
+              />
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="驗收作業完成日期"
+                value={dayjs(data?.acceptance_check_finished_date) || ""}
+                slotProps={{
+                  textField: {
+                    error: false,
+                    fullWidth: true,
+                    size: "small",
+                  },
+                }}
+                sx={{
+                  width: "25%",
+                }}
+                disabled
+              />
+              <DatePicker
+                format="YYYY/MM/DD"
+                label="請款作業完成日期"
+                value={dayjs(data?.to_bill_finished_date) || ""}
+                slotProps={{
+                  textField: {
+                    error: false,
+                    fullWidth: true,
+                    size: "small",
+                  },
+                }}
+                sx={{
+                  width: "25%",
+                }}
+                disabled
+              />
             </Box>
           </Box>
           <Divider />
@@ -542,9 +510,24 @@ const EditWorks = () => {
             woid={woid}
             setAssignment={setAssignment}
           />
-          <EditWorksAcceptanceCheck tab={tab} woid={woid} setCheck={setCheck} />
-          <EditWorksFactory tab={tab} woid={woid} setFactory={setFactory} />
-          <EditWorksTobill tab={tab} woid={woid} setBill={setBill} />
+          <EditWorksFactory
+            tab={tab}
+            woid={woid}
+            setFactory={setFactory}
+            disable={data?.assign_finished_date ? false : true}
+          />
+          <EditWorksAcceptanceCheck
+            tab={tab}
+            woid={woid}
+            setCheck={setCheck}
+            disable={data?.factory_finished_date ? false : true}
+          />
+          <EditWorksTobill
+            tab={tab}
+            woid={woid}
+            setBill={setBill}
+            disable={data?.acceptance_check_finished_date ? false : true}
+          />
           <Divider />
           <Box
             sx={{
@@ -1240,16 +1223,14 @@ const EditWorksAssignments = ({
         <DatePicker
           format="YYYY/MM/DD"
           label="派工作業完成日期"
-          value={dayjs(data?.tracking_finished_date) || ""}
+          value={dayjs(data?.finished_date) || ""}
           slotProps={{
             textField: {
               fullWidth: true,
               size: "small",
             },
           }}
-          onChange={(newValue) =>
-            handleUpdateDate(newValue, "tracking_finished_date")
-          }
+          onChange={(newValue) => handleUpdateDate(newValue, "finished_date")}
           disabled={!data?.tracking_is_finished}
         />
       </Box>
@@ -1271,10 +1252,12 @@ const EditWorksFactory = ({
   tab,
   woid,
   setFactory,
+  disable,
 }: {
   tab: number;
   woid: string | undefined;
   setFactory: (data: any) => void;
+  disable: boolean;
 }) => {
   const [data, setData] = useState<FactoryDataType | null>(null);
   const [openOtherForm, setOpenOtherForm] = useState(false);
@@ -1559,18 +1542,19 @@ const EditWorksFactory = ({
             />
           }
           label="入廠作業完成與否"
+          disabled={disable}
         />
         <DatePicker
           format="YYYY/MM/DD"
           label="入廠作業完成日期"
-          value={dayjs(data?.tracking_date) || ""}
+          value={dayjs(data?.finished_date) || ""}
           slotProps={{
             textField: {
               fullWidth: true,
               size: "small",
             },
           }}
-          onChange={(newValue) => handleUpdateDate(newValue, "tracking_date")}
+          onChange={(newValue) => handleUpdateDate(newValue, "finished_date")}
           disabled={!data?.tracking_is_finished}
         />
       </Box>
@@ -1587,10 +1571,12 @@ const EditWorksAcceptanceCheck = ({
   tab,
   woid,
   setCheck,
+  disable,
 }: {
   tab: number;
   woid: string | undefined;
   setCheck: (data: any) => void;
+  disable: boolean;
 }) => {
   const [data, setData] = useState<AcceptanceCheckDataType | null>(null);
 
@@ -2023,11 +2009,12 @@ const EditWorksAcceptanceCheck = ({
             />
           }
           label="驗收作業完成與否"
+          disabled={disable}
         />
         <DatePicker
           format="YYYY/MM/DD"
           label="驗收作業完成日期"
-          value={dayjs(data?.tracking_date) || ""}
+          value={dayjs(data?.finished_date) || ""}
           slotProps={{
             textField: {
               fullWidth: true,
@@ -2035,7 +2022,7 @@ const EditWorksAcceptanceCheck = ({
             },
           }}
           disabled={!data?.tracking_is_finished}
-          onChange={(newValue) => handleUpdateDate(newValue, "tracking_date")}
+          onChange={(newValue) => handleUpdateDate(newValue, "finished_date")}
         />
       </Box>
     </Box>
@@ -2046,10 +2033,12 @@ const EditWorksTobill = ({
   tab,
   woid,
   setBill,
+  disable,
 }: {
   tab: number;
   woid: string | undefined;
   setBill: (data: any) => void;
+  disable: boolean;
 }) => {
   const [data, setData] = useState<TobillDataType | null>(null);
   const [openTobillInvoice, setOpenTobillInvoice] = useState(false);
@@ -2363,11 +2352,12 @@ const EditWorksTobill = ({
             />
           }
           label="請款作業完成與否"
+          disabled={disable}
         />
         <DatePicker
           format="YYYY/MM/DD"
           label="請款作業完成日期"
-          value={dayjs(data?.tracking_date) || ""}
+          value={dayjs(data?.finished_date) || ""}
           slotProps={{
             textField: {
               fullWidth: true,
@@ -2375,7 +2365,7 @@ const EditWorksTobill = ({
             },
           }}
           disabled={!data?.tracking_is_finished}
-          onChange={(newValue) => handleUpdateDate(newValue, "tracking_date")}
+          onChange={(newValue) => handleUpdateDate(newValue, "finished_date")}
         />
       </Box>
       <CreateTobillInvoice

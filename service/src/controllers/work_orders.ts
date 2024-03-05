@@ -106,7 +106,7 @@ export const create_work_order = async (
         let external_contact_is_power_stop = false;
         let external_contact_request_date = new Date();
         let external_contact_receive_date = new Date();
-        let tracking_finished_date = new Date();
+        // let finished_date = new Date();
 
         executions.push(
           Factorys.create({
@@ -317,6 +317,7 @@ export const get_work_orders_list = async (
             "tracking_date",
             "tracking_is_finished",
             "tracking_description",
+            "finished_date",
           ],
         },
         {
@@ -425,7 +426,7 @@ export const get_work_orders_list = async (
               (user: any) => worker_order.dataValues.update_member === user.uid
             )[0].name,
             update_date: worker_order.dataValues.updatedAt,
-
+            tobill_finished_date: worker_order.dataValues.tobill.finished_date,
             // started_time:
             //   worker_order.dataValues.assignment.manpower_schedules.length > 0
             //     ? worker_order.dataValues.assignment.manpower_schedules[0]
@@ -538,15 +539,15 @@ export const get_work_order_detail = (
           data: {
             ...work_order_data,
             assign_finished_date:
-              work_order?.dataValues.assignment?.dataValues
-                .tracking_finished_date || null,
+              work_order?.dataValues.assignment?.dataValues.finished_date ||
+              null,
             acceptance_check_finished_date:
               work_order?.dataValues.acceptance_check?.dataValues
-                .tracking_date || null,
+                .finished_date || null,
             to_bill_finished_date:
-              work_order?.dataValues.tobill?.dataValues.tracking_date || null,
+              work_order?.dataValues.tobill?.dataValues.finished_date || null,
             factory_finished_date:
-              work_order?.dataValues.factory?.dataValues.tracking_date || null,
+              work_order?.dataValues.factory?.dataValues.finished_date || null,
           },
           message: "取得工單資料成功",
         });
@@ -737,8 +738,7 @@ export const get_assignment_detail = (req: Request, res: Response) => {
               assignment?.dataValues.tracking_description;
             data.tracking_is_finished =
               assignment?.dataValues.tracking_is_finished;
-            data.tracking_finished_date =
-              assignment?.dataValues.tracking_finished_date;
+            data.finished_date = assignment?.dataValues.finished_date;
             data.work_order_name = work_order.dataValues.name;
             data.work_order_type = work_order.dataValues.type;
             data.po = work_order.dataValues.po;
@@ -845,7 +845,7 @@ export const update_assignment = (
       tracking_date,
       tracking_description,
       tracking_is_finished,
-      tracking_finished_date,
+      finished_date,
       // work_order_name,
       // work_order_type,
       // po,
@@ -879,7 +879,7 @@ export const update_assignment = (
         assignment.tracking_date = tracking_date;
         assignment.tracking_description = tracking_description;
         assignment.tracking_is_finished = tracking_is_finished;
-        assignment.tracking_finished_date = tracking_finished_date;
+        assignment.finished_date = finished_date;
         assignment.update_member = user?.uid;
         assignment.save();
 
@@ -1007,7 +1007,7 @@ export const create_assignment = (
       tracking_date,
       tracking_description,
       tracking_is_finished,
-      tracking_finished_date,
+      finished_date,
     } = req.body;
     const { user } = req;
 
@@ -1027,7 +1027,7 @@ export const create_assignment = (
       tracking_date,
       tracking_description,
       tracking_is_finished,
-      tracking_finished_date,
+      finished_date,
       update_member: user?.uid,
       create_member: user?.uid,
       is_del: false,

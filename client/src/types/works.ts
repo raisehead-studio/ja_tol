@@ -18,6 +18,7 @@ export type WorkResponseDataType = {
   tobill_tracking_date: Date | string | null;
   update_member: string;
   update_date: Date | string | null;
+  tobill_finished_date: Date | string | null;
 };
 
 export type WorkRequestDataType = {
@@ -63,7 +64,7 @@ export type AssignmentResponseDataType = {
   tracking_date: string;
   tracking_description: string;
   tracking_is_finished: boolean;
-  tracking_finished_date: string;
+  finished_date: string;
   work_order_name: string;
   work_order_type: string;
   po: string;
@@ -122,7 +123,7 @@ export type AssignmentDataType = {
   tracking_date: Date;
   tracking_description: string;
   tracking_is_finished: boolean;
-  tracking_finished_date: Date;
+  finished_date: Date;
   work_order_name?: string;
   work_order_type?: string;
   po?: string;
@@ -153,7 +154,7 @@ export type AssignmentRequestDataType = {
   tracking_date: Date | undefined;
   tracking_description: string | undefined;
   tracking_is_finished: boolean;
-  tracking_finished_date: Date | undefined;
+  finished_date: Date | undefined;
   // work_order_name: string;
   // work_order_type: string;
   // po: string;

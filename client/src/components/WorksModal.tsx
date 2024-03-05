@@ -223,102 +223,70 @@ const WorksModal = ({
                     justifyContent: "stretch",
                     gap: "1rem",
                   }}>
-                  {data?.assign_finished_date ? (
-                    <DatePicker
-                      format="YYYY/MM/DD"
-                      label="派工作業完成日期"
-                      value={dayjs(data?.assign_finished_date) || ""}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          size: "small",
-                        },
-                      }}
-                      sx={{
-                        width: "25%",
-                      }}
-                    />
-                  ) : (
-                    <TextField
-                      size="small"
-                      sx={{
-                        opacity: 0,
-                        width: "25%",
-                      }}
-                    />
-                  )}
-                  {data?.factory_finished_date ? (
-                    <DatePicker
-                      format="YYYY/MM/DD"
-                      label="入廠作業完成日期"
-                      value={dayjs(data?.factory_finished_date) || ""}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          size: "small",
-                        },
-                      }}
-                      sx={{
-                        width: "25%",
-                      }}
-                    />
-                  ) : (
-                    <TextField
-                      size="small"
-                      sx={{
-                        opacity: 0,
-                        width: "25%",
-                      }}
-                    />
-                  )}
-                  {data?.acceptance_check_finished_date ? (
-                    <DatePicker
-                      format="YYYY/MM/DD"
-                      label="驗收作業完成日期"
-                      value={dayjs(data?.acceptance_check_finished_date) || ""}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          size: "small",
-                        },
-                      }}
-                      sx={{
-                        width: "25%",
-                      }}
-                    />
-                  ) : (
-                    <TextField
-                      size="small"
-                      sx={{
-                        opacity: 0,
-                        width: "25%",
-                      }}
-                    />
-                  )}
-                  {data?.to_bill_finished_date ? (
-                    <DatePicker
-                      format="YYYY/MM/DD"
-                      label="請款作業完成日期"
-                      value={dayjs(data?.to_bill_finished_date) || ""}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          size: "small",
-                        },
-                      }}
-                      sx={{
-                        width: "25%",
-                      }}
-                    />
-                  ) : (
-                    <TextField
-                      size="small"
-                      sx={{
-                        opacity: 0,
-                        width: "25%",
-                      }}
-                    />
-                  )}
+                  <DatePicker
+                    format="YYYY/MM/DD"
+                    label="派工作業完成日期"
+                    value={dayjs(data?.assign_finished_date) || ""}
+                    slotProps={{
+                      textField: {
+                        error: false,
+                        fullWidth: true,
+                        size: "small",
+                      },
+                    }}
+                    sx={{
+                      width: "25%",
+                    }}
+                    disabled
+                  />
+                  <DatePicker
+                    format="YYYY/MM/DD"
+                    label="入廠作業完成日期"
+                    value={dayjs(data?.factory_finished_date) || ""}
+                    slotProps={{
+                      textField: {
+                        error: false,
+                        fullWidth: true,
+                        size: "small",
+                      },
+                    }}
+                    sx={{
+                      width: "25%",
+                    }}
+                    disabled
+                  />
+                  <DatePicker
+                    format="YYYY/MM/DD"
+                    label="驗收作業完成日期"
+                    value={dayjs(data?.acceptance_check_finished_date) || ""}
+                    slotProps={{
+                      textField: {
+                        error: false,
+                        fullWidth: true,
+                        size: "small",
+                      },
+                    }}
+                    sx={{
+                      width: "25%",
+                    }}
+                    disabled
+                  />
+                  <DatePicker
+                    format="YYYY/MM/DD"
+                    label="請款作業完成日期"
+                    value={dayjs(data?.to_bill_finished_date) || ""}
+                    slotProps={{
+                      textField: {
+                        error: false,
+                        fullWidth: true,
+                        size: "small",
+                      },
+                    }}
+                    sx={{
+                      width: "25%",
+                    }}
+                    disabled
+                  />
                 </Box>
               </Box>
               <Divider />
@@ -727,7 +695,7 @@ const EditWorksAssignments = ({
         <DatePicker
           format="YYYY/MM/DD"
           label="派工作業完成日期"
-          value={dayjs(data?.tracking_finished_date) || ""}
+          value={dayjs(data?.finished_date) || ""}
           slotProps={{
             textField: {
               fullWidth: true,
