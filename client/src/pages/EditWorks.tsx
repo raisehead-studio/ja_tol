@@ -1301,8 +1301,6 @@ const EditWorksFactory = ({
     }
   }, [woid, openOtherForm]);
 
-  console.log(data);
-
   const handleUpdateFiled = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     if (!data) return;
@@ -1572,9 +1570,7 @@ const EditWorksFactory = ({
               size: "small",
             },
           }}
-          onChange={(newValue) =>
-            handleUpdateDate(newValue, "tracking_finished_date")
-          }
+          onChange={(newValue) => handleUpdateDate(newValue, "tracking_date")}
           disabled={!data?.tracking_is_finished}
         />
       </Box>
@@ -1844,11 +1840,8 @@ const EditWorksAcceptanceCheck = ({
           fullWidth
           value={data?.is_inspection_report_retrieved ? 0 : 1}
           name="is_inspection_report_retrieved"
-          onChange={handleUpdateSelection}
-          select>
-          <MenuItem value={0}>取回</MenuItem>
-          <MenuItem value={1}>尚未取回</MenuItem>
-        </TextField>
+          onChange={handleUpdateFiled}
+        />
         <DatePicker
           format="YYYY/MM/DD"
           label="檢驗總表取回日期"
@@ -2042,9 +2035,7 @@ const EditWorksAcceptanceCheck = ({
             },
           }}
           disabled={!data?.tracking_is_finished}
-          onChange={(newValue) =>
-            handleUpdateDate(newValue, "tracking_finished_date")
-          }
+          onChange={(newValue) => handleUpdateDate(newValue, "tracking_date")}
         />
       </Box>
     </Box>
@@ -2384,9 +2375,7 @@ const EditWorksTobill = ({
             },
           }}
           disabled={!data?.tracking_is_finished}
-          onChange={(newValue) =>
-            handleUpdateDate(newValue, "tracking_finished_date")
-          }
+          onChange={(newValue) => handleUpdateDate(newValue, "tracking_date")}
         />
       </Box>
       <CreateTobillInvoice

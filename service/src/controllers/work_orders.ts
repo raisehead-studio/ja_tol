@@ -532,9 +532,6 @@ export const get_work_order_detail = (
       .then(async (work_order: any) => {
         let work_order_data: any;
         work_order_data = work_order.dataValues;
-
-        console.log(work_order?.dataValues);
-
         return res.json({
           code: 200,
           status: "success",
@@ -545,11 +542,11 @@ export const get_work_order_detail = (
                 .tracking_finished_date || null,
             acceptance_check_finished_date:
               work_order?.dataValues.acceptance_check?.dataValues
-                .finished_date || null,
+                .tracking_date || null,
             to_bill_finished_date:
-              work_order?.dataValues.tobill?.dataValues.finished_date || null,
+              work_order?.dataValues.tobill?.dataValues.tracking_date || null,
             factory_finished_date:
-              work_order?.dataValues.factory?.dataValues.finished_date || null,
+              work_order?.dataValues.factory?.dataValues.tracking_date || null,
           },
           message: "取得工單資料成功",
         });

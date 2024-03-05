@@ -151,8 +151,27 @@ const Works = () => {
         <Typography variant="h5">工作單詳細資料列表</Typography>
         <Box
           sx={{
-            display: user?.permission.is_work_page_insert ? "block" : "none",
+            display: user?.permission.is_work_page_insert ? "flex" : "none",
+            alignItems: "center",
+            gap: "1rem",
+            justifyContent: "space-around",
           }}>
+          <Box>
+            <Typography
+              sx={{
+                fontSize: "13px",
+              }}>
+              共有
+              <strong>
+                {
+                  data.filter(
+                    (work: WorkResponseDataType) => !work.tobill_tracking_date
+                  ).length
+                }
+              </strong>
+              筆未結案工作單
+            </Typography>
+          </Box>
           <Button onClick={handleOpenCreateWorkModal}>
             <Typography variant="button">新增工作單</Typography>
           </Button>
