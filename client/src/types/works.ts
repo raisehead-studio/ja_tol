@@ -19,6 +19,7 @@ export type WorkResponseDataType = {
   update_member: string;
   update_date: Date | string | null;
   tobill_finished_date: Date | string | null;
+  test: string | null;
 };
 
 export type WorkRequestDataType = {

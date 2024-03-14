@@ -57,6 +57,9 @@ function App() {
 
   let [menu, setMenu] = useState<any>(null);
   const { user } = useLayoutContext();
+
+  console.log(user);
+
   const no_auth = useMatch("/login");
 
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(

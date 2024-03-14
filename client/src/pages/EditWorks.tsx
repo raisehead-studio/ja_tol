@@ -1729,7 +1729,6 @@ const EditWorksAcceptanceCheck = ({
               size: "small",
             },
           }}
-          disabled={data?.photo_download === "照片已下載" ? false : true}
           onChange={(newValue) =>
             handleUpdateDate(newValue, "photo_download_date")
           }

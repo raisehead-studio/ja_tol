@@ -272,7 +272,9 @@ const Home = () => {
             </TableHead>
             <TableBody>
               {data.map((i: TrackingDataType) => {
-                let is_due = dayjs(i.notify_date).isAfter(dayjs(), "day");
+                let is_due =
+                  dayjs(i.notify_date).isAfter(dayjs(), "day") ||
+                  i.notify_date === 0;
                 return (
                   <TableRow
                     hover
@@ -317,7 +319,9 @@ const Home = () => {
                       </Tooltip>
                     </TableCell>
                     <TableCell component="th" scope="row">
-                      {dayjs(i.notify_date).format("YYYY/MM/DD")}
+                      {i.notify_date === 0
+                        ? "--"
+                        : dayjs(i.notify_date).format("YYYY/MM/DD")}
                     </TableCell>
                     <TableCell align="left">{i.customer_number}</TableCell>
                     <TableCell align="left">{i.short_name}</TableCell>

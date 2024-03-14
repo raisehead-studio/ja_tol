@@ -130,7 +130,7 @@ const CreateWork = ({
       );
       if (customer) {
         setCid(customer.cid);
-        setCustomerName(customer.name);
+        setCustomerName(customer.short_name);
       }
     }
   }, [customerNumber, customersOptions, cid]);
@@ -210,7 +210,7 @@ const CreateWork = ({
                 disablePortal
                 value={customerName}
                 options={customersOptions.map((option: any) => {
-                  return { label: option.name, cid: option.cid };
+                  return { label: option.short_name, cid: option.cid };
                 })}
                 fullWidth
                 onChange={(

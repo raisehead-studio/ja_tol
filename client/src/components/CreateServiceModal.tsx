@@ -158,7 +158,7 @@ const CreateService = ({
                 select>
                 {customersOptions.map((option: any) => (
                   <MenuItem key={option.cid} value={option.cid}>
-                    {option.name}
+                    {option.short_name}
                   </MenuItem>
                 ))}
               </TextField>

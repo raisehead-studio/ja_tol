@@ -74,7 +74,7 @@ export const create_work_order = async (
         let executions: any = [];
         let woid = result.dataValues.woid;
         let description = "";
-        let tracking_date = new Date();
+        let tracking_date = null;
         let tracking_description = "";
         let tracking_is_finished = false;
         let finished_date = new Date();
@@ -86,7 +86,7 @@ export const create_work_order = async (
         let power_switch_date3 = null;
         let power_switch_date4 = null;
         let defect_agreement = false;
-        let report_type = "";
+        let report_type = new Date();
         let ew06_registration = false;
         let fom17_registration_government_date = new Date();
         let fom17_registration_ele_date = new Date();
@@ -97,7 +97,7 @@ export const create_work_order = async (
         let wt_report_number = "";
         let manufacturing_address = ele?.dataValues.address;
         let manufacturing_status = "不需備料";
-        let manufacturing_date = new Date();
+        let manufacturing_date = null;
         let power_stop_contact = "";
         let power_stop_phone1 = "";
         let power_stop_phone2 = "";
@@ -239,7 +239,9 @@ export const create_work_order = async (
             return res.json({
               code: 200,
               status: "success",
-              data: null,
+              data: {
+                woid,
+              },
               message: "建立工單資料成功",
             });
           })
@@ -288,6 +290,12 @@ export const get_work_orders_list = async (
         {
           model: Customer,
           attributes: ["customer_number", "short_name"],
+          include: [
+            {
+              model: ElePlace,
+              attributes: ["test"],
+            },
+          ],
         },
         {
           model: AcceptanceCheck,
@@ -308,6 +316,10 @@ export const get_work_orders_list = async (
               attributes: ["started_time", "actual_date"],
               order: [["started_time", "ASC"]],
               limit: 1,
+            },
+            {
+              model: PowerStop,
+              attributes: ["receive_date", "tai_power_notify_date"],
             },
           ],
         },
@@ -338,7 +350,7 @@ export const get_work_orders_list = async (
             power_switch_date2,
             power_switch_date3,
             power_switch_date4,
-          } = worker_order.dataValues.acceptance_check.dataValues;
+          } = worker_order.dataValues.acceptance_check?.dataValues;
           let item_data;
           let report_status;
 
@@ -387,46 +399,49 @@ export const get_work_orders_list = async (
           }
 
           return {
-            id: worker_order.dataValues.woid,
+            id: worker_order?.dataValues.woid,
             notify_date: new Date(),
             customer_number:
-              worker_order.dataValues.customer.dataValues.customer_number,
+              worker_order?.dataValues.customer.dataValues.customer_number,
             customer_name:
-              worker_order.dataValues.customer.dataValues.short_name,
-            order_number: worker_order.dataValues.order_number,
-            work_order_name: worker_order.dataValues.name,
+              worker_order?.dataValues.customer.dataValues.short_name,
+            order_number: worker_order?.dataValues.order_number,
+            work_order_name: worker_order?.dataValues.name,
             manufacturing_date:
-              worker_order.dataValues.assignment.manufacturing_date,
+              worker_order?.dataValues.assignment.manufacturing_date,
             manpower_schedule_started_time:
-              worker_order.dataValues.assignment.manpower_schedules.length > 0
+              worker_order?.dataValues.assignment.manpower_schedules.length > 0
                 ? worker_order.dataValues.assignment.manpower_schedules.sort(
                     (a: any, b: any) => b.started_time - a.started_time
                   )[0].started_time
                 : null,
             manpower_schedule_actual_date:
-              worker_order.dataValues.assignment.manpower_schedules.length > 0
+              worker_order?.dataValues.assignment.manpower_schedules.length > 0
                 ? worker_order.dataValues.assignment.manpower_schedules.sort(
                     (a: any, b: any) => b.started_time - a.started_time
                   )[0].actual_date
                 : null,
-            receive_date: worker_order.dataValues.assignment.receive_date,
+            receive_date:
+              worker_order?.dataValues.assignment.power_stop?.receive_date,
             tai_power_notify_date:
-              worker_order.dataValues.assignment.tai_power_notify_date,
+              worker_order?.dataValues.assignment.power_stop
+                ?.tai_power_notify_date,
             is_assign_manpower:
-              worker_order.dataValues.assignment.dataValues.is_assign_manpower,
+              worker_order?.dataValues.assignment.dataValues.is_assign_manpower,
             factory_tracking_date:
-              worker_order.dataValues.factory.tracking_date,
+              worker_order?.dataValues.factory.tracking_date,
             report_status: report_status,
             photo_download:
-              worker_order.dataValues.acceptance_check.photo_download,
+              worker_order?.dataValues.acceptance_check.photo_download_date,
             acceptance_check_tracking_date:
-              worker_order.dataValues.acceptance_check.tracking_date,
+              worker_order?.dataValues.acceptance_check.tracking_date,
             tobill_tracking_date: worker_order.dataValues.tobill.tracking_date,
             update_member: users.filter(
-              (user: any) => worker_order.dataValues.update_member === user.uid
+              (user: any) => worker_order?.dataValues.update_member === user.uid
             )[0].name,
-            update_date: worker_order.dataValues.updatedAt,
-            tobill_finished_date: worker_order.dataValues.tobill.finished_date,
+            update_date: worker_order?.dataValues.updatedAt,
+            tobill_finished_date: worker_order?.dataValues.tobill.finished_date,
+            test: worker_order?.dataValues.customer.ele_place?.test,
             // started_time:
             //   worker_order.dataValues.assignment.manpower_schedules.length > 0
             //     ? worker_order.dataValues.assignment.manpower_schedules[0]
@@ -855,6 +870,7 @@ export const update_assignment = (
       // assignment_date,
       manpower_schedule,
       power_stop,
+      is_assign_manpower,
     } = req.body;
     const { user } = req;
 
@@ -881,73 +897,81 @@ export const update_assignment = (
         assignment.tracking_is_finished = tracking_is_finished;
         assignment.finished_date = finished_date;
         assignment.update_member = user?.uid;
+        assignment.is_assign_manpower = is_assign_manpower;
         assignment.save();
 
         let executions: any = [];
-        JSON.parse(manpower_schedule).forEach((manpower_schedule_item: any) => {
-          executions.push(
-            ManpowerSchedule.findOne({
-              where: { msid: manpower_schedule_item.id },
-            })
-              .then((manpower_schedule: any) => {
-                manpower_schedule.note = manpower_schedule_item.note;
-                // manpower_schedule.schedule_date =
-                //   manpower_schedule_item.schedule_date;
-                manpower_schedule.started_time = new Date(
-                  manpower_schedule_item.started_time
-                );
-                manpower_schedule.finished_time = new Date(
-                  manpower_schedule_item.finished_time
-                );
-                manpower_schedule.actual_date =
-                  manpower_schedule_item.actual_date;
-                manpower_schedule.update_member = user?.uid;
-                manpower_schedule.save();
-              })
-              .catch((err) => {
-                return res.json({
-                  code: 500,
-                  status: "error",
-                  data: null,
-                  message: `更新派工資料時發生錯誤 ${err}`,
-                });
-              })
-          );
-        });
 
-        JSON.parse(power_stop).forEach((power_stop_item: any) => {
-          executions.push(
-            PowerStop.findOne({
-              where: { psid: power_stop_item.id },
-            })
-              .then((power_stop: any) => {
-                power_stop.area = power_stop_item.area;
-                power_stop.started_date = power_stop_item.started_date;
-                power_stop.finished_date = power_stop_item.finished_date;
-                power_stop.other_description =
-                  power_stop_item.other_description;
-                power_stop.stop_shift = power_stop_item.stop_shift;
-                power_stop.request_date = power_stop_item.request_date;
-                power_stop.receive_date = power_stop_item.receive_date;
-                power_stop.engineer = power_stop_item.engineer;
-                power_stop.customer = power_stop_item.customer;
-                power_stop.tai_power_area = power_stop_item.tai_power_area;
-                power_stop.tai_power_notify_date =
-                  power_stop_item.tai_power_notify_date;
-                power_stop.is_holiday = power_stop_item.is_holiday;
-                power_stop.update_member = user?.uid;
-                power_stop.save();
-              })
-              .catch((err) => {
-                return res.json({
-                  code: 500,
-                  status: "error",
-                  data: null,
-                  message: `更新派工資料時發生錯誤 ${err}`,
-                });
-              })
+        if (manpower_schedule) {
+          JSON.parse(manpower_schedule).forEach(
+            (manpower_schedule_item: any) => {
+              executions.push(
+                ManpowerSchedule.findOne({
+                  where: { msid: manpower_schedule_item.id },
+                })
+                  .then((manpower_schedule: any) => {
+                    manpower_schedule.note = manpower_schedule_item.note;
+                    // manpower_schedule.schedule_date =
+                    //   manpower_schedule_item.schedule_date;
+                    manpower_schedule.started_time = new Date(
+                      manpower_schedule_item.started_time
+                    );
+                    manpower_schedule.finished_time = new Date(
+                      manpower_schedule_item.finished_time
+                    );
+                    manpower_schedule.actual_date =
+                      manpower_schedule_item.actual_date;
+                    manpower_schedule.update_member = user?.uid;
+                    manpower_schedule.save();
+                  })
+                  .catch((err) => {
+                    return res.json({
+                      code: 500,
+                      status: "error",
+                      data: null,
+                      message: `更新派工資料時發生錯誤 ${err}`,
+                    });
+                  })
+              );
+            }
           );
-        });
+        }
+
+        if (power_stop) {
+          JSON.parse(power_stop).forEach((power_stop_item: any) => {
+            executions.push(
+              PowerStop.findOne({
+                where: { psid: power_stop_item.id },
+              })
+                .then((power_stop: any) => {
+                  power_stop.area = power_stop_item.area;
+                  power_stop.started_date = power_stop_item.started_date;
+                  power_stop.finished_date = power_stop_item.finished_date;
+                  power_stop.other_description =
+                    power_stop_item.other_description;
+                  power_stop.stop_shift = power_stop_item.stop_shift;
+                  power_stop.request_date = power_stop_item.request_date;
+                  power_stop.receive_date = power_stop_item.receive_date;
+                  power_stop.engineer = power_stop_item.engineer;
+                  power_stop.customer = power_stop_item.customer;
+                  power_stop.tai_power_area = power_stop_item.tai_power_area;
+                  power_stop.tai_power_notify_date =
+                    power_stop_item.tai_power_notify_date;
+                  power_stop.is_holiday = power_stop_item.is_holiday;
+                  power_stop.update_member = user?.uid;
+                  power_stop.save();
+                })
+                .catch((err) => {
+                  return res.json({
+                    code: 500,
+                    status: "error",
+                    data: null,
+                    message: `更新派工資料時發生錯誤 ${err}`,
+                  });
+                })
+            );
+          });
+        }
 
         Promise.all(executions)
           .then(() => {
@@ -1611,42 +1635,44 @@ export const update_factory = (req: RequestWithUser, res: Response) => {
         factory.is_label_insurance = is_label_insurance;
         factory.update_member = user?.uid;
         factory.save();
-
         let executions: any = [];
-        JSON.parse(factory_other_form).forEach(
-          (factory_other_form_item: any) => {
-            executions.push(
-              FactoryOtherForm.findOne({
-                where: { foid: factory_other_form_item.id },
-              })
-                .then((factory_other_form: any) => {
-                  factory_other_form.is_class =
-                    factory_other_form_item.is_class;
-                  factory_other_form.is_bunny_shoe =
-                    factory_other_form_item.is_bunny_shoe;
-                  factory_other_form.is_bunny_suit =
-                    factory_other_form_item.is_bunny_suit;
-                  factory_other_form.is_group_insurance =
-                    factory_other_form_item.is_group_insurance;
-                  factory_other_form.is_label_insurance =
-                    factory_other_form_item.is_label_insurance;
-                  factory_other_form.other_form =
-                    factory_other_form_item.other_form;
-                  factory_other_form.update_member = user?.uid;
 
-                  factory_other_form.save();
+        if (factory_other_form) {
+          JSON.parse(factory_other_form).forEach(
+            (factory_other_form_item: any) => {
+              executions.push(
+                FactoryOtherForm.findOne({
+                  where: { foid: factory_other_form_item.id },
                 })
-                .catch((err) => {
-                  return res.json({
-                    code: 500,
-                    status: "error",
-                    data: null,
-                    message: `更新入廠驗收資料發生錯誤 ${err}`,
-                  });
-                })
-            );
-          }
-        );
+                  .then((factory_other_form: any) => {
+                    factory_other_form.is_class =
+                      factory_other_form_item.is_class;
+                    factory_other_form.is_bunny_shoe =
+                      factory_other_form_item.is_bunny_shoe;
+                    factory_other_form.is_bunny_suit =
+                      factory_other_form_item.is_bunny_suit;
+                    factory_other_form.is_group_insurance =
+                      factory_other_form_item.is_group_insurance;
+                    factory_other_form.is_label_insurance =
+                      factory_other_form_item.is_label_insurance;
+                    factory_other_form.other_form =
+                      factory_other_form_item.other_form;
+                    factory_other_form.update_member = user?.uid;
+
+                    factory_other_form.save();
+                  })
+                  .catch((err) => {
+                    return res.json({
+                      code: 500,
+                      status: "error",
+                      data: null,
+                      message: `更新入廠驗收資料發生錯誤 ${err}`,
+                    });
+                  })
+              );
+            }
+          );
+        }
 
         Promise.all(executions)
           .then(() => {
@@ -1831,43 +1857,44 @@ export const update_tobill = (req: RequestWithUser, res: Response) => {
         tobill.save();
 
         let executions: any = [];
-        JSON.parse(tobill_invoice).forEach((tobill_invoice_item: any) => {
-          executions.push(
-            ToBillInvoice.findOne({
-              where: { tbiid: tobill_invoice_item.id },
-            })
-              .then((tobill_invoice: any) => {
-                tobill_invoice.percentage = tobill_invoice_item.percentage;
-                tobill_invoice.date = tobill_invoice_item.date;
-                tobill_invoice.amount = tobill_invoice_item.amount;
-                tobill_invoice.sent_date = tobill_invoice_item.sent_date;
-                tobill_invoice.note = tobill_invoice_item.note;
-                tobill_invoice.numbers_invoices =
-                  tobill_invoice_item.numbers_invoices;
-                tobill_invoice.numbers_reports =
-                  tobill_invoice_item.numbers_reports;
-                tobill_invoice.numbers_general_forms =
-                  tobill_invoice_item.numbers_general_forms;
-                tobill_invoice.numbers_inqualify_agreements =
-                  tobill_invoice_item.numbers_inqualify_agreements;
-                tobill_invoice.invoice_number =
-                  tobill_invoice_item.invoice_number;
-                tobill_invoice.numbers_envelope =
-                  tobill_invoice_item.numbers_envelope;
-                tobill_invoice.update_member = user?.uid;
-                tobill_invoice.save();
+        if (tobill_invoice) {
+          JSON.parse(tobill_invoice).forEach((tobill_invoice_item: any) => {
+            executions.push(
+              ToBillInvoice.findOne({
+                where: { tbiid: tobill_invoice_item.id },
               })
-              .catch((err) => {
-                return res.json({
-                  code: 500,
-                  status: "error",
-                  data: null,
-                  message: `更新請款資料發生錯誤 ${err}`,
-                });
-              })
-          );
-        });
-
+                .then((tobill_invoice: any) => {
+                  tobill_invoice.percentage = tobill_invoice_item.percentage;
+                  tobill_invoice.date = tobill_invoice_item.date;
+                  tobill_invoice.amount = tobill_invoice_item.amount;
+                  tobill_invoice.sent_date = tobill_invoice_item.sent_date;
+                  tobill_invoice.note = tobill_invoice_item.note;
+                  tobill_invoice.numbers_invoices =
+                    tobill_invoice_item.numbers_invoices;
+                  tobill_invoice.numbers_reports =
+                    tobill_invoice_item.numbers_reports;
+                  tobill_invoice.numbers_general_forms =
+                    tobill_invoice_item.numbers_general_forms;
+                  tobill_invoice.numbers_inqualify_agreements =
+                    tobill_invoice_item.numbers_inqualify_agreements;
+                  tobill_invoice.invoice_number =
+                    tobill_invoice_item.invoice_number;
+                  tobill_invoice.numbers_envelope =
+                    tobill_invoice_item.numbers_envelope;
+                  tobill_invoice.update_member = user?.uid;
+                  tobill_invoice.save();
+                })
+                .catch((err) => {
+                  return res.json({
+                    code: 500,
+                    status: "error",
+                    data: null,
+                    message: `更新請款資料發生錯誤 ${err}`,
+                  });
+                })
+            );
+          });
+        }
         Promise.all(executions)
           .then(() => {
             return res.json({

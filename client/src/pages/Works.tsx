@@ -562,33 +562,35 @@ const Works = () => {
                   </TableCell>
                   <TableCell align="left">{work.order_number}</TableCell>
                   <TableCell align="left">{work.work_order_name}</TableCell>
-                  <TableCell align="left">{"--"}</TableCell>
+                  <TableCell align="left">{work.test || "--"}</TableCell>
                   <TableCell align="left">
-                    {dayjs(work.manufacturing_date).format("YYYY/MM/DD")}
+                    {work.manufacturing_date
+                      ? dayjs(work.manufacturing_date).format("YYYY/MM/DD")
+                      : "--"}
                   </TableCell>
                   <TableCell align="left">
                     {work.manpower_schedule_started_time
                       ? dayjs(work.manpower_schedule_started_time).format(
                           "YYYY/MM/DD"
                         )
-                      : "暫無資料"}
+                      : "--"}
                   </TableCell>
                   <TableCell align="left">
                     {work.manpower_schedule_actual_date
                       ? dayjs(work.manpower_schedule_actual_date).format(
                           "YYYY/MM/DD"
                         )
-                      : "暫無資料"}
+                      : "--"}
                   </TableCell>
                   <TableCell align="left">
                     {work.receive_date
                       ? dayjs(work.receive_date).format("YYYY/MM/DD")
-                      : "暫無資料"}
+                      : "--"}
                   </TableCell>
                   <TableCell align="left">
                     {work.tai_power_notify_date
                       ? dayjs(work.tai_power_notify_date).format("YYYY/MM/DD")
-                      : "暫無資料"}
+                      : "--"}
                   </TableCell>
                   <TableCell align="left">
                     {work.is_assign_manpower ? "已完成" : "未完成"}
@@ -596,21 +598,28 @@ const Works = () => {
                   <TableCell align="left">
                     {work.factory_tracking_date
                       ? dayjs(work.factory_tracking_date).format("YYYY/MM/DD")
-                      : "暫無資料"}
+                      : "--"}
                   </TableCell>
-                  <TableCell align="left">{work.report_status}</TableCell>
-                  <TableCell align="left">{work.photo_download}</TableCell>
+                  <TableCell align="left">
+                    {work.report_status || "--"}
+                  </TableCell>
+                  <TableCell align="left">
+                    {" "}
+                    {work.photo_download
+                      ? dayjs(work.photo_download).format("YYYY/MM/DD")
+                      : "--"}
+                  </TableCell>
                   <TableCell align="left">
                     {work.acceptance_check_tracking_date
                       ? dayjs(work.acceptance_check_tracking_date).format(
                           "YYYY/MM/DD"
                         )
-                      : "暫無資料"}
+                      : "--"}
                   </TableCell>
                   <TableCell align="left">
                     {work.tobill_tracking_date
                       ? dayjs(work.tobill_tracking_date).format("YYYY/MM/DD")
-                      : "暫無資料"}
+                      : "--"}
                   </TableCell>
                   <TableCell align="left">
                     {work.tobill_finished_date ? "已結案" : "未結案"}
