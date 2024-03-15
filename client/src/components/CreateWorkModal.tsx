@@ -123,23 +123,25 @@ const CreateWork = ({
     }
   }, [open]);
 
-  useEffect(() => {
-    if (customerNumber) {
-      const customer = customersOptions.find(
-        (option: any) => option.customer_number === customerNumber
-      );
-      if (customer) {
-        setCid(customer.cid);
-        setCustomerName(customer.short_name);
-      }
-    }
-  }, [customerNumber, customersOptions, cid]);
+  // useEffect(() => {
+  //   if (customerNumber) {
+  //     const customer = customersOptions.find(
+  //       (option: any) => option.customer_number === customerNumber
+  //     );
+  //     if (customer) {
+  //       setCid(customer.cid);
+  //       setCustomerName(customer.short_name);
+  //     }
+  //   }
+  // }, [customerNumber, customersOptions, cid]);
 
   useEffect(() => {
     if (customerName) {
       const customer = customersOptions.find(
-        (option: any) => option.name === customerName
+        (option: any) => option.short_name === customerName
       );
+      console.log(customer);
+
       if (customer) {
         setCid(customer.cid);
         setCustomerNumber(customer.customer_number);
@@ -183,31 +185,6 @@ const CreateWork = ({
               }}>
               <Autocomplete
                 disablePortal
-                value={customerNumber}
-                options={customersOptions.map((option: any) => {
-                  return { label: option.customer_number, cid: option.cid };
-                })}
-                fullWidth
-                onChange={(
-                  event: any,
-                  newValue: { label: string; cid: string }
-                ) => {
-                  if (newValue) {
-                    setCustomerNumber(newValue.label);
-                  }
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="客戶編號"
-                    value={cid}
-                    size="small"
-                    InputLabelProps={{ shrink: true }}
-                    fullWidth></TextField>
-                )}
-              />
-              <Autocomplete
-                disablePortal
                 value={customerName}
                 options={customersOptions.map((option: any) => {
                   return { label: option.short_name, cid: option.cid };
@@ -230,6 +207,33 @@ const CreateWork = ({
                     InputLabelProps={{ shrink: true }}
                     fullWidth
                   />
+                )}
+              />
+              <Autocomplete
+                disablePortal
+                value={customerNumber}
+                options={customersOptions.map((option: any) => {
+                  return { label: option.customer_number, cid: option.cid };
+                })}
+                fullWidth
+                disabled
+                onChange={(
+                  event: any,
+                  newValue: { label: string; cid: string }
+                ) => {
+                  if (newValue) {
+                    setCustomerNumber(newValue.label);
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="客戶編號"
+                    value={cid}
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                    disabled></TextField>
                 )}
               />
             </Box>

@@ -7,6 +7,7 @@ import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import CircularProgress from "@mui/material/CircularProgress";
+// import Autocomplete from "@mui/material/Autocomplete";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import { enqueueSnackbar } from "notistack";
@@ -33,6 +34,7 @@ const CreateService = ({
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [customersOptions, setCustomersOptions] = useState<any>([]);
+  // const [customerName, setCustomerName] = useState<string>("");
 
   const handleCreateCustomer = async () => {
     const data: ServiceRequestDataType = {
@@ -94,6 +96,18 @@ const CreateService = ({
       setCid(selectedCid);
     }
   }, [selectedCid]);
+
+  // useEffect(() => {
+  //   if (customerName) {
+  //     const customer = customersOptions.find(
+  //       (option: any) => option.short_name === customerName
+  //     );
+
+  //     if (customer) {
+  //       setCid(customer.cid);
+  //     }
+  //   }
+  // }, [customerName, customersOptions, cid]);
 
   useEffect(() => {
     if (!open) {
@@ -162,6 +176,32 @@ const CreateService = ({
                   </MenuItem>
                 ))}
               </TextField>
+              {/* <Autocomplete
+                disablePortal
+                value={customerName}
+                options={customersOptions.map((option: any) => {
+                  return { label: option.short_name, cid: option.cid };
+                })}
+                fullWidth
+                onChange={(
+                  event: any,
+                  newValue: { label: string; cid: string }
+                ) => {
+                  if (newValue) {
+                    setCustomerName(newValue.label);
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="客戶名稱"
+                    value={cid}
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                  />
+                )}
+              /> */}
               <TextField
                 label="客戶編號"
                 value={
