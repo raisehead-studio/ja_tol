@@ -238,7 +238,8 @@ const Customers = () => {
                 <TableCell align="left">用電場所地址</TableCell>
                 <TableCell align="left">電號</TableCell>
                 <TableCell align="left">執照編號</TableCell>
-                <TableCell align="left">最新編輯者/最新編輯日期</TableCell>
+                <TableCell align="left">最新編輯者</TableCell>
+                <TableCell align="left">最新編輯日期</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -298,7 +299,9 @@ const Customers = () => {
                     {customer?.registration_member_number}
                   </TableCell>
                   <TableCell component="th" scope="row">
-                    {customer.update_member} /{" "}
+                    {customer.update_member}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
                     {dayjs(customer.update_date).format("YYYY/MM/DD")}
                   </TableCell>
                 </TableRow>
