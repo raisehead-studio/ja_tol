@@ -292,7 +292,8 @@ const Services = () => {
                     建立日期
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="left">最新編輯者 / 最新編輯日期</TableCell>
+                <TableCell align="left">最新編輯者</TableCell>
+                <TableCell align="left">最新編輯日期</TableCell>
 
                 {/* <TableCell align="left">
                   {" "}
@@ -395,9 +396,11 @@ const Services = () => {
                     <TableCell align="left">{customer_status}</TableCell>
                     <TableCell align="left">{service.type}</TableCell>
                     <TableCell align="left">{service.title}</TableCell>
+                    <TableCell align="left">
+                      {dayjs(service.create_date).format("YYYY/MM/DD")}
+                    </TableCell>
                     <TableCell align="left">{service.update_member}</TableCell>
                     <TableCell align="left">
-                      {service.update_member} /{" "}
                       {dayjs(service.update_date).format("YYYY/MM/DD")}
                     </TableCell>
                   </TableRow>

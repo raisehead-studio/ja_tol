@@ -9,6 +9,7 @@ export type ServiceResponseDataType = {
   type: string;
   update_date: string;
   update_member: string;
+  create_date: string | Date;
 };
 
 export type ServiceRequestDataType = {
