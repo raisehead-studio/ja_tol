@@ -354,8 +354,6 @@ export const get_work_orders_list = async (
           let item_data;
           let report_status;
 
-          console.log(worker_order.dataValues.acceptance_check?.dataValues);
-
           if (
             !worker_order.dataValues.assignment.dataValues.tracking_is_finished
           ) {
@@ -441,10 +439,17 @@ export const get_work_orders_list = async (
                   )[0].actual_date
                 : null,
             receive_date:
-              worker_order?.dataValues.assignment.power_stops?.receive_date,
+              worker_order.dataValues.assignment?.dataValues.power_stops
+                .length > 0
+                ? worker_order.dataValues.assignment?.dataValues.power_stops[0]
+                    ?.dataValues.receive_date
+                : null,
             tai_power_notify_date:
-              worker_order?.dataValues.assignment.power_stops
-                ?.tai_power_notify_date,
+              worker_order.dataValues.assignment?.dataValues.power_stops
+                .length > 0
+                ? worker_order.dataValues.assignment?.dataValues.power_stops[0]
+                    ?.dataValues.tai_power_notify_date
+                : null,
             is_assign_manpower:
               worker_order?.dataValues.assignment.dataValues.is_assign_manpower,
             factory_tracking_date:
