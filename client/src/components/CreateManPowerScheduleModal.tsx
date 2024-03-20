@@ -27,9 +27,7 @@ const CreateManPowerSchedule = ({
   const [finishedTime, setFinishedTime] = useState<Date | number>(
     new Date().getTime()
   );
-  const [actualDate, setActualDate] = useState<Date | number>(
-    new Date().getTime()
-  );
+  const [actualDate, setActualDate] = useState<Date | number | null>(null);
   const [note, setNote] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 

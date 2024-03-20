@@ -82,11 +82,11 @@ export type AssignmentResponseDataType = {
 
 export type AssignmentPowerScheduleDataType = {
   id?: string;
-  note: string;
+  note: string | null;
   schedule_date?: string | Date | number;
   started_time: string | Date | number;
   finished_time: string | Date | number;
-  actual_date: string | Date | number;
+  actual_date: string | Date | number | null;
   aid?: string;
 };
 
