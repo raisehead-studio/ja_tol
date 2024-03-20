@@ -876,7 +876,6 @@ const EditWorksAssignments = ({
                   "actual_date"
                 )
               }
-              disabled
             />
             <TextField
               label="備註"
@@ -888,7 +887,6 @@ const EditWorksAssignments = ({
               onChange={(e) =>
                 handleUpdateRowData(e, manpower.id, "manpower_schedule")
               }
-              disabled
             />
           </Box>
         ))}

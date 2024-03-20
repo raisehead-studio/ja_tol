@@ -67,7 +67,7 @@ const CreateManPowerSchedule = ({
     if (!open) {
       setStartedTime(new Date().getTime());
       setFinishedTime(new Date().getTime());
-      setActualDate(new Date().getTime());
+      setActualDate(null);
       setNote("");
     }
   }, [open]);
@@ -177,7 +177,7 @@ const CreateManPowerSchedule = ({
                 取消
               </Button>
               <Button
-                disabled={!startedTime || !finishedTime || !actualDate}
+                disabled={!startedTime || !finishedTime}
                 variant="contained"
                 onClick={handleCreateManPowerSchedule}>
                 建立
