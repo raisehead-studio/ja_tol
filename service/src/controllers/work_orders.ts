@@ -306,7 +306,7 @@ export const get_work_orders_list = async (
             "manufacturing_date",
             "aid",
             "is_assign_manpower",
-            "tracking_date",
+            "finished_date",
             "tracking_is_finished",
             "tracking_description",
           ],
@@ -326,7 +326,7 @@ export const get_work_orders_list = async (
         {
           model: ToBill,
           attributes: [
-            "tracking_date",
+            "finished_date",
             "tracking_is_finished",
             "tracking_description",
             "finished_date",
@@ -335,7 +335,7 @@ export const get_work_orders_list = async (
         {
           model: Factorys,
           attributes: [
-            "tracking_date",
+            "finished_date",
             "tracking_is_finished",
             "tracking_description",
           ],
@@ -429,13 +429,13 @@ export const get_work_orders_list = async (
             is_assign_manpower:
               worker_order?.dataValues.assignment.dataValues.is_assign_manpower,
             factory_tracking_date:
-              worker_order?.dataValues.factory.tracking_date,
+              worker_order?.dataValues.factory.finished_date,
             report_status: report_status,
             photo_download:
               worker_order?.dataValues.acceptance_check.photo_download_date,
             acceptance_check_tracking_date:
-              worker_order?.dataValues.acceptance_check.tracking_date,
-            tobill_tracking_date: worker_order.dataValues.tobill.tracking_date,
+              worker_order?.dataValues.acceptance_check.finished_date,
+            tobill_tracking_date: worker_order.dataValues.tobill.finished_date,
             update_member: users.filter(
               (user: any) => worker_order?.dataValues.update_member === user.uid
             )[0].name,
