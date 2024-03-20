@@ -354,6 +354,8 @@ export const get_work_orders_list = async (
           let item_data;
           let report_status;
 
+          console.log(worker_order.dataValues.acceptance_check?.dataValues);
+
           if (
             !worker_order.dataValues.assignment.dataValues.tracking_is_finished
           ) {
@@ -380,23 +382,40 @@ export const get_work_orders_list = async (
             }
           }
 
-          switch (report_status) {
-            case power_switch_date4:
-              report_status = power_switch_date4;
-              break;
-            case power_switch_date3:
+          if (power_switch_date4) {
+            report_status = power_switch_date4;
+          } else {
+            if (power_switch_date3) {
               report_status = power_switch_date3;
-              break;
-            case power_switch_date2:
-              report_status = power_switch_date2;
-              break;
-            case power_switch_date1:
-              report_status = power_switch_date1;
-              break;
-            default:
-              report_status = null;
-              break;
+            } else {
+              if (power_switch_date2) {
+                report_status = power_switch_date2;
+              } else {
+                if (power_switch_date1) {
+                  report_status = power_switch_date1;
+                } else {
+                  report_status = null;
+                }
+              }
+            }
           }
+          // switch (report_status) {
+          //   case power_switch_date4:
+          //     report_status = power_switch_date4;
+          //     break;
+          //   case power_switch_date3:
+          //     report_status = power_switch_date3;
+          //     break;
+          //   case power_switch_date2:
+          //     report_status = power_switch_date2;
+          //     break;
+          //   case power_switch_date1:
+          //     report_status = power_switch_date1;
+          //     break;
+          //   default:
+          //     report_status = null;
+          //     break;
+          // }
 
           return {
             id: worker_order?.dataValues.woid,

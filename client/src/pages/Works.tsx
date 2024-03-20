@@ -601,7 +601,9 @@ const Works = () => {
                       : "--"}
                   </TableCell>
                   <TableCell align="left">
-                    {work.report_status || "--"}
+                    {work.report_status
+                      ? dayjs(work.report_status).format("YYYY/MM/DD")
+                      : "--"}
                   </TableCell>
                   <TableCell align="left">
                     {" "}
