@@ -422,9 +422,9 @@ export const get_work_orders_list = async (
                   )[0].actual_date
                 : null,
             receive_date:
-              worker_order?.dataValues.assignment.power_stop?.receive_date,
+              worker_order?.dataValues.assignment.power_stops?.receive_date,
             tai_power_notify_date:
-              worker_order?.dataValues.assignment.power_stop
+              worker_order?.dataValues.assignment.power_stops
                 ?.tai_power_notify_date,
             is_assign_manpower:
               worker_order?.dataValues.assignment.dataValues.is_assign_manpower,
