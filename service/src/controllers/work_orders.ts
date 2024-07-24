@@ -283,6 +283,7 @@ export const get_work_orders_list = async (
   const { orderBy, orderType } = req.query;
 
   const users: any = await User.findAll({ where: { is_del: false } });
+
   try {
     WorkOrder.findAll({
       where: { is_del: false },
@@ -415,9 +416,30 @@ export const get_work_orders_list = async (
           //     break;
           // }
 
+          const dbWorkOrder = worker_order.toJSON();
+          let notify_date;
+
+          if (dbWorkOrder.tobill.finished_date) {
+            notify_date = dbWorkOrder.tobill.finished_date;
+          } else {
+            if (dbWorkOrder.acceptance_check.finished_date) {
+              notify_date = dbWorkOrder.acceptance_check.finished_date;
+            } else {
+              if (dbWorkOrder.factory.finished_date) {
+                notify_date = dbWorkOrder.factory.finished_date;
+              } else {
+                if (dbWorkOrder.assignment.finished_date) {
+                  notify_date = dbWorkOrder.assignment.finished_date;
+                } else {
+                  notify_date = null;
+                }
+              }
+            }
+          }
+
           return {
             id: worker_order?.dataValues.woid,
-            notify_date: new Date(),
+            notify_date: notify_date,
             customer_number:
               worker_order?.dataValues.customer.dataValues.customer_number,
             customer_name:
