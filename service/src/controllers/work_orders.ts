@@ -314,8 +314,8 @@ export const get_work_orders_list = async (
           include: [
             {
               model: ManpowerSchedule,
-              attributes: ["started_time", "actual_date"],
-              order: [["started_time", "ASC"]],
+              attributes: ["started_time", "actual_date", "createdAt"],
+              order: [["createdAt", "DESC"]],
               limit: 1,
             },
             {
@@ -437,6 +437,19 @@ export const get_work_orders_list = async (
             }
           }
 
+          let manpower_schedule_started_time;
+          let manpower_schedule_actual_date;
+
+          if (dbWorkOrder.assignment.manpower_schedules.length > 0) {
+            manpower_schedule_started_time =
+              dbWorkOrder.assignment.manpower_schedules[0].started_time;
+            manpower_schedule_actual_date =
+              dbWorkOrder.assignment.manpower_schedules[0].actual_date;
+          } else {
+            manpower_schedule_started_time = null;
+            manpower_schedule_actual_date = null;
+          }
+
           return {
             id: worker_order?.dataValues.woid,
             notify_date: notify_date,
@@ -448,18 +461,8 @@ export const get_work_orders_list = async (
             work_order_name: worker_order?.dataValues.name,
             manufacturing_date:
               worker_order?.dataValues.assignment.manufacturing_date,
-            manpower_schedule_started_time:
-              worker_order?.dataValues.assignment.manpower_schedules.length > 0
-                ? worker_order.dataValues.assignment.manpower_schedules.sort(
-                    (a: any, b: any) => b.started_time - a.started_time
-                  )[0].started_time
-                : null,
-            manpower_schedule_actual_date:
-              worker_order?.dataValues.assignment.manpower_schedules.length > 0
-                ? worker_order.dataValues.assignment.manpower_schedules.sort(
-                    (a: any, b: any) => b.started_time - a.started_time
-                  )[0].actual_date
-                : null,
+            manpower_schedule_started_time: manpower_schedule_started_time,
+            manpower_schedule_actual_date: manpower_schedule_actual_date,
             receive_date:
               worker_order.dataValues.assignment?.dataValues.power_stops
                 .length > 0
