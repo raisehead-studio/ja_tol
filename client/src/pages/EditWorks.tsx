@@ -648,6 +648,31 @@ const EditWorksAssignments = ({
     }
   };
 
+  const handleUpdateManPowerRowData = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    id: string | undefined,
+    type: string
+  ) => {
+    if (!data || !id) return;
+
+    const { name, value } = e.target;
+
+    let updateDate = {
+      ...data,
+      manpower_schedule: data.manpower_schedule.map((item: any) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            [name]: value,
+          };
+        } else {
+          return item;
+        }
+      }),
+    };
+    setData(updateDate);
+  };
+
   const handleUpdateRowDate = (
     value: any,
     id: string | undefined,
@@ -712,6 +737,8 @@ const EditWorksAssignments = ({
       handleGetAssignmentDetail(woid);
     }
   }, [woid, handleOpenManPowerSchedule, openPowerStop]);
+
+  console.log(data);
 
   if (tab !== 0) return null;
 
@@ -879,13 +906,13 @@ const EditWorksAssignments = ({
             />
             <TextField
               label="備註"
-              name="name"
+              name="note"
               size="small"
               value={manpower?.note}
               InputLabelProps={{ shrink: true }}
               fullWidth
               onChange={(e) =>
-                handleUpdateRowData(e, manpower.id, "manpower_schedule")
+                handleUpdateManPowerRowData(e, manpower.id, "note")
               }
             />
           </Box>
@@ -1172,13 +1199,14 @@ const EditWorksAssignments = ({
         <DatePicker
           format="YYYY/MM/DD"
           label="派工-追蹤日期"
-          value={dayjs(data?.tracking_date) || ""}
+          value={data?.tracking_date ? dayjs(data?.tracking_date) : ""}
           slotProps={{
             textField: {
               fullWidth: true,
               size: "small",
             },
           }}
+          disabled={data?.tracking_is_finished}
           onChange={(newValue) => handleUpdateDate(newValue, "tracking_date")}
         />
       </Box>
@@ -1221,7 +1249,7 @@ const EditWorksAssignments = ({
         <DatePicker
           format="YYYY/MM/DD"
           label="派工作業完成日期"
-          value={dayjs(data?.finished_date) || ""}
+          value={data?.finished_date ? dayjs(data?.finished_date) : ""}
           slotProps={{
             textField: {
               fullWidth: true,
@@ -1502,6 +1530,7 @@ const EditWorksFactory = ({
               size: "small",
             },
           }}
+          disabled={disable}
           onChange={(newValue) => handleUpdateDate(newValue, "tracking_date")}
         />
       </Box>
@@ -1968,6 +1997,7 @@ const EditWorksAcceptanceCheck = ({
               size: "small",
             },
           }}
+          disabled={disable}
           onChange={(newValue) => handleUpdateDate(newValue, "tracking_date")}
         />
       </Box>
@@ -2311,6 +2341,7 @@ const EditWorksTobill = ({
               size: "small",
             },
           }}
+          disabled={disable}
           onChange={(newValue) => handleUpdateDate(newValue, "tracking_date")}
         />
       </Box>

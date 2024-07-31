@@ -552,7 +552,9 @@ const Works = () => {
                     </Tooltip>
                   </TableCell>
                   <TableCell align="left">
-                    {dayjs(work.notify_date).format("YYYY/MM/DD")}
+                    {work.notify_date
+                      ? dayjs(work.notify_date).format("YYYY/MM/DD")
+                      : "--"}
                   </TableCell>
                   <TableCell component="th" scope="row">
                     {work.customer_number}
