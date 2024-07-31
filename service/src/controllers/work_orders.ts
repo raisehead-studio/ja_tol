@@ -310,6 +310,7 @@ export const get_work_orders_list = async (
             "finished_date",
             "tracking_is_finished",
             "tracking_description",
+            "tracking_date",
           ],
           include: [
             {
@@ -329,6 +330,7 @@ export const get_work_orders_list = async (
           attributes: [
             "finished_date",
             "tracking_is_finished",
+            "tracking_date",
             "tracking_description",
             "finished_date",
           ],
@@ -337,6 +339,7 @@ export const get_work_orders_list = async (
           model: Factorys,
           attributes: [
             "finished_date",
+            "tracking_date",
             "tracking_is_finished",
             "tracking_description",
           ],
@@ -419,17 +422,29 @@ export const get_work_orders_list = async (
           const dbWorkOrder = worker_order.toJSON();
           let notify_date;
 
-          if (dbWorkOrder.tobill.finished_date) {
-            notify_date = dbWorkOrder.tobill.finished_date;
+          if (
+            dbWorkOrder.tobill.tracking_date &&
+            !dbWorkOrder.tobill.tracking_is_finished
+          ) {
+            notify_date = dbWorkOrder.tobill.tracking_date;
           } else {
-            if (dbWorkOrder.acceptance_check.finished_date) {
-              notify_date = dbWorkOrder.acceptance_check.finished_date;
+            if (
+              dbWorkOrder.acceptance_check.tracking_date &&
+              !dbWorkOrder.acceptance_check.tracking_is_finished
+            ) {
+              notify_date = dbWorkOrder.acceptance_check.tracking_date;
             } else {
-              if (dbWorkOrder.factory.finished_date) {
-                notify_date = dbWorkOrder.factory.finished_date;
+              if (
+                dbWorkOrder.factory.tracking_date &&
+                !dbWorkOrder.factory.tracking_is_finished
+              ) {
+                notify_date = dbWorkOrder.factory.tracking_date;
               } else {
-                if (dbWorkOrder.assignment.finished_date) {
-                  notify_date = dbWorkOrder.assignment.finished_date;
+                if (
+                  dbWorkOrder.assignment.tracking_date &&
+                  !dbWorkOrder.assignment.tracking_is_finished
+                ) {
+                  notify_date = dbWorkOrder.assignment.tracking_date;
                 } else {
                   notify_date = null;
                 }
