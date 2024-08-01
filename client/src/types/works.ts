@@ -78,6 +78,7 @@ export type AssignmentResponseDataType = {
   manpower_schedule: AssignmentPowerScheduleDataType[];
   power_stop: AssignmentPowerStopDataType[];
   is_adjusted: boolean;
+  assignment_description?: string;
 };
 
 export type AssignmentPowerScheduleDataType = {

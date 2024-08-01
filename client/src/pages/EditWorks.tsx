@@ -763,7 +763,7 @@ const EditWorksAssignments = ({
           fullWidth
           multiline
           rows={4}
-          value={""}
+          value={data?.assignment_description || ""}
           onChange={handleUpdateFiled}
           name="description"
           disabled

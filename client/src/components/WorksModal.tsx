@@ -365,7 +365,7 @@ const EditWorksAssignments = ({
           fullWidth
           multiline
           rows={4}
-          value={""}
+          value={data?.assignment_description}
           name="description"
         />
       </Box>
