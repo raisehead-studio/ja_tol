@@ -24,6 +24,7 @@ const CreateCustomer = ({
   const [shortName, setShortName] = useState<string>("");
   const [eleNumber, setEleNumber] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [taxId, setTaxId] = useState<string | null>(null);
 
   const handleCreateCustomer = async () => {
     const data: CustomerRequestDataType = {
@@ -31,6 +32,7 @@ const CreateCustomer = ({
       name: name,
       short_name: shortName,
       ele_number: eleNumber,
+      tax_id: taxId || "",
     };
     setLoading(true);
     try {
@@ -62,6 +64,7 @@ const CreateCustomer = ({
       setName("");
       setShortName("");
       setEleNumber("");
+      setTaxId("");
     }
   }, [open]);
 
@@ -125,6 +128,17 @@ const CreateCustomer = ({
                   fullWidth
                   onChange={(e) => {
                     setName(e.target.value);
+                  }}
+                />
+                <TextField
+                  label="統一編號"
+                  name="tax_id"
+                  value={taxId || ""}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  onChange={(e) => {
+                    setTaxId(e.target.value);
                   }}
                 />
               </Box>

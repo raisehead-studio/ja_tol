@@ -21,7 +21,7 @@ export const create_customer = (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, short_name, customer_number, ele_number } = req.body;
+  const { name, short_name, customer_number, ele_number, tax_id } = req.body;
   const { user } = req;
 
   Customer.findOne({
@@ -39,6 +39,7 @@ export const create_customer = (
           short_name: short_name,
           customer_number: customer_number,
           ele_number: ele_number,
+          tax_id,
           factory_description:
             "系統內定，未編輯前 --> 進廠施工務必申請作業,,提供文件：勞保/團保/入廠證件/3H勞安證/動火申請/",
           acceptance_check_description:
@@ -201,12 +202,13 @@ export const get_customers_detail = (
         });
       } else {
         let data: any = {};
+        const dbResult = result.toJSON();
         data.cid = result.dataValues.cid;
         data.name = result.dataValues.name;
         data.short_name = result.dataValues.short_name;
         data.customer_number = result.dataValues.customer_number;
         data.ele_number = result.dataValues.ele_number;
-
+        data.tax_id = dbResult.tax_id;
         data.acceptance_check_description =
           result.dataValues.acceptance_check_description;
         data.factory_description = result.dataValues.factory_description;

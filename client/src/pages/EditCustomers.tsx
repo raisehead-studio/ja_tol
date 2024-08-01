@@ -68,6 +68,7 @@ const EditCustomers = () => {
       government: data.government,
       test: data.test,
       other_description: data.other_description,
+      assignment_description: data.assignment_description,
     };
     try {
       const res = await updateCustomer(updateData);
@@ -166,6 +167,8 @@ const EditCustomers = () => {
       handleGetCustomers(cid);
     }
   }, [cid, openCreateService, openCreateCustomerContact]);
+
+  console.log(data);
 
   return (
     <Box

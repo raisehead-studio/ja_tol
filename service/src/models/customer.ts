@@ -19,6 +19,7 @@ const Customer = seq.define("customer", {
   invoice_description: Sequelize.STRING,
   other_description: Sequelize.STRING,
   is_del: Sequelize.BOOLEAN,
+  tax_id: Sequelize.STRING,
   update_member: Sequelize.STRING,
   create_member: Sequelize.STRING,
 });

@@ -58,6 +58,7 @@ export type CustomerRequestDataType = {
   name: string;
   short_name: string;
   ele_number: string;
+  tax_id?: string;
 };
 
 export type CustomerContactRequestDataType = {
@@ -88,4 +89,5 @@ export type UpdateCustomerRequestDataType = {
   government?: string;
   test?: string;
   other_description?: string;
+  assignment_description?: string;
 };
