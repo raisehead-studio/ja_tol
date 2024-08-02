@@ -231,6 +231,7 @@ const EditWorks = () => {
           check?.is_inspection_report_retrieved_date,
         photo_download: check?.photo_download,
         photo_download_date: check?.photo_download_date,
+        note: check?.note,
       };
 
       await updateWorksDetailAcceptanceCheck(updateDta);
@@ -737,8 +738,6 @@ const EditWorksAssignments = ({
       handleGetAssignmentDetail(woid);
     }
   }, [woid, handleOpenManPowerSchedule, openPowerStop]);
-
-  console.log(data);
 
   if (tab !== 0) return null;
 
@@ -1608,6 +1607,8 @@ const EditWorksAcceptanceCheck = ({
   const [data, setData] = useState<AcceptanceCheckDataType | null>(null);
 
   useEffect(() => {
+    console.log(data);
+
     setCheck(data);
   }, [setCheck, data]);
 
@@ -1644,21 +1645,33 @@ const EditWorksAcceptanceCheck = ({
     setData(updateDate);
   };
 
-  const handleUpdateSelection = (e: ChangeEvent<HTMLInputElement>) => {
+  // const handleUpdateSelection = (e: ChangeEvent<HTMLInputElement>) => {
+  //   const { name, value } = e.target;
+  //   let update_val: boolean;
+  //   if (+value > 0) {
+  //     update_val = false;
+  //   } else {
+  //     update_val = true;
+  //   }
+  //   if (!data) return;
+  //   let updateDate = {
+  //     ...data,
+  //     [name]: update_val,
+  //   };
+  //   setData(updateDate);
+  // };
+
+  const handleUpdateSelectionText = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    let update_val: boolean;
-    if (+value > 0) {
-      update_val = false;
-    } else {
-      update_val = true;
-    }
     if (!data) return;
     let updateDate = {
       ...data,
-      [name]: update_val,
+      [name]: value,
     };
     setData(updateDate);
   };
+
+  console.log(data);
 
   if (tab !== 2) return null;
 
@@ -1850,8 +1863,8 @@ const EditWorksAcceptanceCheck = ({
           size="small"
           InputLabelProps={{ shrink: true }}
           fullWidth
-          value={data?.is_inspection_report_retrieved ? 0 : 1}
-          name="is_inspection_report_retrieved"
+          value={data?.note || ""}
+          name="note"
           onChange={handleUpdateFiled}
         />
         <DatePicker
@@ -1884,7 +1897,7 @@ const EditWorksAcceptanceCheck = ({
           fullWidth
           value={data?.report_type || ""}
           name="report_type"
-          onChange={handleUpdateSelection}
+          onChange={handleUpdateSelectionText}
           select>
           <MenuItem value="良好">良好</MenuItem>
           <MenuItem value="不良">不良</MenuItem>
@@ -1897,7 +1910,7 @@ const EditWorksAcceptanceCheck = ({
           fullWidth
           value={data?.ew06_registration || ""}
           name="ew06_registration"
-          onChange={handleUpdateSelection}
+          onChange={handleUpdateSelectionText}
           select>
           <MenuItem value="已登入">已登入</MenuItem>
           <MenuItem value="未登入">未登入</MenuItem>
@@ -1920,7 +1933,7 @@ const EditWorksAcceptanceCheck = ({
         <DatePicker
           format="YYYY/MM/DD"
           label="一七申報(台電)郵寄日期"
-          value={dayjs(data?.report_type) || ""}
+          value={dayjs(data?.fom17_registration_ele_date) || ""}
           slotProps={{
             textField: {
               error: false,
@@ -1928,7 +1941,9 @@ const EditWorksAcceptanceCheck = ({
               size: "small",
             },
           }}
-          onChange={(newValue) => handleUpdateDate(newValue, "report_type")}
+          onChange={(newValue) =>
+            handleUpdateDate(newValue, "fom17_registration_ele_date")
+          }
         />
       </Box>
       <Divider />

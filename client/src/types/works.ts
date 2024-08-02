@@ -266,6 +266,7 @@ export type AcceptanceCheckDataType = {
   warranty_number?: string;
   warranty_started_date?: Date;
   warranty_end_date?: Date;
+  note?: string;
 };
 
 export type AcceptanceCheckRequestDataType = {

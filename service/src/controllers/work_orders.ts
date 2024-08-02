@@ -792,6 +792,10 @@ export const get_assignment_detail = (req: Request, res: Response) => {
             });
 
             let data: any = {};
+            const dbWorkOrder = work_order.toJSON();
+
+            data.assignment_description =
+              dbWorkOrder.customer.assignment_description;
             data.description =
               work_order.customer.dataValues.assignment_description;
             data.id = assignment?.dataValues.aid;
@@ -1301,6 +1305,7 @@ export const update_acceptance_check = (
       is_inspection_report_retrieved,
       photo_download,
       photo_download_date,
+      note,
     } = req.body;
     const { user } = req;
 
@@ -1339,6 +1344,7 @@ export const update_acceptance_check = (
           is_inspection_report_retrieved_date;
         acceptance_check.is_inspection_report_retrieved =
           is_inspection_report_retrieved;
+        acceptance_check.note = note;
         acceptance_check.save();
         return res.json({
           code: 200,
@@ -1387,6 +1393,8 @@ export const get_acceptance_check_detail = (req: Request, res: Response) => {
     })
       .then((acceptance_check) => {
         let data: any = {};
+        const dbAcceptanceCheck = acceptance_check?.toJSON();
+        data.note = dbAcceptanceCheck?.note || "";
         data.id = acceptance_check?.dataValues.acid;
         data.description =
           acceptance_check?.dataValues.work_order.dataValues.customer.dataValues.acceptance_check_description;

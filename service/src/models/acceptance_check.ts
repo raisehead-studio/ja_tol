@@ -35,7 +35,7 @@ const AcceptanceCheck = seq.define("acceptance_check", {
   power_switch_date3: Sequelize.DATE,
   power_switch_date4: Sequelize.DATE,
   defect_agreement: Sequelize.STRING,
-  report_type: Sequelize.DATE,
+  report_type: Sequelize.STRING,
   ew06_registration: Sequelize.STRING,
   fom17_registration_government_date: Sequelize.DATE,
   fom17_registration_ele_date: Sequelize.DATE,
@@ -63,6 +63,7 @@ const AcceptanceCheck = seq.define("acceptance_check", {
   create_member: Sequelize.STRING,
   photo_download: Sequelize.STRING,
   photo_download_date: Sequelize.DATE,
+  note: Sequelize.STRING,
 });
 
 export default AcceptanceCheck;
