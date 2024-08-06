@@ -55,7 +55,7 @@ const Assignments = db_1.sequelize.define("assignments", {
         allowNull: false,
         defaultValue: false,
     },
-    tracking_finished_date: sequelize_1.default.DATE,
+    finished_date: sequelize_1.default.DATE,
     is_del: sequelize_1.default.BOOLEAN,
     update_member: sequelize_1.default.STRING,
     create_member: sequelize_1.default.STRING,

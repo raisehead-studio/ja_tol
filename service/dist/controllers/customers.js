@@ -9,8 +9,9 @@ const customer_1 = __importDefault(require("../models/customer"));
 const customer_contact_1 = __importDefault(require("../models/customer_contact"));
 const ele_place_1 = __importDefault(require("../models/ele_place"));
 const service_1 = __importDefault(require("../models/service"));
+const user_1 = __importDefault(require("../models/user"));
 const create_customer = (req, res, next) => {
-    const { name, short_name, customer_number, ele_number } = req.body;
+    const { name, short_name, customer_number, ele_number, tax_id } = req.body;
     const { user } = req;
     customer_1.default.findOne({
         where: {
@@ -27,6 +28,7 @@ const create_customer = (req, res, next) => {
                 short_name: short_name,
                 customer_number: customer_number,
                 ele_number: ele_number,
+                tax_id,
                 factory_description: "系統內定，未編輯前 --> 進廠施工務必申請作業,,提供文件：勞保/團保/入廠證件/3H勞安證/動火申請/",
                 acceptance_check_description: "系統內定，未編輯前 --> 前/中/後  之施工相片／產品保固一年／／／",
                 tobill_description: "系統內定，未編輯前 --> 發票務必要註明P.O.編號",
@@ -74,16 +76,67 @@ const create_customer = (req, res, next) => {
     });
 };
 exports.create_customer = create_customer;
-const get_customers_list = (req, res, next) => {
+const get_customers_list = async (req, res, next) => {
+    const { orderBy, orderType } = req.query;
+    const users = await user_1.default.findAll({
+        where: { is_del: false },
+    });
     customer_1.default.findAll({
         where: { is_del: false },
-        attributes: ["cid", "short_name", "customer_number", "name"],
+        attributes: [
+            "cid",
+            "short_name",
+            "customer_number",
+            "name",
+            "ele_number",
+            "update_member",
+            "updatedAt",
+        ],
+        include: {
+            model: ele_place_1.default,
+            attributes: ["name", "address", "registration_member_number"],
+        },
     })
         .then((result) => {
+        if (orderBy && orderType) {
+            if (orderBy === "notify_date" || orderBy === "update_date") {
+                result.sort((a, b) => {
+                    if (orderType === "asc") {
+                        return a[orderBy.toString()] - b[orderBy.toString()];
+                    }
+                    else {
+                        return b[orderBy.toString()] - a[orderBy.toString()];
+                    }
+                });
+            }
+            else {
+                result.sort((a, b) => {
+                    if (orderType === "asc") {
+                        return a[orderBy.toString()].localeCompare(b[orderBy.toString()]);
+                    }
+                    else {
+                        return b[orderBy.toString()].localeCompare(a[orderBy.toString()]);
+                    }
+                });
+            }
+        }
         return res.json({
             code: 200,
             status: "success",
-            data: result,
+            data: result.map((item) => {
+                var _a, _b, _c;
+                return {
+                    cid: item.cid,
+                    customer_number: item.customer_number,
+                    short_name: item.short_name,
+                    ele_place_name: ((_a = item.ele_place) === null || _a === void 0 ? void 0 : _a.name) || "",
+                    ele_place_address: ((_b = item.ele_place) === null || _b === void 0 ? void 0 : _b.address) || "",
+                    ele_number: item.ele_number,
+                    registration_member_number: (_c = item.ele_place) === null || _c === void 0 ? void 0 : _c.registration_member_number,
+                    update_member: users.filter((user) => user.uid === item.update_member)[0].name,
+                    update_date: item.updatedAt,
+                };
+            }),
             message: `取得客戶列表成功。`,
         });
     })
@@ -127,11 +180,13 @@ const get_customers_detail = (req, res, next) => {
         }
         else {
             let data = {};
+            const dbResult = result.toJSON();
             data.cid = result.dataValues.cid;
             data.name = result.dataValues.name;
             data.short_name = result.dataValues.short_name;
             data.customer_number = result.dataValues.customer_number;
             data.ele_number = result.dataValues.ele_number;
+            data.tax_id = dbResult.tax_id;
             data.acceptance_check_description =
                 result.dataValues.acceptance_check_description;
             data.factory_description = result.dataValues.factory_description;

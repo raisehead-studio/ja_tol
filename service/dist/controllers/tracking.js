@@ -14,6 +14,7 @@ const assignments_1 = __importDefault(require("../models/assignments"));
 const user_1 = __importDefault(require("../models/user"));
 const get_tracking = async (req, res, next) => {
     const users = await user_1.default.findAll({ where: { is_del: false } });
+    const { orderBy, orderType } = req.query;
     service_1.default.findAll({
         where: { is_del: false },
         attributes: [
@@ -140,10 +141,33 @@ const get_tracking = async (req, res, next) => {
                     });
                 }
             });
+            let sort_data;
+            if (orderBy && orderType) {
+                if (orderBy === "notify_date" || orderBy === "update_date") {
+                    sort_data = data.sort((a, b) => {
+                        if (orderType === "asc") {
+                            return a[orderBy.toString()] - b[orderBy.toString()];
+                        }
+                        else {
+                            return b[orderBy.toString()] - a[orderBy.toString()];
+                        }
+                    });
+                }
+                else {
+                    sort_data = data.sort((a, b) => {
+                        if (orderType === "asc") {
+                            return a[orderBy.toString()].localeCompare(b[orderBy.toString()]);
+                        }
+                        else {
+                            return b[orderBy.toString()].localeCompare(a[orderBy.toString()]);
+                        }
+                    });
+                }
+            }
             return res.json({
                 code: 200,
                 status: "success",
-                data: data,
+                data: sort_data,
                 message: `取得追蹤列表成功。`,
             });
         })

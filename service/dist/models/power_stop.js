@@ -23,5 +23,14 @@ const PowerStop = db_1.sequelize.define("power_stop", {
     is_del: sequelize_1.default.BOOLEAN,
     update_member: sequelize_1.default.STRING,
     create_member: sequelize_1.default.STRING,
+    other_description: sequelize_1.default.STRING,
+    stop_shift: sequelize_1.default.STRING,
+    request_date: sequelize_1.default.DATE,
+    receive_date: sequelize_1.default.DATE,
+    engineer: sequelize_1.default.STRING,
+    customer: sequelize_1.default.STRING,
+    tai_power_area: sequelize_1.default.STRING,
+    tai_power_notify_date: sequelize_1.default.DATE,
+    is_holiday: sequelize_1.default.STRING,
 });
 exports.default = PowerStop;

@@ -16,10 +16,13 @@ const tobill_1 = __importDefault(require("../models/tobill"));
 const tobill_invoce_1 = __importDefault(require("../models/tobill_invoce"));
 const ele_place_1 = __importDefault(require("../models/ele_place"));
 const user_1 = __importDefault(require("../models/user"));
-const create_work_order = (req, res, next) => {
+const create_work_order = async (req, res, next) => {
     try {
         const { cid, name, invoice_number, order_number, type, amount, inquiry_member, responsible_member, po, acceptance_check_date, tobill_date, factory_date, assignment_date, price, } = req.body;
         const { user } = req;
+        const ele = await ele_place_1.default.findOne({
+            where: { cid: cid },
+        });
         work_orders_1.default.create({
             cid,
             name,
@@ -39,31 +42,34 @@ const create_work_order = (req, res, next) => {
             create_member: user === null || user === void 0 ? void 0 : user.uid,
             is_del: false,
         })
-            .then(async (result) => {
+            .then((result) => {
             let executions = [];
             let woid = result.dataValues.woid;
             let description = "";
-            let tracking_date = new Date();
+            let tracking_date = null;
             let tracking_description = "";
             let tracking_is_finished = false;
             let finished_date = new Date();
             let is_photo_before = false;
             let is_photo_during = false;
             let is_photo_after = false;
-            let power_switch_date1 = new Date();
-            let power_switch_date2 = new Date();
-            let power_switch_date3 = new Date();
-            let power_switch_date4 = new Date();
+            let power_switch_date1 = null;
+            let power_switch_date2 = null;
+            let power_switch_date3 = null;
+            let power_switch_date4 = null;
             let defect_agreement = false;
-            let report_type = "";
+            let report_type = new Date();
             let ew06_registration = false;
             let fom17_registration_government_date = new Date();
             let fom17_registration_ele_date = new Date();
             let is_warranty = false;
+            let warranty_number = "";
+            let warranty_started_date = null;
+            let warranty_end_date = null;
             let wt_report_number = "";
-            let manufacturing_address = "";
-            let manufacturing_status = "";
-            let manufacturing_date = new Date();
+            let manufacturing_address = ele === null || ele === void 0 ? void 0 : ele.dataValues.address;
+            let manufacturing_status = "不需備料";
+            let manufacturing_date = null;
             let power_stop_contact = "";
             let power_stop_phone1 = "";
             let power_stop_phone2 = "";
@@ -72,13 +78,18 @@ const create_work_order = (req, res, next) => {
             let external_contact_is_power_stop = false;
             let external_contact_request_date = new Date();
             let external_contact_receive_date = new Date();
-            let tracking_finished_date = new Date();
+            // let finished_date = new Date();
             executions.push(factorys_1.default.create({
                 woid,
                 description,
                 tracking_date,
                 tracking_description,
                 tracking_is_finished,
+                is_class: false,
+                is_group_insurance: false,
+                is_label_insurance: false,
+                is_bunny_shoe: false,
+                is_bunny_suit: false,
                 update_member: user === null || user === void 0 ? void 0 : user.uid,
                 create_membe: user === null || user === void 0 ? void 0 : user.uid,
                 is_del: false,
@@ -109,6 +120,9 @@ const create_work_order = (req, res, next) => {
                 fom17_registration_government_date,
                 fom17_registration_ele_date,
                 is_warranty,
+                warranty_number,
+                warranty_started_date,
+                warranty_end_date,
                 tracking_date,
                 tracking_description,
                 tracking_is_finished,
@@ -116,6 +130,8 @@ const create_work_order = (req, res, next) => {
                 update_member: user === null || user === void 0 ? void 0 : user.uid,
                 create_member: user === null || user === void 0 ? void 0 : user.uid,
                 is_del: false,
+                photo_download: "",
+                photo_download_date: null,
             })
                 .then(() => { })
                 .catch((err) => {
@@ -182,7 +198,9 @@ const create_work_order = (req, res, next) => {
                 return res.json({
                     code: 200,
                     status: "success",
-                    data: null,
+                    data: {
+                        woid,
+                    },
                     message: "建立工單資料成功",
                 });
             })
@@ -218,6 +236,7 @@ const create_work_order = (req, res, next) => {
 };
 exports.create_work_order = create_work_order;
 const get_work_orders_list = async (req, res, next) => {
+    const { orderBy, orderType } = req.query;
     const users = await user_1.default.findAll({ where: { is_del: false } });
     try {
         work_orders_1.default.findAll({
@@ -226,6 +245,12 @@ const get_work_orders_list = async (req, res, next) => {
                 {
                     model: customer_1.default,
                     attributes: ["customer_number", "short_name"],
+                    include: [
+                        {
+                            model: ele_place_1.default,
+                            attributes: ["test"],
+                        },
+                    ],
                 },
                 {
                     model: acceptance_check_1.default,
@@ -236,30 +261,38 @@ const get_work_orders_list = async (req, res, next) => {
                         "manufacturing_date",
                         "aid",
                         "is_assign_manpower",
-                        "tracking_date",
+                        "finished_date",
                         "tracking_is_finished",
                         "tracking_description",
+                        "tracking_date",
                     ],
                     include: [
                         {
                             model: manpower_schedule_1.default,
-                            attributes: ["started_time"],
-                            order: [["started_time", "ASC"]],
+                            attributes: ["started_time", "actual_date", "createdAt"],
+                            order: [["createdAt", "DESC"]],
                             limit: 1,
+                        },
+                        {
+                            model: power_stop_1.default,
+                            attributes: ["receive_date", "tai_power_notify_date"],
                         },
                     ],
                 },
                 {
                     model: tobill_1.default,
                     attributes: [
-                        "tracking_date",
+                        "finished_date",
                         "tracking_is_finished",
+                        "tracking_date",
                         "tracking_description",
+                        "finished_date",
                     ],
                 },
                 {
                     model: factorys_1.default,
                     attributes: [
+                        "finished_date",
                         "tracking_date",
                         "tracking_is_finished",
                         "tracking_description",
@@ -268,55 +301,182 @@ const get_work_orders_list = async (req, res, next) => {
             ],
         })
             .then((work_orders) => {
+            let data;
+            data = work_orders.map((worker_order) => {
+                var _a, _b, _c, _d, _e, _f, _g, _h;
+                const { power_switch_date1, power_switch_date2, power_switch_date3, power_switch_date4, } = (_a = worker_order.dataValues.acceptance_check) === null || _a === void 0 ? void 0 : _a.dataValues;
+                let item_data;
+                let report_status;
+                if (!worker_order.dataValues.assignment.dataValues.tracking_is_finished) {
+                    item_data = "112WT0268派工";
+                }
+                else {
+                    if (!worker_order.dataValues.factory.dataValues.tracking_is_finished) {
+                        item_data = "112WT0187入廠";
+                    }
+                    else {
+                        if (!worker_order.dataValues.acceptance_check.dataValues
+                            .tracking_is_finished) {
+                            item_data = "112WT0268驗收";
+                        }
+                        else {
+                            if (!worker_order.dataValues.tobill.dataValues
+                                .tracking_is_finished) {
+                                item_data = "112WT0551請款";
+                            }
+                        }
+                    }
+                }
+                if (power_switch_date4) {
+                    report_status = power_switch_date4;
+                }
+                else {
+                    if (power_switch_date3) {
+                        report_status = power_switch_date3;
+                    }
+                    else {
+                        if (power_switch_date2) {
+                            report_status = power_switch_date2;
+                        }
+                        else {
+                            if (power_switch_date1) {
+                                report_status = power_switch_date1;
+                            }
+                            else {
+                                report_status = null;
+                            }
+                        }
+                    }
+                }
+                // switch (report_status) {
+                //   case power_switch_date4:
+                //     report_status = power_switch_date4;
+                //     break;
+                //   case power_switch_date3:
+                //     report_status = power_switch_date3;
+                //     break;
+                //   case power_switch_date2:
+                //     report_status = power_switch_date2;
+                //     break;
+                //   case power_switch_date1:
+                //     report_status = power_switch_date1;
+                //     break;
+                //   default:
+                //     report_status = null;
+                //     break;
+                // }
+                const dbWorkOrder = worker_order.toJSON();
+                let notify_date;
+                if (dbWorkOrder.tobill.tracking_date &&
+                    !dbWorkOrder.tobill.tracking_is_finished) {
+                    notify_date = dbWorkOrder.tobill.tracking_date;
+                }
+                else {
+                    if (dbWorkOrder.acceptance_check.tracking_date &&
+                        !dbWorkOrder.acceptance_check.tracking_is_finished) {
+                        notify_date = dbWorkOrder.acceptance_check.tracking_date;
+                    }
+                    else {
+                        if (dbWorkOrder.factory.tracking_date &&
+                            !dbWorkOrder.factory.tracking_is_finished) {
+                            notify_date = dbWorkOrder.factory.tracking_date;
+                        }
+                        else {
+                            if (dbWorkOrder.assignment.tracking_date &&
+                                !dbWorkOrder.assignment.tracking_is_finished) {
+                                notify_date = dbWorkOrder.assignment.tracking_date;
+                            }
+                            else {
+                                notify_date = null;
+                            }
+                        }
+                    }
+                }
+                let manpower_schedule_started_time;
+                let manpower_schedule_actual_date;
+                if (dbWorkOrder.assignment.manpower_schedules.length > 0) {
+                    manpower_schedule_started_time =
+                        dbWorkOrder.assignment.manpower_schedules[0].started_time;
+                    manpower_schedule_actual_date =
+                        dbWorkOrder.assignment.manpower_schedules[0].actual_date;
+                }
+                else {
+                    manpower_schedule_started_time = null;
+                    manpower_schedule_actual_date = null;
+                }
+                return {
+                    id: worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.woid,
+                    notify_date: notify_date,
+                    customer_number: worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.customer.dataValues.customer_number,
+                    customer_name: worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.customer.dataValues.short_name,
+                    order_number: worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.order_number,
+                    work_order_name: worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.name,
+                    manufacturing_date: worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.assignment.manufacturing_date,
+                    manpower_schedule_started_time: manpower_schedule_started_time,
+                    manpower_schedule_actual_date: manpower_schedule_actual_date,
+                    receive_date: ((_b = worker_order.dataValues.assignment) === null || _b === void 0 ? void 0 : _b.dataValues.power_stops.length) > 0
+                        ? (_d = (_c = worker_order.dataValues.assignment) === null || _c === void 0 ? void 0 : _c.dataValues.power_stops[0]) === null || _d === void 0 ? void 0 : _d.dataValues.receive_date
+                        : null,
+                    tai_power_notify_date: ((_e = worker_order.dataValues.assignment) === null || _e === void 0 ? void 0 : _e.dataValues.power_stops.length) > 0
+                        ? (_g = (_f = worker_order.dataValues.assignment) === null || _f === void 0 ? void 0 : _f.dataValues.power_stops[0]) === null || _g === void 0 ? void 0 : _g.dataValues.tai_power_notify_date
+                        : null,
+                    is_assign_manpower: worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.assignment.dataValues.is_assign_manpower,
+                    factory_tracking_date: worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.factory.finished_date,
+                    report_status: report_status,
+                    photo_download: worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.acceptance_check.photo_download_date,
+                    acceptance_check_tracking_date: worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.acceptance_check.finished_date,
+                    tobill_tracking_date: worker_order.dataValues.tobill.finished_date,
+                    update_member: users.filter((user) => (worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.update_member) === user.uid)[0].name,
+                    update_date: worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.updatedAt,
+                    tobill_finished_date: worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.tobill.finished_date,
+                    test: (_h = worker_order === null || worker_order === void 0 ? void 0 : worker_order.dataValues.customer.ele_place) === null || _h === void 0 ? void 0 : _h.test,
+                    // started_time:
+                    //   worker_order.dataValues.assignment.manpower_schedules.length > 0
+                    //     ? worker_order.dataValues.assignment.manpower_schedules[0]
+                    //         .dataValues.started_time
+                    //     : null,
+                    // status: [""],
+                    // is_inspection_report_retrieved_date:
+                    //   worker_order.dataValues.acceptance_check.dataValues
+                    //     .is_inspection_report_retrieved_date,
+                    // item_data: item_data || null,
+                };
+            });
+            if (orderBy && orderType) {
+                if (orderBy === "update_date" ||
+                    orderBy === "notify_date" ||
+                    orderBy === "manufacturing_date" ||
+                    orderBy === "manpower_schedule_started_time" ||
+                    orderBy === "manpower_schedule_actual_date" ||
+                    orderBy === "receive_date" ||
+                    orderBy === "tai_power_notify_date" ||
+                    orderBy === "factory_tracking_date" ||
+                    orderBy === "acceptance_check_tracking_date" ||
+                    orderBy === "tobill_tracking_date") {
+                    data.sort((a, b) => {
+                        if (orderType === "asc") {
+                            return a[orderBy.toString()] - b[orderBy.toString()];
+                        }
+                        else {
+                            return b[orderBy.toString()] - a[orderBy.toString()];
+                        }
+                    });
+                }
+                else {
+                    data.sort((a, b) => {
+                        if (orderType === "asc") {
+                            return a[orderBy.toString()].localeCompare(b[orderBy.toString()]);
+                        }
+                        else {
+                            return b[orderBy.toString()].localeCompare(a[orderBy.toString()]);
+                        }
+                    });
+                }
+            }
             return res.json({
                 code: 200,
                 status: "success",
-                data: work_orders.map((worker_order) => {
-                    let item_data;
-                    if (!worker_order.dataValues.assignment.dataValues
-                        .tracking_is_finished) {
-                        item_data = "112WT0268派工";
-                    }
-                    else {
-                        if (!worker_order.dataValues.factory.dataValues.tracking_is_finished) {
-                            item_data = "112WT0187入廠";
-                        }
-                        else {
-                            if (!worker_order.dataValues.acceptance_check.dataValues
-                                .tracking_is_finished) {
-                                item_data = "112WT0268驗收";
-                            }
-                            else {
-                                if (!worker_order.dataValues.tobill.dataValues
-                                    .tracking_is_finished) {
-                                    item_data = "112WT0551請款";
-                                }
-                            }
-                        }
-                    }
-                    return {
-                        id: worker_order.dataValues.woid,
-                        work_order_name: worker_order.dataValues.name,
-                        invoice_number: worker_order.dataValues.invoice_number,
-                        order_number: worker_order.dataValues.order_number,
-                        update_date: worker_order.dataValues.updatedAt,
-                        customer_number: worker_order.dataValues.customer.dataValues.customer_number,
-                        customer_name: worker_order.dataValues.customer.dataValues.short_name,
-                        notify_date: new Date(),
-                        update_member: users.filter((user) => worker_order.dataValues.update_member === user.uid)[0].name,
-                        manufacturing_date: worker_order.dataValues.assignment.manufacturing_date,
-                        started_time: worker_order.dataValues.assignment.manpower_schedules.length > 0
-                            ? worker_order.dataValues.assignment.manpower_schedules[0]
-                                .dataValues.started_time
-                            : null,
-                        status: [""],
-                        is_inspection_report_retrieved_date: worker_order.dataValues.acceptance_check.dataValues
-                            .is_inspection_report_retrieved_date,
-                        item_data: item_data || null,
-                        is_assign_manpower: worker_order.dataValues.assignment.dataValues
-                            .is_assign_manpower,
-                    };
-                }),
+                data: data,
                 message: "取得工單資料列表成功",
             });
         })
@@ -358,25 +518,26 @@ const get_work_order_detail = (req, res, next) => {
                 {
                     model: factorys_1.default,
                 },
+                {
+                    model: customer_1.default,
+                    attributes: ["customer_number", "short_name", "cid"],
+                },
             ],
         })
             .then(async (work_order) => {
             var _a, _b, _c, _d;
-            const ele = await ele_place_1.default.findOne({
-                where: { cid: work_order.dataValues.cid },
-            });
-            console.log(ele);
-            console.log(work_order);
+            let work_order_data;
+            work_order_data = work_order.dataValues;
             return res.json({
                 code: 200,
                 status: "success",
                 data: {
-                    assign_finished_date: (_a = work_order === null || work_order === void 0 ? void 0 : work_order.dataValues.assignment) === null || _a === void 0 ? void 0 : _a.dataValues.finished_date,
-                    acceptance_check_finished_date: (_b = work_order === null || work_order === void 0 ? void 0 : work_order.dataValues.acceptance_check) === null || _b === void 0 ? void 0 : _b.dataValues.finished_date,
-                    to_bill_finished_date: (_c = work_order === null || work_order === void 0 ? void 0 : work_order.dataValues.to_bill) === null || _c === void 0 ? void 0 : _c.dataValues.finished_date,
-                    factory_finished_date: (_d = work_order === null || work_order === void 0 ? void 0 : work_order.dataValues.factory) === null || _d === void 0 ? void 0 : _d.dataValues.finished_date,
-                    ele_name: ele === null || ele === void 0 ? void 0 : ele.dataValues.name,
-                    ele_address: ele === null || ele === void 0 ? void 0 : ele.dataValues.address,
+                    ...work_order_data,
+                    assign_finished_date: ((_a = work_order === null || work_order === void 0 ? void 0 : work_order.dataValues.assignment) === null || _a === void 0 ? void 0 : _a.dataValues.finished_date) ||
+                        null,
+                    acceptance_check_finished_date: ((_b = work_order === null || work_order === void 0 ? void 0 : work_order.dataValues.acceptance_check) === null || _b === void 0 ? void 0 : _b.dataValues.finished_date) || null,
+                    to_bill_finished_date: ((_c = work_order === null || work_order === void 0 ? void 0 : work_order.dataValues.tobill) === null || _c === void 0 ? void 0 : _c.dataValues.finished_date) || null,
+                    factory_finished_date: ((_d = work_order === null || work_order === void 0 ? void 0 : work_order.dataValues.factory) === null || _d === void 0 ? void 0 : _d.dataValues.finished_date) || null,
                 },
                 message: "取得工單資料成功",
             });
@@ -484,7 +645,19 @@ const get_assignment_detail = (req, res) => {
                 },
                 {
                     model: power_stop_1.default,
-                    attributes: ["psid", "area", "started_date", "finished_date"],
+                    attributes: [
+                        "psid",
+                        "area",
+                        "other_description",
+                        "stop_shift",
+                        "request_date",
+                        "receive_date",
+                        "engineer",
+                        "customer",
+                        "tai_power_area",
+                        "tai_power_notify_date",
+                        "is_holiday",
+                    ],
                 },
             ],
         })
@@ -503,12 +676,27 @@ const get_assignment_detail = (req, res) => {
                 include: [
                     {
                         model: customer_1.default,
-                        attributes: ["customer_number", "short_name"],
+                        attributes: [
+                            "customer_number",
+                            "short_name",
+                            "cid",
+                            "assignment_description",
+                        ],
                     },
                 ],
             })
-                .then((work_order) => {
+                .then(async (work_order) => {
+                const ele = await ele_place_1.default.findOne({
+                    where: {
+                        cid: work_order.customer.dataValues.cid,
+                    },
+                });
                 let data = {};
+                const dbWorkOrder = work_order.toJSON();
+                data.assignment_description =
+                    dbWorkOrder.customer.assignment_description;
+                data.description =
+                    work_order.customer.dataValues.assignment_description;
                 data.id = assignment === null || assignment === void 0 ? void 0 : assignment.dataValues.aid;
                 data.manufacturing_address =
                     assignment === null || assignment === void 0 ? void 0 : assignment.dataValues.manufacturing_address;
@@ -532,8 +720,7 @@ const get_assignment_detail = (req, res) => {
                     assignment === null || assignment === void 0 ? void 0 : assignment.dataValues.tracking_description;
                 data.tracking_is_finished =
                     assignment === null || assignment === void 0 ? void 0 : assignment.dataValues.tracking_is_finished;
-                data.tracking_finished_date =
-                    assignment === null || assignment === void 0 ? void 0 : assignment.dataValues.tracking_finished_date;
+                data.finished_date = assignment === null || assignment === void 0 ? void 0 : assignment.dataValues.finished_date;
                 data.work_order_name = work_order.dataValues.name;
                 data.work_order_type = work_order.dataValues.type;
                 data.po = work_order.dataValues.po;
@@ -547,6 +734,11 @@ const get_assignment_detail = (req, res) => {
                 data.customer_name =
                     work_order.dataValues.customer.dataValues.short_name;
                 data.is_assign_manpower = assignment === null || assignment === void 0 ? void 0 : assignment.dataValues.is_assign_manpower;
+                data.is_adjusted =
+                    (ele === null || ele === void 0 ? void 0 : ele.dataValues.address) ===
+                        (assignment === null || assignment === void 0 ? void 0 : assignment.dataValues.manufacturing_address)
+                        ? false
+                        : true;
                 data.manpower_schedule =
                     assignment === null || assignment === void 0 ? void 0 : assignment.dataValues.manpower_schedules.map((manpower_schedule) => {
                         return {
@@ -562,8 +754,15 @@ const get_assignment_detail = (req, res) => {
                     return {
                         id: power_stop.dataValues.psid,
                         area: power_stop.dataValues.area,
-                        started_date: power_stop.dataValues.started_date,
-                        finished_date: power_stop.dataValues.finished_date,
+                        stop_shift: power_stop.dataValues.stop_shift,
+                        other_description: power_stop.dataValues.other_description,
+                        request_date: power_stop.dataValues.request_date,
+                        receive_date: power_stop.dataValues.receive_date,
+                        engineer: power_stop.dataValues.engineer,
+                        customer: power_stop.dataValues.customer,
+                        tai_power_area: power_stop.dataValues.tai_power_area,
+                        tai_power_notify_date: power_stop.dataValues.tai_power_notify_date,
+                        is_holiday: power_stop.dataValues.is_holiday,
                     };
                 });
                 return res.json({
@@ -608,7 +807,7 @@ const update_assignment = (req, res, next) => {
         // power_stop_phone1,
         // power_stop_phone2,
         // power_stop_date,
-        external_contact_is_holiday, external_contact_is_power_stop, external_contact_request_date, external_contact_receive_date, tracking_date, tracking_description, tracking_is_finished, tracking_finished_date, 
+        external_contact_is_holiday, external_contact_is_power_stop, external_contact_request_date, external_contact_receive_date, tracking_date, tracking_description, tracking_is_finished, finished_date, 
         // work_order_name,
         // work_order_type,
         // po,
@@ -616,7 +815,7 @@ const update_assignment = (req, res, next) => {
         // tobill_date,
         // factory_date,
         // assignment_date,
-        manpower_schedule, power_stop, } = req.body;
+        manpower_schedule, power_stop, is_assign_manpower, } = req.body;
         const { user } = req;
         assignments_1.default.findOne({
             where: { woid: woid },
@@ -639,54 +838,70 @@ const update_assignment = (req, res, next) => {
             assignment.tracking_date = tracking_date;
             assignment.tracking_description = tracking_description;
             assignment.tracking_is_finished = tracking_is_finished;
-            assignment.tracking_finished_date = tracking_finished_date;
+            assignment.finished_date = finished_date;
             assignment.update_member = user === null || user === void 0 ? void 0 : user.uid;
+            assignment.is_assign_manpower = is_assign_manpower;
             assignment.save();
             let executions = [];
-            JSON.parse(manpower_schedule).forEach((manpower_schedule_item) => {
-                executions.push(manpower_schedule_1.default.findOne({
-                    where: { msid: manpower_schedule_item.id },
-                })
-                    .then((manpower_schedule) => {
-                    manpower_schedule.note = manpower_schedule_item.note;
-                    // manpower_schedule.schedule_date =
-                    //   manpower_schedule_item.schedule_date;
-                    manpower_schedule.started_time = new Date(manpower_schedule_item.started_time);
-                    manpower_schedule.finished_time = new Date(manpower_schedule_item.finished_time);
-                    manpower_schedule.actual_date =
-                        manpower_schedule_item.actual_date;
-                    manpower_schedule.update_member = user === null || user === void 0 ? void 0 : user.uid;
-                    manpower_schedule.save();
-                })
-                    .catch((err) => {
-                    return res.json({
-                        code: 500,
-                        status: "error",
-                        data: null,
-                        message: `更新派工資料時發生錯誤 ${err}`,
-                    });
-                }));
-            });
-            JSON.parse(power_stop).forEach((power_stop_item) => {
-                executions.push(power_stop_1.default.findOne({
-                    where: { psid: power_stop_item.id },
-                })
-                    .then((power_stop) => {
-                    power_stop.area = power_stop_item.area;
-                    power_stop.started_date = power_stop_item.started_date;
-                    power_stop.finished_date = power_stop_item.finished_date;
-                    power_stop.update_member = user === null || user === void 0 ? void 0 : user.uid;
-                    power_stop.save();
-                })
-                    .catch((err) => {
-                    return res.json({
-                        code: 500,
-                        status: "error",
-                        data: null,
-                        message: `更新派工資料時發生錯誤 ${err}`,
-                    });
-                }));
-            });
+            if (manpower_schedule) {
+                JSON.parse(manpower_schedule).forEach((manpower_schedule_item) => {
+                    executions.push(manpower_schedule_1.default.findOne({
+                        where: { msid: manpower_schedule_item.id },
+                    })
+                        .then((manpower_schedule) => {
+                        manpower_schedule.note = manpower_schedule_item.note;
+                        // manpower_schedule.schedule_date =
+                        //   manpower_schedule_item.schedule_date;
+                        manpower_schedule.started_time = new Date(manpower_schedule_item.started_time);
+                        manpower_schedule.finished_time = new Date(manpower_schedule_item.finished_time);
+                        manpower_schedule.actual_date =
+                            manpower_schedule_item.actual_date;
+                        manpower_schedule.update_member = user === null || user === void 0 ? void 0 : user.uid;
+                        manpower_schedule.save();
+                    })
+                        .catch((err) => {
+                        return res.json({
+                            code: 500,
+                            status: "error",
+                            data: null,
+                            message: `更新派工資料時發生錯誤 ${err}`,
+                        });
+                    }));
+                });
+            }
+            if (power_stop) {
+                JSON.parse(power_stop).forEach((power_stop_item) => {
+                    executions.push(power_stop_1.default.findOne({
+                        where: { psid: power_stop_item.id },
+                    })
+                        .then((power_stop) => {
+                        power_stop.area = power_stop_item.area;
+                        power_stop.started_date = power_stop_item.started_date;
+                        power_stop.finished_date = power_stop_item.finished_date;
+                        power_stop.other_description =
+                            power_stop_item.other_description;
+                        power_stop.stop_shift = power_stop_item.stop_shift;
+                        power_stop.request_date = power_stop_item.request_date;
+                        power_stop.receive_date = power_stop_item.receive_date;
+                        power_stop.engineer = power_stop_item.engineer;
+                        power_stop.customer = power_stop_item.customer;
+                        power_stop.tai_power_area = power_stop_item.tai_power_area;
+                        power_stop.tai_power_notify_date =
+                            power_stop_item.tai_power_notify_date;
+                        power_stop.is_holiday = power_stop_item.is_holiday;
+                        power_stop.update_member = user === null || user === void 0 ? void 0 : user.uid;
+                        power_stop.save();
+                    })
+                        .catch((err) => {
+                        return res.json({
+                            code: 500,
+                            status: "error",
+                            data: null,
+                            message: `更新派工資料時發生錯誤 ${err}`,
+                        });
+                    }));
+                });
+            }
             Promise.all(executions)
                 .then(() => {
                 return res.json({
@@ -726,7 +941,7 @@ const update_assignment = (req, res, next) => {
 exports.update_assignment = update_assignment;
 const create_assignment = (req, res, next) => {
     try {
-        const { woid, manufacturing_address, manufacturing_status, manufacturing_date, power_stop_contact, power_stop_phone1, power_stop_phone2, power_stop_date, external_contact_is_holiday, external_contact_is_power_stop, external_contact_request_date, external_contact_receive_date, tracking_date, tracking_description, tracking_is_finished, tracking_finished_date, } = req.body;
+        const { woid, manufacturing_address, manufacturing_status, manufacturing_date, power_stop_contact, power_stop_phone1, power_stop_phone2, power_stop_date, external_contact_is_holiday, external_contact_is_power_stop, external_contact_request_date, external_contact_receive_date, tracking_date, tracking_description, tracking_is_finished, finished_date, } = req.body;
         const { user } = req;
         assignments_1.default.create({
             woid,
@@ -744,7 +959,7 @@ const create_assignment = (req, res, next) => {
             tracking_date,
             tracking_description,
             tracking_is_finished,
-            tracking_finished_date,
+            finished_date,
             update_member: user === null || user === void 0 ? void 0 : user.uid,
             create_member: user === null || user === void 0 ? void 0 : user.uid,
             is_del: false,
@@ -822,13 +1037,20 @@ const create_manpower_schedule = (req, res, next) => {
 exports.create_manpower_schedule = create_manpower_schedule;
 const create_power_stop = (req, res, next) => {
     try {
-        const { aid, area, started_date, finished_date } = req.body;
+        const { aid, area, other_description, stop_shift, request_date, receive_date, engineer, customer, tai_power_area, tai_power_notify_date, is_holiday, } = req.body;
         const { user } = req;
         power_stop_1.default.create({
             aid,
             area,
-            started_date,
-            finished_date,
+            other_description,
+            stop_shift,
+            request_date,
+            receive_date,
+            engineer,
+            customer,
+            tai_power_area,
+            tai_power_notify_date,
+            is_holiday,
             update_member: user === null || user === void 0 ? void 0 : user.uid,
             create_member: user === null || user === void 0 ? void 0 : user.uid,
             is_del: false,
@@ -862,7 +1084,7 @@ const create_power_stop = (req, res, next) => {
 exports.create_power_stop = create_power_stop;
 const update_acceptance_check = (req, res) => {
     try {
-        const { woid, description, is_photo_before, is_photo_during, is_photo_after, power_switch_date1, power_switch_date2, power_switch_date3, power_switch_date4, defect_agreement, report_type, ew06_registration, fom17_registration_government_date, fom17_registration_ele_date, is_warranty, tracking_date, tracking_description, tracking_is_finished, finished_date, wt_report_number, 
+        const { woid, description, is_photo_before, is_photo_during, is_photo_after, power_switch_date1, power_switch_date2, power_switch_date3, power_switch_date4, defect_agreement, report_type, ew06_registration, fom17_registration_government_date, fom17_registration_ele_date, is_warranty, warranty_number, warranty_started_date, warranty_end_date, tracking_date, tracking_description, tracking_is_finished, finished_date, wt_report_number, 
         // work_order_name,
         // work_order_type,
         // po,
@@ -870,12 +1092,14 @@ const update_acceptance_check = (req, res) => {
         // tobill_date,
         // factory_date,
         // assignment_date,
-        is_inspection_report_retrieved_date, is_inspection_report_retrieved, } = req.body;
+        is_inspection_report_retrieved_date, is_inspection_report_retrieved, photo_download, photo_download_date, note, } = req.body;
         const { user } = req;
         acceptance_check_1.default.findOne({
             where: { woid: woid },
         })
             .then((acceptance_check) => {
+            acceptance_check.photo_download = photo_download;
+            acceptance_check.photo_download_date = photo_download_date;
             acceptance_check.description = description;
             acceptance_check.is_photo_before = is_photo_before;
             acceptance_check.is_photo_during = is_photo_during;
@@ -892,6 +1116,9 @@ const update_acceptance_check = (req, res) => {
             acceptance_check.fom17_registration_ele_date =
                 fom17_registration_ele_date;
             acceptance_check.is_warranty = is_warranty;
+            acceptance_check.warranty_number = warranty_number;
+            acceptance_check.warranty_started_date = warranty_started_date;
+            acceptance_check.warranty_end_date = warranty_end_date;
             acceptance_check.tracking_date = tracking_date;
             acceptance_check.tracking_description = tracking_description;
             acceptance_check.tracking_is_finished = tracking_is_finished;
@@ -902,6 +1129,7 @@ const update_acceptance_check = (req, res) => {
                 is_inspection_report_retrieved_date;
             acceptance_check.is_inspection_report_retrieved =
                 is_inspection_report_retrieved;
+            acceptance_check.note = note;
             acceptance_check.save();
             return res.json({
                 code: 200,
@@ -939,7 +1167,11 @@ const get_acceptance_check_detail = (req, res) => {
                     include: [
                         {
                             model: customer_1.default,
-                            attributes: ["customer_number", "short_name"],
+                            attributes: [
+                                "customer_number",
+                                "short_name",
+                                "acceptance_check_description",
+                            ],
                         },
                     ],
                 },
@@ -947,8 +1179,11 @@ const get_acceptance_check_detail = (req, res) => {
         })
             .then((acceptance_check) => {
             let data = {};
+            const dbAcceptanceCheck = acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.toJSON();
+            data.note = (dbAcceptanceCheck === null || dbAcceptanceCheck === void 0 ? void 0 : dbAcceptanceCheck.note) || "";
             data.id = acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.acid;
-            data.description = acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.description;
+            data.description =
+                acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.work_order.dataValues.customer.dataValues.acceptance_check_description;
             data.is_photo_before = acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.is_photo_before;
             data.is_photo_during = acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.is_photo_during;
             data.is_photo_after = acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.is_photo_after;
@@ -968,6 +1203,10 @@ const get_acceptance_check_detail = (req, res) => {
             data.fom17_registration_ele_date =
                 acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.fom17_registration_ele_date;
             data.is_warranty = acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.is_warranty;
+            data.warranty_number = acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.warranty_number;
+            data.warranty_started_date =
+                acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.warranty_started_date;
+            data.warranty_end_date = acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.warranty_end_date;
             data.tracking_date = acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.tracking_date;
             data.tracking_description =
                 acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.tracking_description;
@@ -978,6 +1217,9 @@ const get_acceptance_check_detail = (req, res) => {
                 acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.is_inspection_report_retrieved;
             data.is_inspection_report_retrieved_date =
                 acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.is_inspection_report_retrieved_date;
+            data.photo_download = acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.photo_download;
+            data.photo_download_date =
+                acceptance_check === null || acceptance_check === void 0 ? void 0 : acceptance_check.dataValues.photo_download_date;
             // data.wt_report_number = acceptance_check?.dataValues.wt_report_number;
             // data.work_order_name =
             //   acceptance_check?.dataValues.work_order.dataValues.name;
@@ -1024,7 +1266,7 @@ const get_acceptance_check_detail = (req, res) => {
 exports.get_acceptance_check_detail = get_acceptance_check_detail;
 const create_acceptance_check = (req, res) => {
     try {
-        const { woid, description, is_photo_before, is_photo_during, is_photo_after, power_switch_date1, power_switch_date2, power_switch_date3, power_switch_date4, defect_agreement, report_type, ew06_registration, fom17_registration_government_date, fom17_registration_ele_date, is_warranty, tracking_date, tracking_description, tracking_is_finished, finished_date, wt_report_number, } = req.body;
+        const { woid, description, is_photo_before, is_photo_during, is_photo_after, power_switch_date1, power_switch_date2, power_switch_date3, power_switch_date4, defect_agreement, report_type, ew06_registration, fom17_registration_government_date, fom17_registration_ele_date, is_warranty, warranty_number, warranty_started_date, warranty_end_date, tracking_date, tracking_description, tracking_is_finished, finished_date, wt_report_number, photo_download, photo_download_date, } = req.body;
         const { user } = req;
         acceptance_check_1.default.create({
             woid,
@@ -1042,11 +1284,16 @@ const create_acceptance_check = (req, res) => {
             fom17_registration_government_date,
             fom17_registration_ele_date,
             is_warranty,
+            warranty_number,
+            warranty_started_date,
+            warranty_end_date,
             tracking_date,
             tracking_description,
             tracking_is_finished,
             finished_date,
             wt_report_number,
+            photo_download,
+            photo_download_date,
             update_member: user === null || user === void 0 ? void 0 : user.uid,
             create_member: user === null || user === void 0 ? void 0 : user.uid,
             is_del: false,
@@ -1088,7 +1335,11 @@ const get_factory_detail = (req, res) => {
                     include: [
                         {
                             model: customer_1.default,
-                            attributes: ["customer_number", "short_name"],
+                            attributes: [
+                                "customer_number",
+                                "short_name",
+                                "factory_description",
+                            ],
                         },
                     ],
                 },
@@ -1100,11 +1351,18 @@ const get_factory_detail = (req, res) => {
             .then((factory) => {
             let data = {};
             data.id = factory === null || factory === void 0 ? void 0 : factory.dataValues.fid;
-            data.description = factory === null || factory === void 0 ? void 0 : factory.dataValues.description;
+            data.description =
+                factory === null || factory === void 0 ? void 0 : factory.dataValues.work_order.dataValues.customer.dataValues.factory_description;
             data.tracking_date = factory === null || factory === void 0 ? void 0 : factory.dataValues.tracking_date;
             data.tracking_description = factory === null || factory === void 0 ? void 0 : factory.dataValues.tracking_description;
             data.tracking_is_finished = factory === null || factory === void 0 ? void 0 : factory.dataValues.tracking_is_finished;
             data.finished_date = factory === null || factory === void 0 ? void 0 : factory.dataValues.finished_date;
+            data.is_class = factory === null || factory === void 0 ? void 0 : factory.dataValues.is_class;
+            data.is_bunny_shoe = factory === null || factory === void 0 ? void 0 : factory.dataValues.is_bunny_shoe;
+            data.is_bunny_suit = factory === null || factory === void 0 ? void 0 : factory.dataValues.is_bunny_suit;
+            data.is_group_insurance = factory === null || factory === void 0 ? void 0 : factory.dataValues.is_group_insurance;
+            data.is_label_insurance = factory === null || factory === void 0 ? void 0 : factory.dataValues.is_label_insurance;
+            data.other_form = factory === null || factory === void 0 ? void 0 : factory.dataValues.other_form;
             // data.wt_report_number = factory?.dataValues.wt_report_number;
             // data.work_order_name = factory?.dataValues.work_order.dataValues.name;
             // data.work_order_type = factory?.dataValues.work_order.dataValues.type;
@@ -1129,6 +1387,7 @@ const get_factory_detail = (req, res) => {
                     is_group_insurance: factory_other_form.dataValues.is_group_insurance,
                     is_label_insurance: factory_other_form.dataValues.is_label_insurance,
                     other_form: factory_other_form.dataValues.other_form,
+                    update_date: factory_other_form.dataValues.updatedAt,
                 };
             });
             return res.json({
@@ -1159,7 +1418,7 @@ const get_factory_detail = (req, res) => {
 exports.get_factory_detail = get_factory_detail;
 const update_factory = (req, res) => {
     try {
-        const { woid, description, tracking_date, tracking_description, tracking_is_finished, finished_date, 
+        const { woid, description, tracking_date, tracking_description, tracking_is_finished, finished_date, is_class, is_bunny_shoe, is_bunny_suit, is_group_insurance, is_label_insurance, 
         // wt_report_number,
         // work_order_name,
         // work_order_type,
@@ -1179,38 +1438,45 @@ const update_factory = (req, res) => {
             factory.tracking_description = tracking_description;
             factory.tracking_is_finished = tracking_is_finished;
             factory.finished_date = finished_date;
+            factory.is_class = is_class;
+            factory.is_bunny_shoe = is_bunny_shoe;
+            factory.is_bunny_suit = is_bunny_suit;
+            factory.is_group_insurance = is_group_insurance;
+            factory.is_label_insurance = is_label_insurance;
             factory.update_member = user === null || user === void 0 ? void 0 : user.uid;
             factory.save();
             let executions = [];
-            JSON.parse(factory_other_form).forEach((factory_other_form_item) => {
-                executions.push(factory_other_forms_1.default.findOne({
-                    where: { foid: factory_other_form_item.id },
-                })
-                    .then((factory_other_form) => {
-                    factory_other_form.is_class =
-                        factory_other_form_item.is_class;
-                    factory_other_form.is_bunny_shoe =
-                        factory_other_form_item.is_bunny_shoe;
-                    factory_other_form.is_bunny_suit =
-                        factory_other_form_item.is_bunny_suit;
-                    factory_other_form.is_group_insurance =
-                        factory_other_form_item.is_group_insurance;
-                    factory_other_form.is_label_insurance =
-                        factory_other_form_item.is_label_insurance;
-                    factory_other_form.other_form =
-                        factory_other_form_item.other_form;
-                    factory_other_form.update_member = user === null || user === void 0 ? void 0 : user.uid;
-                    factory_other_form.save();
-                })
-                    .catch((err) => {
-                    return res.json({
-                        code: 500,
-                        status: "error",
-                        data: null,
-                        message: `更新入廠驗收資料發生錯誤 ${err}`,
-                    });
-                }));
-            });
+            if (factory_other_form) {
+                JSON.parse(factory_other_form).forEach((factory_other_form_item) => {
+                    executions.push(factory_other_forms_1.default.findOne({
+                        where: { foid: factory_other_form_item.id },
+                    })
+                        .then((factory_other_form) => {
+                        factory_other_form.is_class =
+                            factory_other_form_item.is_class;
+                        factory_other_form.is_bunny_shoe =
+                            factory_other_form_item.is_bunny_shoe;
+                        factory_other_form.is_bunny_suit =
+                            factory_other_form_item.is_bunny_suit;
+                        factory_other_form.is_group_insurance =
+                            factory_other_form_item.is_group_insurance;
+                        factory_other_form.is_label_insurance =
+                            factory_other_form_item.is_label_insurance;
+                        factory_other_form.other_form =
+                            factory_other_form_item.other_form;
+                        factory_other_form.update_member = user === null || user === void 0 ? void 0 : user.uid;
+                        factory_other_form.save();
+                    })
+                        .catch((err) => {
+                        return res.json({
+                            code: 500,
+                            status: "error",
+                            data: null,
+                            message: `更新入廠驗收資料發生錯誤 ${err}`,
+                        });
+                    }));
+                });
+            }
             Promise.all(executions)
                 .then(() => {
                 return res.json({
@@ -1250,7 +1516,7 @@ const update_factory = (req, res) => {
 exports.update_factory = update_factory;
 const create_factory = (req, res) => {
     try {
-        const { woid, description, tracking_date, tracking_description, tracking_is_finished, finished_date, } = req.body;
+        const { woid, description, is_class, is_bunny_shoe, is_bunny_suit, is_group_insurance, is_label_insurance, tracking_date, tracking_description, tracking_is_finished, finished_date, } = req.body;
         const { user } = req;
         factorys_1.default.create({
             woid,
@@ -1259,6 +1525,11 @@ const create_factory = (req, res) => {
             tracking_description,
             tracking_is_finished,
             finished_date,
+            is_class,
+            is_bunny_shoe,
+            is_bunny_suit,
+            is_group_insurance,
+            is_label_insurance,
             update_member: user === null || user === void 0 ? void 0 : user.uid,
             create_member: user === null || user === void 0 ? void 0 : user.uid,
             is_del: false,
@@ -1358,40 +1629,42 @@ const update_tobill = (req, res) => {
             tobill.update_member = user === null || user === void 0 ? void 0 : user.uid;
             tobill.save();
             let executions = [];
-            JSON.parse(tobill_invoice).forEach((tobill_invoice_item) => {
-                executions.push(tobill_invoce_1.default.findOne({
-                    where: { tbiid: tobill_invoice_item.id },
-                })
-                    .then((tobill_invoice) => {
-                    tobill_invoice.percentage = tobill_invoice_item.percentage;
-                    tobill_invoice.date = tobill_invoice_item.date;
-                    tobill_invoice.amount = tobill_invoice_item.amount;
-                    tobill_invoice.sent_date = tobill_invoice_item.sent_date;
-                    tobill_invoice.note = tobill_invoice_item.note;
-                    tobill_invoice.numbers_invoices =
-                        tobill_invoice_item.numbers_invoices;
-                    tobill_invoice.numbers_reports =
-                        tobill_invoice_item.numbers_reports;
-                    tobill_invoice.numbers_general_forms =
-                        tobill_invoice_item.numbers_general_forms;
-                    tobill_invoice.numbers_inqualify_agreements =
-                        tobill_invoice_item.numbers_inqualify_agreements;
-                    tobill_invoice.invoice_number =
-                        tobill_invoice_item.invoice_number;
-                    tobill_invoice.numbers_envelope =
-                        tobill_invoice_item.numbers_envelope;
-                    tobill_invoice.update_member = user === null || user === void 0 ? void 0 : user.uid;
-                    tobill_invoice.save();
-                })
-                    .catch((err) => {
-                    return res.json({
-                        code: 500,
-                        status: "error",
-                        data: null,
-                        message: `更新請款資料發生錯誤 ${err}`,
-                    });
-                }));
-            });
+            if (tobill_invoice) {
+                JSON.parse(tobill_invoice).forEach((tobill_invoice_item) => {
+                    executions.push(tobill_invoce_1.default.findOne({
+                        where: { tbiid: tobill_invoice_item.id },
+                    })
+                        .then((tobill_invoice) => {
+                        tobill_invoice.percentage = tobill_invoice_item.percentage;
+                        tobill_invoice.date = tobill_invoice_item.date;
+                        tobill_invoice.amount = tobill_invoice_item.amount;
+                        tobill_invoice.sent_date = tobill_invoice_item.sent_date;
+                        tobill_invoice.note = tobill_invoice_item.note;
+                        tobill_invoice.numbers_invoices =
+                            tobill_invoice_item.numbers_invoices;
+                        tobill_invoice.numbers_reports =
+                            tobill_invoice_item.numbers_reports;
+                        tobill_invoice.numbers_general_forms =
+                            tobill_invoice_item.numbers_general_forms;
+                        tobill_invoice.numbers_inqualify_agreements =
+                            tobill_invoice_item.numbers_inqualify_agreements;
+                        tobill_invoice.invoice_number =
+                            tobill_invoice_item.invoice_number;
+                        tobill_invoice.numbers_envelope =
+                            tobill_invoice_item.numbers_envelope;
+                        tobill_invoice.update_member = user === null || user === void 0 ? void 0 : user.uid;
+                        tobill_invoice.save();
+                    })
+                        .catch((err) => {
+                        return res.json({
+                            code: 500,
+                            status: "error",
+                            data: null,
+                            message: `更新請款資料發生錯誤 ${err}`,
+                        });
+                    }));
+                });
+            }
             Promise.all(executions)
                 .then(() => {
                 return res.json({
@@ -1439,7 +1712,11 @@ const get_tobill_detail = (req, res) => {
                     include: [
                         {
                             model: customer_1.default,
-                            attributes: ["customer_number", "short_name"],
+                            attributes: [
+                                "customer_number",
+                                "short_name",
+                                "tobill_description",
+                            ],
                         },
                     ],
                 },
@@ -1451,7 +1728,8 @@ const get_tobill_detail = (req, res) => {
             .then((tobill) => {
             let data = {};
             data.id = tobill === null || tobill === void 0 ? void 0 : tobill.dataValues.tbid;
-            data.description = tobill === null || tobill === void 0 ? void 0 : tobill.dataValues.description;
+            data.description =
+                tobill === null || tobill === void 0 ? void 0 : tobill.dataValues.work_order.dataValues.customer.dataValues.tobill_description;
             data.tracking_date = tobill === null || tobill === void 0 ? void 0 : tobill.dataValues.tracking_date;
             data.tracking_description = tobill === null || tobill === void 0 ? void 0 : tobill.dataValues.tracking_description;
             data.tracking_is_finished = tobill === null || tobill === void 0 ? void 0 : tobill.dataValues.tracking_is_finished;

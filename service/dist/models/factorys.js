@@ -29,5 +29,10 @@ const Factory = db_1.sequelize.define("factory", {
     is_del: sequelize_1.default.BOOLEAN,
     update_member: sequelize_1.default.STRING,
     create_member: sequelize_1.default.STRING,
+    is_class: sequelize_1.default.BOOLEAN,
+    is_group_insurance: sequelize_1.default.BOOLEAN,
+    is_label_insurance: sequelize_1.default.BOOLEAN,
+    is_bunny_shoe: sequelize_1.default.BOOLEAN,
+    is_bunny_suit: sequelize_1.default.BOOLEAN,
 });
 exports.default = Factory;

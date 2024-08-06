@@ -59,7 +59,8 @@ const create_service = (req, res, next) => {
     });
 };
 exports.create_service = create_service;
-const get_service_list = (_, res) => {
+const get_service_list = (req, res) => {
+    const { orderBy, orderType } = req.query;
     service_1.default.findAll({
         where: { is_del: false },
         attributes: [
@@ -79,25 +80,51 @@ const get_service_list = (_, res) => {
         },
     })
         .then(async (result) => {
+        let data;
         const users = await user_1.default.findAll({ where: { is_del: false } });
+        data = result.map((item) => {
+            return {
+                id: item.dataValues.csid,
+                title: item.dataValues.title,
+                status: item.dataValues.status,
+                type: item.dataValues.type,
+                notify_date: new Date(item.dataValues.notify_date).getTime(),
+                update_member: users.filter((user) => item.dataValues.update_member === user.uid)[0].name,
+                create_member: users.filter((user) => item.dataValues.update_member === user.uid)[0].name,
+                update_date: new Date(item.dataValues.updatedAt).getTime(),
+                customer_number: item.dataValues.customer.dataValues.customer_number,
+                short_name: item.dataValues.customer.dataValues.short_name,
+                create_date: new Date(item.dataValues.createdAt).getTime(),
+            };
+        });
+        if (orderBy && orderType) {
+            if (orderBy === "update_date" ||
+                orderBy === "create_date" ||
+                orderBy === "notify_date") {
+                data.sort((a, b) => {
+                    if (orderType === "asc") {
+                        return a[orderBy.toString()] - b[orderBy.toString()];
+                    }
+                    else {
+                        return b[orderBy.toString()] - a[orderBy.toString()];
+                    }
+                });
+            }
+            else {
+                data.sort((a, b) => {
+                    if (orderType === "asc") {
+                        return a[orderBy.toString()].localeCompare(b[orderBy.toString()]);
+                    }
+                    else {
+                        return b[orderBy.toString()].localeCompare(a[orderBy.toString()]);
+                    }
+                });
+            }
+        }
         return res.json({
             code: 200,
             status: "success",
-            data: result.map((item) => {
-                return {
-                    id: item.dataValues.csid,
-                    title: item.dataValues.title,
-                    status: item.dataValues.status,
-                    type: item.dataValues.type,
-                    notify_date: new Date(item.dataValues.notify_date).getTime(),
-                    update_member: users.filter((user) => item.dataValues.update_member === user.uid)[0].name,
-                    create_member: users.filter((user) => item.dataValues.update_member === user.uid)[0].name,
-                    update_date: new Date(item.dataValues.updatedAt).getTime(),
-                    customer_number: item.dataValues.customer.dataValues.customer_number,
-                    short_name: item.dataValues.customer.dataValues.short_name,
-                    create_date: new Date(item.dataValues.createdAt).getTime(),
-                };
-            }),
+            data: data,
             message: `取得客服資料列表成功。`,
         });
     })

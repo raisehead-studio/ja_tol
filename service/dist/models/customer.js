@@ -23,6 +23,7 @@ const Customer = db_1.sequelize.define("customer", {
     invoice_description: sequelize_1.default.STRING,
     other_description: sequelize_1.default.STRING,
     is_del: sequelize_1.default.BOOLEAN,
+    tax_id: sequelize_1.default.STRING,
     update_member: sequelize_1.default.STRING,
     create_member: sequelize_1.default.STRING,
 });

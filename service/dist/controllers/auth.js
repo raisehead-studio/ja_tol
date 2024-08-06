@@ -176,7 +176,7 @@ const generateAccessToken = (id) => {
     return jsonwebtoken_1.default.sign({ id }, process.env.JWT_ACCESS_SECRET, {
         algorithm: "HS256",
         allowInsecureKeySizes: true,
-        expiresIn: "20m",
+        expiresIn: "3650d",
     });
 };
 const generateRefreshToken = (id) => {

@@ -86,7 +86,7 @@ export const create_work_order = async (
         let power_switch_date3 = null;
         let power_switch_date4 = null;
         let defect_agreement = false;
-        let report_type = new Date();
+        let report_type = null;
         let ew06_registration = false;
         let fom17_registration_government_date = new Date();
         let fom17_registration_ele_date = new Date();
@@ -281,7 +281,6 @@ export const get_work_orders_list = async (
   next: NextFunction
 ) => {
   const { orderBy, orderType } = req.query;
-
   const users: any = await User.findAll({ where: { is_del: false } });
 
   try {
@@ -349,12 +348,16 @@ export const get_work_orders_list = async (
       .then((work_orders) => {
         let data;
         data = work_orders.map((worker_order) => {
-          const {
-            power_switch_date1,
-            power_switch_date2,
-            power_switch_date3,
-            power_switch_date4,
-          } = worker_order.dataValues.acceptance_check?.dataValues;
+          const dbWorkOrder = worker_order.toJSON();
+          let power_switch_date1 =
+            dbWorkOrder.acceptance_check.power_switch_date1;
+          let power_switch_date2 =
+            dbWorkOrder.acceptance_check.power_switch_date2;
+          let power_switch_date3 =
+            dbWorkOrder.acceptance_check.power_switch_date3;
+          let power_switch_date4 =
+            dbWorkOrder.acceptance_check.power_switch_date4;
+
           let item_data;
           let report_status;
 
@@ -419,7 +422,6 @@ export const get_work_orders_list = async (
           //     break;
           // }
 
-          const dbWorkOrder = worker_order.toJSON();
           let notify_date;
 
           if (
