@@ -90,4 +90,5 @@ export type UpdateCustomerRequestDataType = {
   test?: string;
   other_description?: string;
   assignment_description?: string;
+  ele_number?: string;
 };

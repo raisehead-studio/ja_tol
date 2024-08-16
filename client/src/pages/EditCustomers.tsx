@@ -69,6 +69,7 @@ const EditCustomers = () => {
       test: data.test,
       other_description: data.other_description,
       assignment_description: data.assignment_description,
+      ele_number: data.ele_number,
     };
     try {
       const res = await updateCustomer(updateData);
