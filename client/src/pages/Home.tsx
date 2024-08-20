@@ -220,7 +220,7 @@ const Home = () => {
                       },
                     }}
                     active={true}>
-                    工程名稱/客服紀錄
+                    工程名稱/客服紀錄類型
                   </TableSortLabel>
                 </TableCell>
                 <TableCell align="left">

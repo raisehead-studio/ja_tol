@@ -98,15 +98,16 @@ export const get_tracking = async (
             let item_data;
             let description;
             let date;
+            const dbWorkOrder = item.toJSON();
 
             if (!item.dataValues.assignment.dataValues.tracking_is_finished) {
-              item_data = "112WT0268派工";
+              // item_data = "112WT0268派工";
               description =
                 item.dataValues.assignment.dataValues.tracking_description;
               date = item.dataValues.assignment.dataValues.tracking_date;
             } else {
               if (!item.dataValues.factory.dataValues.tracking_is_finished) {
-                item_data = "112WT0187入廠";
+                // item_data = "112WT0187入廠";
                 description =
                   item.dataValues.factory.dataValues.tracking_description;
                 date = item.dataValues.factory.dataValues.tracking_date;
@@ -115,7 +116,7 @@ export const get_tracking = async (
                   !item.dataValues.acceptance_check.dataValues
                     .tracking_is_finished
                 ) {
-                  item_data = "112WT0268驗收";
+                  // item_data = "112WT0268驗收";
                   description =
                     item.dataValues.acceptance_check.dataValues
                       .tracking_description;
@@ -123,7 +124,7 @@ export const get_tracking = async (
                     item.dataValues.acceptance_check.dataValues.tracking_date;
                 } else {
                   if (!item.dataValues.tobill.dataValues.tracking_is_finished) {
-                    item_data = "112WT0551請款";
+                    // item_data = "112WT0551請款";
                     description =
                       item.dataValues.tobill.dataValues.tracking_description;
                     date = item.dataValues.tobill.dataValues.tracking_date;
@@ -132,22 +133,20 @@ export const get_tracking = async (
               }
             }
 
-            if (item_data) {
-              data.push({
-                id: item.dataValues.woid,
-                notify_date: new Date(date).getTime(),
-                customer_number:
-                  item.dataValues.customer.dataValues.customer_number,
-                short_name: item.dataValues.customer.dataValues.short_name,
-                work_order_number: item.dataValues.order_number,
-                item: item_data,
-                description: description,
-                update_member: users.filter(
-                  (user: any) => item.dataValues.update_member === user.uid
-                )[0].name,
-                update_date: new Date(item.dataValues.updatedAt).getTime(),
-              });
-            }
+            data.push({
+              id: item.dataValues.woid,
+              notify_date: new Date(date).getTime(),
+              customer_number:
+                item.dataValues.customer.dataValues.customer_number,
+              short_name: item.dataValues.customer.dataValues.short_name,
+              work_order_number: item.dataValues.order_number,
+              item: dbWorkOrder.name,
+              description: description,
+              update_member: users.filter(
+                (user: any) => item.dataValues.update_member === user.uid
+              )[0].name,
+              update_date: new Date(item.dataValues.updatedAt).getTime(),
+            });
           });
 
           let sort_data;
