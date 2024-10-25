@@ -91,4 +91,8 @@ export type UpdateCustomerRequestDataType = {
   other_description?: string;
   assignment_description?: string;
   ele_number?: string;
+  tax_id?: string;
+  customer_number?: string;
+  name?: string;
+  short_name?: string;
 };

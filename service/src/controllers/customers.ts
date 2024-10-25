@@ -33,51 +33,41 @@ export const create_customer = (
     },
   })
     .then((customer: any) => {
-      if (!customer || (customer && customer.is_del)) {
-        Customer.create({
-          name: name,
-          short_name: short_name,
-          customer_number: customer_number,
-          ele_number: ele_number,
-          tax_id,
-          factory_description:
-            "系統內定，未編輯前 --> 進廠施工務必申請作業,,提供文件：勞保/團保/入廠證件/3H勞安證/動火申請/",
-          acceptance_check_description:
-            "系統內定，未編輯前 --> 前/中/後  之施工相片／產品保固一年／／／",
-          tobill_description: "系統內定，未編輯前 --> 發票務必要註明P.O.編號",
-          invoice_description:
-            "系統內定，未編輯前 --> 本客戶固定都會議價10%以上,,所以報價者注意要先提高報價金額／本客戶有不良記錄,欠公司20萬,,請款刁難／本客戶為優質客戶不議價,,要求品質...等等",
-          update_member: user?.uid,
-          create_member: user?.uid,
-          is_del: false,
-        })
-          .then((result) => {
-            return res.json({
-              code: 200,
-              status: "success",
-              data: {
-                cid: result.dataValues.cid,
-              },
-              message: "建立客戶資料成功。",
-            });
-          })
-          .catch((err) => {
-            return res.json({
-              code: 500,
-              status: "error",
-              data: null,
-              message: `建立客戶時發生問題 ${err}。`,
-            });
+      Customer.create({
+        name: name,
+        short_name: short_name,
+        customer_number: customer_number,
+        ele_number: ele_number,
+        tax_id,
+        factory_description:
+          "系統內定，未編輯前 --> 進廠施工務必申請作業,,提供文件：勞保/團保/入廠證件/3H勞安證/動火申請/",
+        acceptance_check_description:
+          "系統內定，未編輯前 --> 前/中/後  之施工相片／產品保固一年／／／",
+        tobill_description: "系統內定，未編輯前 --> 發票務必要註明P.O.編號",
+        invoice_description:
+          "系統內定，未編輯前 --> 本客戶固定都會議價10%以上,,所以報價者注意要先提高報價金額／本客戶有不良記錄,欠公司20萬,,請款刁難／本客戶為優質客戶不議價,,要求品質...等等",
+        update_member: user?.uid,
+        create_member: user?.uid,
+        is_del: false,
+      })
+        .then((result) => {
+          return res.json({
+            code: 200,
+            status: "success",
+            data: {
+              cid: result.dataValues.cid,
+            },
+            message: "建立客戶資料成功。",
           });
-      } else {
-        return res.json({
-          code: 401,
-          status: "warning",
-          data: null,
-          message: `顧客重複。`,
+        })
+        .catch((err) => {
+          return res.json({
+            code: 500,
+            status: "error",
+            data: null,
+            message: `建立客戶時發生問題 ${err}。`,
+          });
         });
-        next();
-      }
     })
     .catch((err) => {
       return res.json({
@@ -359,9 +349,11 @@ export const create_customer_contact = (
   CustomerContact.create({
     name: name,
     cid: cid,
-    type: type,
+    type: type ? type : "系統內定：例 聯絡部門 採購、廠務、勞安...等",
     phone: phone,
-    job_description: job_description,
+    job_description: job_description
+      ? job_description
+      : "系統內定：例 溝通排程、施工注意事項、入廠資料、驗收、請款...等",
     title: title,
     note: note,
     email: email,
@@ -416,6 +408,7 @@ export const update_customer_detail = (
     taiwan_power_company,
     government,
     test,
+    tax_id,
   } = req.body;
   const { user } = req;
 
@@ -433,6 +426,7 @@ export const update_customer_detail = (
         customer.invoice_description = invoice_description;
         customer.update_member = user?.uid;
         customer.other_description = other_description;
+        customer.tax_id = tax_id;
 
         customer.save();
         let executions: any = [];

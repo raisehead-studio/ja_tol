@@ -20,11 +20,15 @@ const CreateCustomerContact = ({
   open: boolean;
   handleClose: () => void;
 }) => {
-  const [type, setType] = useState<string>("");
+  const [type, setType] = useState<string>(
+    "系統內定：例 聯絡部門 採購、廠務、勞安...等"
+  );
   const [name, setName] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
-  const [jobDescription, setJobDescription] = useState<string>("");
+  const [jobDescription, setJobDescription] = useState<string>(
+    "系統內定：例 溝通排程、施工注意事項、入廠資料、驗收、請款...等"
+  );
   const [note, setNote] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -215,7 +219,7 @@ const CreateCustomerContact = ({
               </Button>
               <Button
                 onClick={handleCreateCustomerContact}
-                disabled={!name || !type || !phone || !email || !jobDescription}
+                disabled={!name ||  !phone || !email}
                 variant="contained">
                 儲存
               </Button>

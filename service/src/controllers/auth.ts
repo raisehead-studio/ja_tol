@@ -10,6 +10,12 @@ export const login = async (
   next: NextFunction
 ) => {
   const { account, password } = req.body;
+
+  const user = await User.findOne({ where: { account: account } });
+  const dbUser = user?.toJSON();
+
+  console.log(dbUser);
+
   try {
     User.findOne({ where: { account: account } })
       .then((user) => {

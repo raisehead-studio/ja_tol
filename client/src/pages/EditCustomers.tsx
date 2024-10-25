@@ -70,6 +70,10 @@ const EditCustomers = () => {
       other_description: data.other_description,
       assignment_description: data.assignment_description,
       ele_number: data.ele_number,
+      customer_number: data.customer_number,
+      name: data.name,
+      short_name: data.short_name,
+      tax_id: data.tax_id,
     };
     try {
       const res = await updateCustomer(updateData);
@@ -212,7 +216,6 @@ const EditCustomers = () => {
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 onChange={handleUpdateFiled}
-                disabled
               />
               <TextField
                 label="客戶名稱(經濟部公司登記)"
@@ -222,7 +225,6 @@ const EditCustomers = () => {
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 onChange={handleUpdateFiled}
-                disabled
               />
             </Box>
             <Box
@@ -233,13 +235,12 @@ const EditCustomers = () => {
               }}>
               <TextField
                 label="客戶簡稱"
-                name="name"
+                name="short_name"
                 value={data?.short_name || ""}
                 size="small"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 onChange={handleUpdateFiled}
-                disabled
               />
               <TextField
                 label="統一編號"
@@ -249,7 +250,6 @@ const EditCustomers = () => {
                 InputLabelProps={{ shrink: true }}
                 fullWidth
                 onChange={handleUpdateFiled}
-                disabled
               />
             </Box>
           </Box>
