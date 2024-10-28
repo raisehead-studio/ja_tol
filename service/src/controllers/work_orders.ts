@@ -50,6 +50,19 @@ export const create_work_order = async (
     const ele = await ElePlace.findOne({
       where: { cid: cid },
     });
+    // Check for duplicate order number first
+    const existingOrder = await WorkOrder.findOne({
+      where: { order_number, is_del: false },
+    });
+
+    if (existingOrder) {
+      return res.json({
+        code: 500,
+        status: "error",
+        data: null,
+        message: "工單編號已存在。",
+      });
+    }
 
     WorkOrder.create({
       cid,

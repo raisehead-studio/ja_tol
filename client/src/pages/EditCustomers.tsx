@@ -550,7 +550,22 @@ const EditCustomers = () => {
                   }
                 />
               </Box>
-              <Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: "1rem",
+                }}>
+                <TextField
+                  label={`聯絡信箱`}
+                  name="email"
+                  value={contact.email}
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  onChange={(e) =>
+                    handleUpdateRowDate(e, contact.id, "customer_contacts")
+                  }
+                />
                 <TextField
                   label={`聯絡人備註`}
                   name="note"

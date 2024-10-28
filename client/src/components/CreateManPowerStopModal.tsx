@@ -263,11 +263,45 @@ const CreateManPowerStop = ({
                   width: "25%",
                 }}
                 select>
-                <MenuItem value="桃園台電西區 03-1234567">
-                  桃園台電西區 03-1234567
+                <MenuItem value="八德 市區 03-3323221">
+                  八德 市區 03-3323221
                 </MenuItem>
-                <MenuItem value="桃園台電北區 03-0123456">
-                  桃園台電北區 03-0123456
+                <MenuItem value="台北 西區 02-29916611">
+                  台北 西區 02-29916611
+                </MenuItem>
+                <MenuItem value="大溪、龍潭 03-3883756">
+                  大溪、龍潭 03-3883756
+                </MenuItem>
+                <MenuItem value="中壢、觀音、大園 西區 03-4333238">
+                  中壢、觀音、大園 西區 03-4333238
+                </MenuItem>
+                <MenuItem value="桃園、鶯歌、龜山 桃園區 03-3392121">
+                  桃園、鶯歌、龜山 桃園區 03-3392121
+                </MenuItem>
+                <MenuItem value="平鎮、新屋、楊梅 南區 03-4581223">
+                  平鎮、新屋、楊梅 南區 03-4581223
+                </MenuItem>
+                <MenuItem value="苗栗 科學園區 037-266911">
+                  苗栗 科學園區 037-266911
+                </MenuItem>
+                <MenuItem value="苗栗 竹南區 037-860565">
+                  苗栗 竹南區 037-860565
+                </MenuItem>
+                <MenuItem value="新竹 新竹、竹北 03-5230121">
+                  新竹 新竹、竹北 03-5230121
+                </MenuItem>
+                <MenuItem value="新竹 湖口、新豐 03-5584797">
+                  新竹 湖口、新豐 03-5584797
+                </MenuItem>
+                <MenuItem value="新竹 新埔 03-5886279">
+                  新竹 新埔 03-5886279
+                </MenuItem>
+                <MenuItem value="平鎮、楊梅 東區 03-3883797">
+                  平鎮、楊梅 東區 03-3883797
+                </MenuItem>
+                <MenuItem value="特高壓 03-3392121">特高壓 03-3392121</MenuItem>
+                <MenuItem value="桃園 關西 03-5872144">
+                  桃園 關西 03-5872144
                 </MenuItem>
               </TextField>
               <DatePicker
