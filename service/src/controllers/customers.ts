@@ -28,11 +28,19 @@ export const create_customer = (
     where: {
       [Op.or]: {
         customer_number: customer_number,
-        name: name,
       },
     },
   })
     .then((customer: any) => {
+      if (customer) {
+        return res.json({
+          code: 500,
+          status: "error",
+          data: null,
+          message: `客戶編號已經存在。`,
+        });
+      }
+
       Customer.create({
         name: name,
         short_name: short_name,

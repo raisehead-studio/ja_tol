@@ -71,11 +71,13 @@ const CreateCustomerContact = ({
 
   useEffect(() => {
     if (!open) {
-      setType("");
+      setType("系統內定：例 聯絡部門 採購、廠務、勞安...等");
       setName("");
       setTitle("");
       setPhone("");
-      setJobDescription("");
+      setJobDescription(
+        "系統內定：例 溝通排程、施工注意事項、入廠資料、驗收、請款...等"
+      );
       setNote("");
       setEmail("");
     }
