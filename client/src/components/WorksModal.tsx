@@ -1140,6 +1140,35 @@ const EditWorksAcceptanceCheck = ({
           gap: "1rem",
         }}>
         <TextField
+          label="報告書備註"
+          size="small"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          value={data?.note || ""}
+          name="note"
+        
+        />
+        <DatePicker
+          format="YYYY/MM/DD"
+          label="檢驗總表取回日期"
+          value={dayjs(data?.is_inspection_report_retrieved_date) || ""}
+          slotProps={{
+            textField: {
+              error: false,
+              fullWidth: true,
+              size: "small",
+            },
+          }}
+        />
+      </Box>
+      <Divider />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "stretch",
+          gap: "1rem",
+        }}>
+        <TextField
           label="申報-良好 / 不良"
           size="small"
           InputLabelProps={{ shrink: true }}

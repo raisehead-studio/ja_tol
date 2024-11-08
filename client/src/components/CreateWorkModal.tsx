@@ -140,8 +140,6 @@ const CreateWork = ({
       const customer = customersOptions.find(
         (option: any) => option.short_name === customerName
       );
-      console.log(customer);
-
       if (customer) {
         setCid(customer.cid);
         setCustomerNumber(customer.customer_number);
@@ -186,8 +184,12 @@ const CreateWork = ({
               <Autocomplete
                 disablePortal
                 value={customerName}
-                options={customersOptions.map((option: any) => {
-                  return { label: option.short_name, cid: option.cid };
+                  options={customersOptions.map((option: any) => {
+                  
+                  return {
+                    label: `${option.short_name} (${option.customer_number}, ${option.tax_id}) `,
+                    cid: option.cid,
+                  };
                 })}
                 fullWidth
                 onChange={(

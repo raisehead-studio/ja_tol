@@ -130,8 +130,6 @@ const Customers = () => {
     });
   };
 
-  console.log(loading);
-
   return (
     <Box
       sx={{

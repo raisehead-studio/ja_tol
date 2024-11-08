@@ -127,6 +127,12 @@ const CreateCustomerContact = ({
                   setType(e.target.value);
                 }}
               />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                gap: "1rem",
+              }}>
               <TextField
                 label={`聯絡人/職稱/分機#`}
                 name="name"
@@ -155,6 +161,12 @@ const CreateCustomerContact = ({
                   setJobDescription(e.target.value);
                 }}
               />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                gap: "1rem",
+              }}>
               <TextField
                 label={`聯絡電話`}
                 name="phone"
@@ -221,7 +233,7 @@ const CreateCustomerContact = ({
               </Button>
               <Button
                 onClick={handleCreateCustomerContact}
-                disabled={!name ||  !phone || !email}
+                disabled={!name || !phone || !email}
                 variant="contained">
                 儲存
               </Button>

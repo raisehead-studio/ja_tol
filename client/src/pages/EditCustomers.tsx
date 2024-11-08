@@ -601,7 +601,13 @@ const EditCustomers = () => {
             <Button
               startIcon={<ArrowBackIosIcon />}
               variant="contained"
-              onClick={() => navigate(-1)}>
+              onClick={(e) => {
+                e.preventDefault();
+                if (!window.confirm("請確認資料確實儲存再行離開此頁面。")) {
+                  return;
+                }
+                navigate(-1);
+              }}>
               回到上一頁
             </Button>
             <Button

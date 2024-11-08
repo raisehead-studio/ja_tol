@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -17,6 +16,8 @@ import {
   NavLink,
   useMatch,
   useNavigate,
+  Link,
+  useLocation,
 } from "react-router-dom";
 
 import Customers from "./pages/Customers";
@@ -57,8 +58,7 @@ function App() {
 
   let [menu, setMenu] = useState<any>(null);
   const { user } = useLayoutContext();
-
-  console.log(user);
+  
 
   const no_auth = useMatch("/login");
 
@@ -117,6 +117,15 @@ function App() {
           <Button
             component={NavLink}
             to={page.url}
+            onClick={(e) => {
+              if (location.pathname.match(/^\/customers\/.*/) && page.url === '/customers') {
+                e.preventDefault();
+                if (!window.confirm('請確認資料確實儲存再行離開此頁面。')) {
+                  return;
+                }
+                navigate('/customers');
+              }
+            }}
             key={page.name}
             sx={{
               my: 2,
@@ -129,6 +138,7 @@ function App() {
         ))}
       </Box>
     );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, location]);
 
   return (
