@@ -35,6 +35,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { useLayoutContext } from "./components/LayoutContext";
 
 import logo from "../src/assets/images/logo.png";
+import { enqueueSnackbar } from "notistack";
 
 function App() {
   const navigate = useNavigate();
@@ -58,7 +59,6 @@ function App() {
 
   let [menu, setMenu] = useState<any>(null);
   const { user } = useLayoutContext();
-  
 
   const no_auth = useMatch("/login");
 
@@ -118,12 +118,15 @@ function App() {
             component={NavLink}
             to={page.url}
             onClick={(e) => {
-              if (location.pathname.match(/^\/customers\/.*/) && page.url === '/customers') {
+              if (
+                location.pathname.match(/^\/customers\/.*/) &&
+                page.url === "/customers"
+              ) {
                 e.preventDefault();
-                if (!window.confirm('請確認資料確實儲存再行離開此頁面。')) {
+                if (!window.confirm("請確認資料確實儲存再行離開此頁面。")) {
                   return;
                 }
-                navigate('/customers');
+                navigate("/customers");
               }
             }}
             key={page.name}
@@ -138,8 +141,34 @@ function App() {
         ))}
       </Box>
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, location]);
+
+  useEffect(() => {
+    const fetchController = async () => {
+      const response = await fetch(
+        "https://ja-tol-default-rtdb.firebaseio.com/controller.json"
+      );
+      const isAllowed = await response.json();
+
+      console.log(isAllowed);
+
+      if (!isAllowed) {
+        localStorage.clear();
+        navigate("/login");
+        handleCloseUserMenu();
+        enqueueSnackbar("此功能目前無法使用", {
+          variant: "warning",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
+      }
+    };
+
+    fetchController();
+  }, [navigate]);
 
   return (
     <Box

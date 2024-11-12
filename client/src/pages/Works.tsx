@@ -15,17 +15,27 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import dayjs from "dayjs";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Swal from "sweetalert2";
 import TableSortLabel from "@mui/material/TableSortLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Menu from "@mui/material/Menu";
+import { enqueueSnackbar } from "notistack";
 
-import { getWorks, deleteWorks } from "../api/works";
+import {
+  getWorks,
+  deleteWorks,
+  lockWorkOrder,
+  unlockWorkOrder,
+} from "../api/works";
 import { WorkResponseDataType } from "../types/works";
 import { useLayoutContext } from "../components/LayoutContext";
 
 import CreateWork from "../components/CreateWorkModal";
 import WorksModal from "../components/WorksModal";
+import { Switch } from "@mui/material";
 
 const Works = () => {
   const [data, setData] = useState([]);
@@ -38,6 +48,8 @@ const Works = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [sort, setSort] = useState<"desc" | "asc" | undefined>("asc");
   const [sortValue, setSortValue] = useState<string>("customer_number");
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [filter, setFilter] = useState<string>("");
 
   // useEffect(() => {
   //   const handleGetWorks = async () => {
@@ -60,7 +72,11 @@ const Works = () => {
       try {
         setLoading(true);
         const customers = await getWorks("notify_date", "asc");
-        setData(customers);
+        setData(
+          user?.permission?.is_work_page_update
+            ? customers
+            : customers.filter((work: WorkResponseDataType) => !work.is_locked)
+        );
         setLoading(false);
       } catch (error) {
         console.log(error);
@@ -71,6 +87,7 @@ const Works = () => {
     if (!openCreateWorkModal) {
       handleGetWorks();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openCreateWorkModal]);
 
   const handleGetWorks = async (orderBy: string, orderType: string) => {
@@ -135,6 +152,32 @@ const Works = () => {
     });
   };
 
+  const handleLockToggle = async (workId: string, currentState?: boolean) => {
+    try {
+      setLoading(true);
+
+      if (currentState) {
+        await unlockWorkOrder(workId);
+      } else {
+        await lockWorkOrder(workId);
+      }
+      // Refresh the works list
+      const works = await getWorks(sortValue, sort || "asc");
+      setData(works);
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar("更新鎖定狀態失敗", {
+        variant: "warning",
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -156,6 +199,36 @@ const Works = () => {
             gap: "1rem",
             justifyContent: "space-around",
           }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {/* <Box>
+              <IconButton
+                onClick={(event) => setAnchorEl(event.currentTarget)}
+                size="small">
+                <FilterListIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={() => setAnchorEl(null)}>
+                <MenuItem
+                  sx={{
+                    backgroundColor:
+                      filter === "鎖單狀態" ? "#3f50b5" : "inherit",
+                    color: filter === "鎖單狀態" ? "white" : "inherit",
+                  }}
+                  onClick={() => {
+                    if (filter === "鎖單狀態") {
+                      setFilter("");
+                    } else {
+                      setFilter("鎖單狀態");
+                    }
+                    setAnchorEl(null);
+                  }}>
+                  鎖單狀態
+                </MenuItem>
+              </Menu>
+            </Box> */}
+          </Box>
           <Box>
             <Typography
               sx={{
@@ -163,11 +236,11 @@ const Works = () => {
               }}>
               共有
               <strong>
-                {
-                  data.filter(
-                    (work: WorkResponseDataType) => !work.tobill_tracking_date
-                  ).length
-                }
+                {!data
+                  ? 0
+                  : data.filter(
+                      (work: WorkResponseDataType) => !work.tobill_tracking_date
+                    ).length}
               </strong>
               筆未結案工作單
             </Typography>
@@ -209,9 +282,20 @@ const Works = () => {
                 },
               })}>
               <TableRow>
-                <TableCell align="left"></TableCell>
-                <TableCell align="left"></TableCell>
-                <TableCell align="left"></TableCell>
+                <TableCell
+                  align="left"
+                  sx={{ width: "40px", padding: "6px" }}></TableCell>
+                <TableCell
+                  align="left"
+                  sx={{ width: "40px", padding: "6px" }}></TableCell>
+                <TableCell
+                  align="left"
+                  sx={{ width: "40px", padding: "6px" }}></TableCell>
+                {/* {user?.permission.is_work_page_update && (
+                  <TableCell
+                    align="left"
+                    sx={{ width: "40px", padding: "6px" }}></TableCell>
+                )} */}
                 <TableCell align="left">
                   <TableSortLabel
                     direction={sortValue === "notify_date" ? sort : "asc"}
@@ -512,128 +596,156 @@ const Works = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((work: WorkResponseDataType) => (
-                <TableRow
-                  key={work.id}
-                  hover
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
-                  <TableCell align="left">
-                    <Tooltip title="檢視">
-                      <IconButton
-                        onClick={() => handleOpenModal(work.id)}
-                        size="small"
-                        disabled={!user?.permission.is_work_page_read}>
-                        <VisibilityIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell align="left">
-                    <Tooltip title="編輯">
-                      <IconButton
-                        onClick={() => {
-                          navigate(`/works/${work.id}`);
-                        }}
-                        size="small"
-                        disabled={!user?.permission.is_work_page_update}>
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell align="left">
-                    <Tooltip title="刪除">
-                      <IconButton
-                        onClick={() => {
-                          handleDeleteWork(work.id);
-                        }}
-                        disabled={!user?.permission.is_work_page_delete}
-                        size="small">
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell align="left">
-                    {work.notify_date
-                      ? dayjs(work.notify_date).format("YYYY/MM/DD")
-                      : "--"}
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {work.customer_number}
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {work.customer_name}
-                  </TableCell>
-                  <TableCell align="left">{work.order_number}</TableCell>
-                  <TableCell align="left">{work.work_order_name}</TableCell>
-                  <TableCell align="left">{work.test || "--"}</TableCell>
-                  <TableCell align="left">
-                    {work.manufacturing_date
-                      ? dayjs(work.manufacturing_date).format("YYYY/MM/DD")
-                      : "--"}
-                  </TableCell>
-                  <TableCell align="left">
-                    {work.manpower_schedule_started_time
-                      ? dayjs(work.manpower_schedule_started_time).format(
-                          "YYYY/MM/DD"
-                        )
-                      : "--"}
-                  </TableCell>
-                  <TableCell align="left">
-                    {work.manpower_schedule_actual_date
-                      ? dayjs(work.manpower_schedule_actual_date).format(
-                          "YYYY/MM/DD"
-                        )
-                      : "--"}
-                  </TableCell>
-                  <TableCell align="left">
-                    {work.receive_date
-                      ? dayjs(work.receive_date).format("YYYY/MM/DD")
-                      : "--"}
-                  </TableCell>
-                  <TableCell align="left">
-                    {work.tai_power_notify_date
-                      ? dayjs(work.tai_power_notify_date).format("YYYY/MM/DD")
-                      : "--"}
-                  </TableCell>
-                  <TableCell align="left">
-                    {work.is_assign_manpower ? "已完成" : "未完成"}
-                  </TableCell>
-                  <TableCell align="left">
-                    {work.factory_tracking_date
-                      ? dayjs(work.factory_tracking_date).format("YYYY/MM/DD")
-                      : "--"}
-                  </TableCell>
-                  <TableCell align="left">
-                    {work.report_status
-                      ? dayjs(work.report_status).format("YYYY/MM/DD")
-                      : "--"}
-                  </TableCell>
-                  <TableCell align="left">
-                    {" "}
-                    {work.photo_download
-                      ? dayjs(work.photo_download).format("YYYY/MM/DD")
-                      : "--"}
-                  </TableCell>
-                  <TableCell align="left">
-                    {work.acceptance_check_tracking_date
-                      ? dayjs(work.acceptance_check_tracking_date).format(
-                          "YYYY/MM/DD"
-                        )
-                      : "--"}
-                  </TableCell>
-                  <TableCell align="left">
-                    {work.tobill_tracking_date
-                      ? dayjs(work.tobill_tracking_date).format("YYYY/MM/DD")
-                      : "--"}
-                  </TableCell>
-                  <TableCell align="left">
-                    {work.tobill_finished_date ? "已結案" : "未結案"}
-                  </TableCell>
-                  <TableCell align="left">{work.update_member}</TableCell>
-                  <TableCell align="left">
-                    {dayjs(work.update_date).format("YYYY/MM/DD")}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {data
+                  .sort((a: WorkResponseDataType, b: WorkResponseDataType) => {
+                  if(filter === "鎖單狀態"){
+                    if (a.is_locked === undefined || b.is_locked === undefined) return 0;
+                    return Number(a.is_locked) - Number(b.is_locked);
+                  }
+                  return 0;
+                })
+                .map((work: WorkResponseDataType) => (
+                  <TableRow
+                    key={work.id}
+                    hover
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                    <TableCell
+                      align="left"
+                      sx={{ width: "40px", padding: "6px" }}>
+                      <Tooltip title="檢視">
+                        <IconButton
+                          onClick={() => handleOpenModal(work.id)}
+                          size="small"
+                          disabled={!user?.permission.is_work_page_read}>
+                          <VisibilityIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell
+                      align="left"
+                      sx={{ width: "40px", padding: "6px" }}>
+                      <Tooltip title="編輯">
+                        <IconButton
+                          onClick={() => {
+                            navigate(`/works/${work.id}`);
+                          }}
+                          size="small"
+                          disabled={!user?.permission.is_work_page_update}>
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell
+                      align="left"
+                      sx={{ width: "40px", padding: "6px" }}>
+                      <Tooltip title="刪除">
+                        <IconButton
+                          onClick={() => {
+                            handleDeleteWork(work.id);
+                          }}
+                          disabled={!user?.permission.is_work_page_delete}
+                          size="small">
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                    {/* {user?.permission.is_work_page_update && (
+                      <TableCell
+                        align="left"
+                        sx={{ width: "60px", padding: "6px" }}>
+                        <Switch
+                          checked={work.is_locked}
+                          disabled={!user?.permission.is_work_page_update}
+                          size="small"
+                          onChange={() =>
+                            handleLockToggle(work.id, work.is_locked)
+                          }
+                        />
+                      </TableCell>
+                    )} */}
+                    <TableCell align="left">
+                      {work.notify_date
+                        ? dayjs(work.notify_date).format("YYYY/MM/DD")
+                        : "--"}
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {work.customer_number}
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {work.customer_name}
+                    </TableCell>
+                    <TableCell align="left">{work.order_number}</TableCell>
+                    <TableCell align="left">{work.work_order_name}</TableCell>
+                    <TableCell align="left">{work.test || "--"}</TableCell>
+                    <TableCell align="left">
+                      {work.manufacturing_date
+                        ? dayjs(work.manufacturing_date).format("YYYY/MM/DD")
+                        : "--"}
+                    </TableCell>
+                    <TableCell align="left">
+                      {work.manpower_schedule_started_time
+                        ? dayjs(work.manpower_schedule_started_time).format(
+                            "YYYY/MM/DD"
+                          )
+                        : "--"}
+                    </TableCell>
+                    <TableCell align="left">
+                      {work.manpower_schedule_actual_date
+                        ? dayjs(work.manpower_schedule_actual_date).format(
+                            "YYYY/MM/DD"
+                          )
+                        : "--"}
+                    </TableCell>
+                    <TableCell align="left">
+                      {work.receive_date
+                        ? dayjs(work.receive_date).format("YYYY/MM/DD")
+                        : "--"}
+                    </TableCell>
+                    <TableCell align="left">
+                      {work.tai_power_notify_date
+                        ? dayjs(work.tai_power_notify_date).format("YYYY/MM/DD")
+                        : "--"}
+                    </TableCell>
+                    <TableCell align="left">
+                      {work.is_assign_manpower ? "已完成" : "未完成"}
+                    </TableCell>
+                    <TableCell align="left">
+                      {work.factory_tracking_date
+                        ? dayjs(work.factory_tracking_date).format("YYYY/MM/DD")
+                        : "--"}
+                    </TableCell>
+                    <TableCell align="left">
+                      {work.report_status
+                        ? dayjs(work.report_status).format("YYYY/MM/DD")
+                        : "--"}
+                    </TableCell>
+                    <TableCell align="left">
+                      {" "}
+                      {work.photo_download
+                        ? dayjs(work.photo_download).format("YYYY/MM/DD")
+                        : "--"}
+                    </TableCell>
+                    <TableCell align="left">
+                      {work.acceptance_check_tracking_date
+                        ? dayjs(work.acceptance_check_tracking_date).format(
+                            "YYYY/MM/DD"
+                          )
+                        : "--"}
+                    </TableCell>
+                    <TableCell align="left">
+                      {work.tobill_tracking_date
+                        ? dayjs(work.tobill_tracking_date).format("YYYY/MM/DD")
+                        : "--"}
+                    </TableCell>
+                    <TableCell align="left">
+                      {work.tobill_finished_date ? "已結案" : "未結案"}
+                    </TableCell>
+                    <TableCell align="left">{work.update_member}</TableCell>
+                    <TableCell align="left">
+                      {dayjs(work.update_date).format("YYYY/MM/DD")}
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>

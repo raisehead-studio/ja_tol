@@ -53,6 +53,11 @@ const WorkOrder = seq.define("work_order", {
   update_member: Sequelize.STRING,
   create_member: Sequelize.STRING,
   price: Sequelize.INTEGER,
+  is_locked: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false,
+    allowNull: false,
+  },
 });
 
 export default WorkOrder;

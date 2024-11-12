@@ -4,6 +4,9 @@ import { verify } from "../middleware/auth";
 
 const router = express.Router();
 
+router.put("/lock/:woid", verify, controllers.lock_work_order);
+router.put("/unlock/:woid", verify, controllers.unlock_work_order);
+
 router.get("/", verify, controllers.get_work_orders_list);
 
 router.get("/:woid", verify, controllers.get_work_order_detail);

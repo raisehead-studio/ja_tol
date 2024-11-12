@@ -21,6 +21,7 @@ interface RequestWithUser extends Request {
   user?: {
     name: string;
     uid: string;
+    role?: string;
   };
 }
 
@@ -47,9 +48,35 @@ export const create_work_order = async (
       price,
     } = req.body;
     const { user } = req;
+
+    // Add validation for required cid
+    if (!cid) {
+      return res.json({
+        code: 400,
+        status: "error",
+        data: null,
+        message: "客戶編號為必填欄位。",
+      });
+    }
+
+    // Check if customer exists
+    const customer = await Customer.findOne({
+      where: { cid: cid },
+    });
+
+    if (!customer) {
+      return res.json({
+        code: 400,
+        status: "error",
+        data: null,
+        message: "找不到對應的客戶資料。",
+      });
+    }
+
     const ele = await ElePlace.findOne({
       where: { cid: cid },
     });
+
     // Check for duplicate order number first
     const existingOrder = await WorkOrder.findOne({
       where: { order_number, is_del: false },
@@ -289,7 +316,7 @@ export const create_work_order = async (
 };
 
 export const get_work_orders_list = async (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -362,6 +389,7 @@ export const get_work_orders_list = async (
         let data;
         data = work_orders.map((worker_order) => {
           const dbWorkOrder = worker_order.toJSON();
+
           let power_switch_date1 =
             dbWorkOrder.acceptance_check.power_switch_date1;
           let power_switch_date2 =
@@ -521,16 +549,7 @@ export const get_work_orders_list = async (
             update_date: worker_order?.dataValues.updatedAt,
             tobill_finished_date: worker_order?.dataValues.tobill.finished_date,
             test: worker_order?.dataValues.customer.ele_place?.test,
-            // started_time:
-            //   worker_order.dataValues.assignment.manpower_schedules.length > 0
-            //     ? worker_order.dataValues.assignment.manpower_schedules[0]
-            //         .dataValues.started_time
-            //     : null,
-            // status: [""],
-            // is_inspection_report_retrieved_date:
-            //   worker_order.dataValues.acceptance_check.dataValues
-            //     .is_inspection_report_retrieved_date,
-            // item_data: item_data || null,
+            is_locked: dbWorkOrder.is_locked,
           };
         });
 
@@ -568,6 +587,8 @@ export const get_work_orders_list = async (
             });
           }
         }
+
+        console.log(req.user?.role);
 
         return res.json({
           code: 200,
@@ -2256,6 +2277,82 @@ export const delete__work_order = (
       status: "error",
       data: null,
       message: `刪除工單時發生問題。 ${err}`,
+    });
+  }
+};
+
+export const lock_work_order = async (req: RequestWithUser, res: Response) => {
+  const { woid } = req.params;
+  const { user } = req;
+
+  try {
+    const work_order = await WorkOrder.findOne({ where: { woid: woid } });
+
+    if (!work_order) {
+      return res.json({
+        code: 404,
+        status: "error",
+        data: null,
+        message: "找不到工單。",
+      });
+    }
+
+    await work_order.update({
+      is_locked: true,
+      update_member: user?.uid,
+    });
+
+    return res.json({
+      code: 200,
+      status: "success",
+      data: null,
+      message: "鎖定工單成功",
+    });
+  } catch (err) {
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `鎖定工單時發生問題。 ${err}`,
+    });
+  }
+};
+
+export const unlock_work_order = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { woid } = req.params;
+  const { user } = req;
+
+  try {
+    const work_order = await WorkOrder.findOne({ where: { woid: woid } });
+
+    if (!work_order) {
+      return res.json({
+        code: 404,
+        status: "error",
+        data: null,
+        message: "找不到工單。",
+      });
+    }
+    await work_order.update({
+      is_locked: false,
+      update_member: user?.uid,
+    });
+
+    return res.json({
+      code: 200,
+      status: "success",
+      data: null,
+      message: "解鎖工單成功",
+    });
+  } catch (err) {
+    return res.json({
+      code: 500,
+      status: "error",
+      data: null,
+      message: `解鎖工單時發生問題。 ${err}`,
     });
   }
 };

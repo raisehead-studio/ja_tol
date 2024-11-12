@@ -20,6 +20,7 @@ export type WorkResponseDataType = {
   update_date: Date | string | null;
   tobill_finished_date: Date | string | null;
   test: string | null;
+  is_locked?: boolean;
 };
 
 export type WorkRequestDataType = {

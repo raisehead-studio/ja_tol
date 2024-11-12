@@ -1,4 +1,5 @@
 import request from "./requests";
+import axios from "axios";
 
 import {
   WorkRequestDataType,
@@ -129,4 +130,24 @@ export const deleteWorks = async (id: string) => {
   return request(`/api/v1/work_orders/${id}`, {
     method: "DELETE",
   }).then((res) => res);
+};
+
+export const lockWorkOrder = async (woid: string) => {
+  try {
+    return request(`/api/v1/work_orders/lock/${woid}`, {
+      method: "PUT",
+    }).then((res) => res);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const unlockWorkOrder = async (woid: string) => {
+  try {
+    return request(`/api/v1/work_orders/unlock/${woid}`, {
+      method: "PUT",
+    }).then((res) => res);
+  } catch (error) {
+    throw error;
+  }
 };

@@ -48,6 +48,7 @@ const CreateWork = ({
     new Date().getTime()
   );
   const [customersOptions, setCustomersOptions] = useState<any>([]);
+  const [taxId, setTaxId] = useState<string>("");
 
   const handleCreateCustomer = async () => {
     const data = {
@@ -136,16 +137,18 @@ const CreateWork = ({
   // }, [customerNumber, customersOptions, cid]);
 
   useEffect(() => {
-    if (customerName) {
+    if (cid) {
       const customer = customersOptions.find(
-        (option: any) => option.short_name === customerName
+        (option: any) => option.cid === cid
       );
+
       if (customer) {
         setCid(customer.cid);
         setCustomerNumber(customer.customer_number);
+        setTaxId(customer.tax_id);
       }
     }
-  }, [customerName, customersOptions, cid]);
+  }, [customersOptions, cid]);
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -184,20 +187,24 @@ const CreateWork = ({
               <Autocomplete
                 disablePortal
                 value={customerName}
-                  options={customersOptions.map((option: any) => {
-                  
-                  return {
+                options={[
+                  {
+                    label: "請選擇客戶",
+                    cid: "",
+                  },
+                  ...customersOptions.map((option: any) => {
+                    return {
                     label: `${option.short_name} (${option.customer_number}, ${option.tax_id}) `,
                     cid: option.cid,
                   };
-                })}
+                })]}
                 fullWidth
                 onChange={(
                   event: any,
                   newValue: { label: string; cid: string }
                 ) => {
                   if (newValue) {
-                    setCustomerName(newValue.label);
+                    setCid(newValue.cid);
                   }
                 }}
                 renderInput={(params) => (
@@ -211,33 +218,13 @@ const CreateWork = ({
                   />
                 )}
               />
-              <Autocomplete
-                disablePortal
-                value={customerNumber}
-                options={customersOptions.map((option: any) => {
-                  return { label: option.customer_number, cid: option.cid };
-                })}
+              <TextField
+                value={taxId}
+                label="客戶編號"
+                size="small"
+                InputLabelProps={{ shrink: true }}
                 fullWidth
-                disabled
-                onChange={(
-                  event: any,
-                  newValue: { label: string; cid: string }
-                ) => {
-                  if (newValue) {
-                    setCustomerNumber(newValue.label);
-                  }
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="客戶編號"
-                    value={cid}
-                    size="small"
-                    InputLabelProps={{ shrink: true }}
-                    fullWidth
-                    disabled></TextField>
-                )}
-              />
+                disabled></TextField>
             </Box>
             <Box
               sx={{
@@ -401,7 +388,7 @@ const CreateWork = ({
           </Button>
           <Button
             disabled={
-              !cid ||
+              // !cid ||
               !name ||
               !type ||
               !orderNumber ||

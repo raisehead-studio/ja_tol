@@ -106,6 +106,7 @@ export const get_customers_list = async (
       "customer_number",
       "name",
       "ele_number",
+      "tax_id",
       "update_member",
       "updatedAt",
     ],
@@ -152,6 +153,7 @@ export const get_customers_list = async (
               (user: any) => user.uid === item.update_member
             )[0].name,
             update_date: item.updatedAt,
+            tax_id: item.tax_id,
           };
         }),
         message: `取得客戶列表成功。`,
