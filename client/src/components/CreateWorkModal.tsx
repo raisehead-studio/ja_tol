@@ -186,7 +186,10 @@ const CreateWork = ({
               }}>
               <Autocomplete
                 disablePortal
-                value={customerName}
+                value={
+                  customersOptions.find((option: any) => option.cid === cid)
+                    ?.short_name || ""
+                }
                 options={[
                   {
                     label: "請選擇客戶",
@@ -194,10 +197,11 @@ const CreateWork = ({
                   },
                   ...customersOptions.map((option: any) => {
                     return {
-                    label: `${option.short_name} (${option.customer_number}, ${option.tax_id}) `,
-                    cid: option.cid,
-                  };
-                })]}
+                      label: `${option.short_name} (${option.customer_number}, ${option.tax_id}) `,
+                      cid: option.cid,
+                    };
+                  }),
+                ]}
                 fullWidth
                 onChange={(
                   event: any,
