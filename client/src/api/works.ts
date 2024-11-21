@@ -14,10 +14,8 @@ import {
   TobillInvoiceDataType,
 } from "../types/works";
 
-export const getWorks = async (orderBy: string, orderType: string) => {
-  return request(
-    `/api/v1/work_orders?orderBy=${orderBy}&orderType=${orderType}`
-  ).then((res) => res.data);
+export const getWorks = async () => {
+  return request(`/api/v1/work_orders`).then((res) => res.data);
 };
 
 export const getWorksDetail = async (id: string) => {

@@ -20,8 +20,6 @@ import dayjs from "dayjs";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Swal from "sweetalert2";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
 import { enqueueSnackbar } from "notistack";
 
 import {
@@ -71,7 +69,7 @@ const Works = () => {
     const handleGetWorks = async () => {
       try {
         setLoading(true);
-        const customers = await getWorks("notify_date", "asc");
+        const customers = await getWorks();
         setData(
           user?.permission?.is_work_page_update
             ? customers
@@ -90,22 +88,57 @@ const Works = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openCreateWorkModal]);
 
-  const handleGetWorks = async (orderBy: string, orderType: string) => {
-    try {
-      setLoading(true);
-      const customers = await getWorks(orderBy, orderType);
-      setData(customers);
-      setLoading(false);
-    } catch (error) {
-      console.log(error);
-      setLoading(false);
-    }
-  };
+  // const handleGetWorks = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const customers = await getWorks();
+  //     setData(customers);
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.log(error);
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleToggleSort = (value: string) => {
     setSortValue(value);
     setSort(sort === "asc" ? "desc" : "asc");
-    handleGetWorks(value, sort === "asc" ? "desc" : "asc");
+
+    const sortedData = [...data].sort((a, b) => {
+      // Handle date related columns
+      const dateColumns = [
+        'factory_tracking_date',
+        'report_status',
+        'photo_download',
+        'acceptance_check_tracking_date', 
+        'tobill_tracking_date',
+        'update_date'
+      ];
+
+      if (dateColumns.includes(value)) {
+        const aTime = a[value] ? new Date(a[value]).getTime() : 0;
+        const bTime = b[value] ? new Date(b[value]).getTime() : 0;
+        return sort === 'asc' ? aTime - bTime : bTime - aTime;
+      }
+      // Handle non-date columns
+      const aValue = String(a[value as keyof typeof a] ?? '');
+      const bValue = String(b[value as keyof typeof b] ?? '');
+
+      // Try parsing as numbers first
+      const aNum = parseFloat(aValue);
+      const bNum = parseFloat(bValue);
+      
+      if (!isNaN(aNum) && !isNaN(bNum)) {
+        return sort === 'asc' ? aNum - bNum : bNum - aNum;
+      }
+
+      // Sort as strings if not numbers
+      return sort === 'asc' 
+        ? aValue.localeCompare(bValue, 'zh-TW')
+        : bValue.localeCompare(aValue, 'zh-TW');
+    });
+
+    setData(sortedData);
   };
 
   const handleCloseModal = () => {
@@ -140,7 +173,7 @@ const Works = () => {
           setLoading(true);
           const response = await deleteWorks(id);
           if (response.code === 200) {
-            const works = await getWorks("notify_date", "asc");
+            const works = await getWorks();
             setData(works);
             setLoading(false);
           }
@@ -162,7 +195,7 @@ const Works = () => {
         await lockWorkOrder(workId);
       }
       // Refresh the works list
-      const works = await getWorks(sortValue, sort || "asc");
+      const works = await getWorks();
       setData(works);
     } catch (error) {
       console.error(error);
