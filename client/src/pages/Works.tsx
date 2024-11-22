@@ -33,7 +33,7 @@ import { useLayoutContext } from "../components/LayoutContext";
 
 import CreateWork from "../components/CreateWorkModal";
 import WorksModal from "../components/WorksModal";
-import { Switch } from "@mui/material";
+import { Menu, MenuItem, Switch } from "@mui/material";
 
 const Works = () => {
   const [data, setData] = useState([]);
@@ -70,11 +70,7 @@ const Works = () => {
       try {
         setLoading(true);
         const customers = await getWorks();
-        setData(
-          user?.permission?.is_work_page_update
-            ? customers
-            : customers.filter((work: WorkResponseDataType) => !work.is_locked)
-        );
+        setData(customers);
         setLoading(false);
       } catch (error) {
         console.log(error);
@@ -211,6 +207,8 @@ const Works = () => {
     }
   };
 
+  console.log(filter);
+
   return (
     <Box
       sx={{
@@ -233,7 +231,7 @@ const Works = () => {
             justifyContent: "space-around",
           }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {/* <Box>
+            <Box>
               <IconButton
                 onClick={(event) => setAnchorEl(event.currentTarget)}
                 size="small">
@@ -245,22 +243,49 @@ const Works = () => {
                 onClose={() => setAnchorEl(null)}>
                 <MenuItem
                   sx={{
-                    backgroundColor:
-                      filter === "鎖單狀態" ? "#3f50b5" : "inherit",
-                    color: filter === "鎖單狀態" ? "white" : "inherit",
+                    backgroundColor: filter === "" ? "#3f50b5" : "inherit",
+                    color: filter === "" ? "white" : "inherit",
                   }}
                   onClick={() => {
-                    if (filter === "鎖單狀態") {
+                    setFilter("");
+                    setAnchorEl(null);
+                  }}>
+                  顯示全部
+                </MenuItem>
+                <MenuItem
+                  sx={{
+                    backgroundColor:
+                      filter === "只顯示鎖單資料" ? "#3f50b5" : "inherit",
+                    color: filter === "只顯示鎖單資料" ? "white" : "inherit",
+                  }}
+                  onClick={() => {
+                    if (filter === "只顯示鎖單資料") {
                       setFilter("");
                     } else {
-                      setFilter("鎖單狀態");
+                      setFilter("只顯示鎖單資料");
                     }
                     setAnchorEl(null);
                   }}>
-                  鎖單狀態
+                  只顯示鎖單資料
+                </MenuItem>
+                <MenuItem
+                  sx={{
+                    backgroundColor:
+                      filter === "只顯示未鎖單資料" ? "#3f50b5" : "inherit",
+                    color: filter === "只顯示未鎖單資料" ? "white" : "inherit",
+                  }}
+                  onClick={() => {
+                    if (filter === "只顯示未鎖單資料") {
+                      setFilter("");
+                    } else {
+                      setFilter("只顯示未鎖單資料");
+                    }
+                    setAnchorEl(null);
+                  }}>
+                  只顯示未鎖單資料
                 </MenuItem>
               </Menu>
-            </Box> */}
+            </Box>
           </Box>
           <Box>
             <Typography
@@ -324,11 +349,11 @@ const Works = () => {
                 <TableCell
                   align="left"
                   sx={{ width: "40px", padding: "6px" }}></TableCell>
-                {/* {user?.permission.is_work_page_update && (
+                {user.role === "admin" && (
                   <TableCell
                     align="left"
                     sx={{ width: "40px", padding: "6px" }}></TableCell>
-                )} */}
+                )}
                 <TableCell align="left">
                   <TableSortLabel
                     direction={sortValue === "notify_date" ? sort : "asc"}
@@ -630,12 +655,13 @@ const Works = () => {
             </TableHead>
             <TableBody>
               {data
-                  .sort((a: WorkResponseDataType, b: WorkResponseDataType) => {
-                  if(filter === "鎖單狀態"){
-                    if (a.is_locked === undefined || b.is_locked === undefined) return 0;
-                    return Number(a.is_locked) - Number(b.is_locked);
+                .filter((work: WorkResponseDataType) => {
+                  if (filter === "只顯示鎖單資料") {
+                    return work.is_locked === true;
+                  } else if (filter === "只顯示未鎖單資料") {
+                    return work.is_locked === false;
                   }
-                  return 0;
+                  return true;
                 })
                 .map((work: WorkResponseDataType) => (
                   <TableRow
@@ -663,7 +689,10 @@ const Works = () => {
                             navigate(`/works/${work.id}`);
                           }}
                           size="small"
-                          disabled={!user?.permission.is_work_page_update}>
+                          disabled={
+                            !user?.permission.is_work_page_update ||
+                            (user.role !== "admin" && work.is_locked)
+                          }>
                           <EditIcon />
                         </IconButton>
                       </Tooltip>
@@ -676,13 +705,16 @@ const Works = () => {
                           onClick={() => {
                             handleDeleteWork(work.id);
                           }}
-                          disabled={!user?.permission.is_work_page_delete}
+                          disabled={
+                            !user?.permission.is_work_page_delete ||
+                            (user.role !== "admin" && work.is_locked)
+                          }
                           size="small">
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>
                     </TableCell>
-                    {/* {user?.permission.is_work_page_update && (
+                    {user.role === "admin" && (
                       <TableCell
                         align="left"
                         sx={{ width: "60px", padding: "6px" }}>
@@ -690,12 +722,23 @@ const Works = () => {
                           checked={work.is_locked}
                           disabled={!user?.permission.is_work_page_update}
                           size="small"
-                          onChange={() =>
-                            handleLockToggle(work.id, work.is_locked)
-                          }
+                          onChange={() => {
+                            if (!work.tobill_tracking_date) {
+                              enqueueSnackbar("資料未完成，無法鎖單。", {
+                                variant: "error",
+                                anchorOrigin: {
+                                  vertical: "top",
+                                  horizontal: "center",
+                                },
+                              });
+
+                              return;
+                            }
+                            handleLockToggle(work.id, work.is_locked);
+                          }}
                         />
                       </TableCell>
-                    )} */}
+                    )}
                     <TableCell align="left">
                       {work.notify_date
                         ? dayjs(work.notify_date).format("YYYY/MM/DD")

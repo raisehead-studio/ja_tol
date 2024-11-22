@@ -587,9 +587,6 @@ export const get_work_orders_list = async (
             });
           }
         }
-
-        console.log(req.user?.role);
-
         return res.json({
           code: 200,
           status: "success",
