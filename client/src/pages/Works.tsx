@@ -22,6 +22,7 @@ import Swal from "sweetalert2";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import { enqueueSnackbar } from "notistack";
 
+
 import {
   getWorks,
   deleteWorks,
@@ -100,13 +101,24 @@ const Works = () => {
     setSortValue(value);
     setSort(sort === "asc" ? "desc" : "asc");
 
+    // Helper function to get stroke count for a Chinese character
+    const getStrokeCount = (char: string) => {
+      try {
+        const strokeData = require('/strokes/strokes.json');
+        return strokeData[char] || 0;
+      } catch (error) {
+        console.warn('Failed to load stroke data:', error);
+        return 0;
+      }
+    };
+    
     const sortedData = [...data].sort((a, b) => {
       // Handle date related columns
       const dateColumns = [
         'factory_tracking_date',
         'report_status',
         'photo_download',
-        'acceptance_check_tracking_date', 
+        'acceptance_check_tracking_date',
         'tobill_tracking_date',
         'update_date'
       ];
@@ -116,22 +128,55 @@ const Works = () => {
         const bTime = b[value] ? new Date(b[value]).getTime() : 0;
         return sort === 'asc' ? aTime - bTime : bTime - aTime;
       }
-      // Handle non-date columns
+
+      // Get complete values to compare
       const aValue = String(a[value as keyof typeof a] ?? '');
       const bValue = String(b[value as keyof typeof b] ?? '');
 
-      // Try parsing as numbers first
-      const aNum = parseFloat(aValue);
-      const bNum = parseFloat(bValue);
-      
-      if (!isNaN(aNum) && !isNaN(bNum)) {
-        return sort === 'asc' ? aNum - bNum : bNum - aNum;
+      // Get first characters
+      const aFirst = aValue.charAt(0);
+      const bFirst = bValue.charAt(0);
+
+      // Try parsing first chars as numbers
+      // Compare each character until we find a difference
+      let i = 0;
+      let aNum, bNum;
+      while (i < aValue.length && i < bValue.length) {
+        aNum = Number(aValue[i]);
+        bNum = Number(bValue[i]);
+        if (aNum !== bNum) break;
+        i++;
+      }
+      // If all characters matched and strings are different lengths, compare lengths
+      if (i === Math.min(aValue.length, bValue.length)) {
+        aNum = aValue.length;
+        bNum = bValue.length;
       }
 
-      // Sort as strings if not numbers
-      return sort === 'asc' 
-        ? aValue.localeCompare(bValue, 'zh-TW')
-        : bValue.localeCompare(aValue, 'zh-TW');
+
+      // Check if first chars are Chinese
+      const isChinese = (char: string) => /[\u4e00-\u9fa5]/.test(char);
+      const aIsChinese = isChinese(aFirst);
+      const bIsChinese = isChinese(bFirst);
+
+      // Sort by type priority: numbers -> English -> Chinese
+      if (!aIsChinese && bIsChinese) {
+        return sort === 'asc' ? -1 : 1; // English before Chinese
+      } else if (aIsChinese && !bIsChinese) {
+        return sort === 'asc' ? 1 : -1; // Chinese after English
+      } else if (aIsChinese && bIsChinese) {
+        // Both Chinese, use zh-TW collation
+        const aStrokes = getStrokeCount(aFirst);
+        const bStrokes = getStrokeCount(bFirst);
+        return sort === "asc"
+          ? aStrokes - bStrokes || aFirst.localeCompare(bFirst, "zh-TW")
+          : bStrokes - aStrokes || bFirst.localeCompare(aFirst, "zh-TW");
+      } else {
+        // Both English/other, use standard comparison
+        return sort === 'asc'
+          ? aFirst.localeCompare(bFirst, 'en')
+          : bFirst.localeCompare(aFirst, 'en');
+      }
     });
 
     setData(sortedData);
@@ -424,7 +469,20 @@ const Works = () => {
                     工程名稱
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="left">檢測期別</TableCell>
+                <TableCell align="left">
+                  <TableSortLabel
+                    direction={sortValue === "test" ? sort : "asc"}
+                    onClick={() => handleToggleSort("test")}
+                    sx={{
+                      color: "white !important",
+                      ".MuiTableSortLabel-icon": {
+                        color: "white !important",
+                      },
+                    }}
+                    active={true}>
+                    檢測期別
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell align="left">
                   <TableSortLabel
                     direction={

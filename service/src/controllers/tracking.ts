@@ -15,7 +15,6 @@ export const get_tracking = async (
   next: NextFunction
 ) => {
   const users: any = await User.findAll({ where: { is_del: false } });
-  const { orderBy, orderType } = req.query;
 
   CustomerService.findAll({
     where: { is_del: false },
@@ -149,35 +148,10 @@ export const get_tracking = async (
             });
           });
 
-          let sort_data;
-          if (orderBy && orderType) {
-            if (orderBy === "notify_date" || orderBy === "update_date") {
-              sort_data = data.sort((a: any, b: any) => {
-                if (orderType === "asc") {
-                  return a[orderBy.toString()] - b[orderBy.toString()];
-                } else {
-                  return b[orderBy.toString()] - a[orderBy.toString()];
-                }
-              });
-            } else {
-              sort_data = data.sort((a: any, b: any) => {
-                if (orderType === "asc") {
-                  return a[orderBy.toString()].localeCompare(
-                    b[orderBy.toString()]
-                  );
-                } else {
-                  return b[orderBy.toString()].localeCompare(
-                    a[orderBy.toString()]
-                  );
-                }
-              });
-            }
-          }
-
           return res.json({
             code: 200,
             status: "success",
-            data: sort_data,
+            data: data,
             message: `取得追蹤列表成功。`,
           });
         })

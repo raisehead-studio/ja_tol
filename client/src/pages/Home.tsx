@@ -41,7 +41,7 @@ const Home = () => {
     const handleGetTrackings = async () => {
       try {
         setLoading(true);
-        const data = await getTrackings("notify_date", "desc");
+        const data = await getTrackings();
         setData(data);
         setLoading(false);
       } catch (error) {
@@ -65,23 +65,83 @@ const Home = () => {
 
   const handleCloseCustomerModal = () => setOpenCustomerModal(false);
 
-  const handleGetSortData = async (orderBy: string) => {
-    setOrderBy(orderBy);
+  const handleGetSortData = async (value: string) => {
+    setOrderBy(value);
+    setOrderType(orderType === "asc" ? "desc" : "asc");
 
-    if (orderType === "asc") {
-      setOrderType("desc");
-    } else {
-      setOrderType("asc");
-    }
+    // Helper function to get stroke count for a Chinese character
+    const getStrokeCount = (char: string) => {
+      try {
+        const strokeData = require('/strokes/strokes.json');
+        return strokeData[char] || 0;
+      } catch (error) {
+        console.warn('Failed to load stroke data:', error);
+        return 0;
+      }
+    };
+    
+    const sortedData = [...data].sort((a, b) => {
+      // Handle date related columns
+      const dateColumns = [
+        'notify_date',
+        'update_date'
+      ];
+      if (dateColumns.includes(value)) {
+        const aTime = a[value as keyof TrackingDataType] ? new Date(a[value as keyof TrackingDataType]).getTime() : 0;
+        const bTime = b[value as keyof TrackingDataType] ? new Date(b[value as keyof TrackingDataType]).getTime() : 0;
+        return orderType === 'asc' ? aTime - bTime : bTime - aTime;
+      }
 
-    try {
-      setLoading(true);
-      const data = await getTrackings(orderBy, orderType);
-      setData(data);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-    }
+      // Get complete values to compare
+      const aValue = String(a[value as keyof typeof a] ?? '');
+      const bValue = String(b[value as keyof typeof b] ?? '');
+
+      // Get first characters
+      const aFirst = aValue.charAt(0);
+      const bFirst = bValue.charAt(0);
+
+      // Try parsing first chars as numbers
+      // Compare each character until we find a difference
+      let i = 0;
+      let aNum, bNum;
+      while (i < aValue.length && i < bValue.length) {
+        aNum = Number(aValue[i]);
+        bNum = Number(bValue[i]);
+        if (aNum !== bNum) break;
+        i++;
+      }
+      // If all characters matched and strings are different lengths, compare lengths
+      if (i === Math.min(aValue.length, bValue.length)) {
+        aNum = aValue.length;
+        bNum = bValue.length;
+      }
+
+      // Check if first chars are Chinese
+      const isChinese = (char: string) => /[\u4e00-\u9fa5]/.test(char);
+      const aIsChinese = isChinese(aFirst);
+      const bIsChinese = isChinese(bFirst);
+
+      // Sort by type priority: numbers -> English -> Chinese
+      if (!aIsChinese && bIsChinese) {
+        return orderType === 'asc' ? -1 : 1; // English before Chinese
+      } else if (aIsChinese && !bIsChinese) {
+        return orderType === 'asc' ? 1 : -1; // Chinese after English
+      } else if (aIsChinese && bIsChinese) {
+        // Both Chinese, use zh-TW collation
+        const aStrokes = getStrokeCount(aFirst);
+        const bStrokes = getStrokeCount(bFirst);
+        return orderType === 'asc' 
+          ? aStrokes - bStrokes || aFirst.localeCompare(bFirst, 'zh-TW')
+          : bStrokes - aStrokes || bFirst.localeCompare(aFirst, 'zh-TW');
+      } else {
+        // Both English/other, use standard comparison
+        return orderType === 'asc'
+          ? aFirst.localeCompare(bFirst, 'en')
+          : bFirst.localeCompare(aFirst, 'en');
+      }
+    });
+
+    setData(sortedData);
   };
 
   return (
